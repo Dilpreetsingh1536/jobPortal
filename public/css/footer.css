@@ -1,0 +1,25 @@
+/* footer */
+footer {
+    background-color: #444; 
+    color: #fff; 
+    padding: 2rem;
+    text-align: center;
+}
+
+footer h3 {
+    color: #fff;
+}
+
+.footer-links {
+    list-style-type: none;
+}
+
+.footer-links li {
+    display: inline-block;
+    padding: 0px 10px;
+}
+
+.footer-links li a {
+    color: #dd9639;
+    text-decoration: none;
+}
