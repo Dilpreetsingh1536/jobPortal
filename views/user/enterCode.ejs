@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta
+            name="viewport"
+            content="width=device-width, initial-scale=1, shrink-to-fit=no"
+        />
+        <title>User Profile</title>
+        <link
+            rel="stylesheet"
+            href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+        />
+        <link rel="stylesheet" type="text/css" href="css/nav.css" />
+        <link rel="stylesheet" type="text/css" href="css/footer.css" />
+        <link rel="stylesheet" type="text/css" href="css/password.css" />
+    </head>
+    <%- include('./partials/nav.ejs') %>
+    <body>
+        <div class="container">
+            <h2>Enter Code</h2>
+            <form action="/verify-code" method="post">
+                <label for="email">Email:</label>
+                <input
+                    type="text"
+                    id="email"
+                    name="email"
+                    value="<%= email %>"
+                    readonly
+                />
+                <label for="sixDigitCode">Six-Digit Code:</label>
+                <input
+                    type="text"
+                    id="sixDigitCode"
+                    name="sixDigitCode"
+                    pattern="[0-9]{6}"
+                    required
+                />
+                <button type="submit" class="btn btn-primary">
+                    Verify Code
+                </button>
+            </form>
+        </div>
+        <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
+        <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+    </body>
+    <%- include('./partials/footer.ejs') %>
+</html>
