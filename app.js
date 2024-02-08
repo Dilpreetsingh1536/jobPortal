@@ -66,10 +66,10 @@ app.get("/home", (req, res) => {
 
 /*USER*/
 const transporter = nodemailer.createTransport({
-  service: 'gmail',
+  service: 'outlook',
   auth: {
-    user: 'pannudilpreet68@gmail.com',
-    pass: 'uhyf gsyo ghxu bcbh'
+    user: 'careerconnect.portal@outlook.com',
+    pass: 'asksuimqzesswqdz'
   }
 });
 
@@ -211,7 +211,7 @@ const sixDigitCode = Math.floor(100000 + Math.random() * 900000);
 
 function sendsixDigitCodeByEmail(email) {
   const mailOptions = {
-    from: 'careerconnect.portal@gmail.com',
+    from: 'careerconnect.portal@outlook.com',
     to: email,
     subject: 'Password Reset Code',
     text: `Your password reset code is: ${sixDigitCode}`
@@ -343,8 +343,10 @@ app.get("/empSignup", (req, res) => {
   const successMessage = req.flash('success');
   const errorMessage = req.flash('error');
   const user = req.session.user;
+  const employer = req.session.employer;
 
-  res.render("empSignup", { success: successMessage, error: errorMessage, user });
+
+  res.render("empSignup", { success: successMessage, error: errorMessage, user,employer });
 });
 
 app.post("/emp-signup-post", async (req, res) => {
