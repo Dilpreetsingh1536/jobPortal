@@ -18,10 +18,6 @@ app.listen(3001, () => {
   console.log("Server is listening at port 3001");
 });
 
-app.get("/", (req, res) => {
-  res.render("home");
-});
-
 app.set("views", [
   path.join(__dirname, "views"),
   path.join(__dirname, "views", "user"),
