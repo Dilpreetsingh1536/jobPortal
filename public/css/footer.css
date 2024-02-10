@@ -1,9 +1,9 @@
-/* footer */
 footer {
     background-color: #444; 
     color: #fff; 
     padding: 2rem;
     text-align: center;
+    margin-top: 50px;
 }
 
 footer h3 {

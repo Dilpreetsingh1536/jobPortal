@@ -18,7 +18,12 @@ mongoose
     console.log(`Not Connected To MONGODB Due To Error Below \n ${err}`);
   });
 
-const modelSchema = new mongoose.Schema({
+  const modelSchema = new mongoose.Schema({
+    name: {
+        type: String,
+        required: true,
+        trim: true
+    },
     username: {
         type: String,
         required: true,
@@ -34,8 +39,17 @@ const modelSchema = new mongoose.Schema({
     password: {
         type: String,
         required: true
+    },
+    sixDigitCode: {
+        type: String,
+        default: null
+    },
+    sixDigitCodeExpires: {
+        type: Date,
+        default: null
     }
 });
+
 
 const userModel = mongoose.model("userModel", modelSchema);
 
