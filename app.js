@@ -13,6 +13,10 @@ app.listen(3000, () => {
   console.log("Server is listening at port 3000");
 });
 
+app.get("/", (req, res) => {
+  res.render("home");
+});
+
 app.get("/login", (req, res) => {
   res.render("login");
 });
@@ -45,3 +49,26 @@ app.post("/signup_post", async (req, res) => {
     res.status(500).send("Internal Server Error");
   }
 });
+
+app.post("/login_post", async (req, res) => {
+  const { email, password } = req.body;
+
+  try {
+    const user = await userModel.findOne({ username });
+
+    if (!user) {
+      return res.status(400).send("Invalid username or password.");
+    }
+
+    if (user.password !== password) {
+      return res.status(400).send("Invalid username or password.");
+    }
+
+    res.redirect("/employer-dash");
+  } catch (error) {
+    console.error(error);
+    res.status(500).send("Internal Server Error");
+  }
+});
+
+
