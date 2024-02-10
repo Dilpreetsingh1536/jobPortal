@@ -1,47 +1,59 @@
 const express = require("express");
-const userModel = require("./models/userModel.js");
 const app = express();
 const bodyParser = require("body-parser");
+const flash = require('connect-flash');
+const session = require('express-session');
+const MongoStore = require('connect-mongo');
+const path = require("path");
+const userRoutes = require("./routes/userRoutes");
+const empRoutes = require("./routes/empRoutes");
 
+app.use(flash());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
-
 app.set("view engine", "ejs");
 app.use(express.static("public"));
 
-app.listen(3000, () => {
-  console.log("Server is listening at port 3000");
+app.listen(3001, () => {
+  console.log("Server is listening at port 3001");
 });
 
-app.get("/login", (req, res) => {
-  res.render("login");
+app.set("views", [
+  path.join(__dirname, "views"),
+  path.join(__dirname, "views", "user"),
+  path.join(__dirname, "views", "employee"),
+  path.join(__dirname, "views", "partials")
+]);
+
+/* SESSION */
+const uri = "mongodb+srv://dilpreet1999:Singh1536@cluster0.4g4xjah.mongodb.net/user_Model?retryWrites=true&w=majority";
+const accountSessionStore = MongoStore.create({
+  mongoUrl: uri,
+  dbName: "career_Connect",
+  collectionName: "sessions",
 });
 
-app.get("/signup", (req, res) => {
-  res.render("signup");
-});
+app.use(session({
+  secret: "A secret key to sign the cookie",
+  resave: false,
+  saveUninitialized: false,
+  store: accountSessionStore,
+}));
 
+
+/* HOME */
 app.get("/home", (req, res) => {
-  res.render("home");
+  const user = req.session.user;
+  const employer = req.session.employer;
+  res.render("home", { user, employer });
 });
 
-app.post("/signup_post", async (req, res) => {
-  const { username, email, password } = req.body;
+/*SEARCH*/
+app.get('/search', (req, res) => {
+  const user = req.session.user;
+  const employer = req.session.employer;
+  res.render("search", { user, employer });
+})
 
-  try {
-    const existingUser = await userModel.findOne({ $or: [{ username }, { email }] });
-
-    if (existingUser) {
-      return res.status(400).send("Username or email already exists.");
-    }
-
-    const newUser = new userModel({ username, email, password });
-
-    await newUser.save();
-
-    res.redirect("/login");
-  } catch (error) {
-    console.error(error);
-    res.status(500).send("Internal Server Error");
-  }
-});
+app.use("/", userRoutes);
+app.use("/", empRoutes);
