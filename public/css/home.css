@@ -1,20 +1,299 @@
+/* General Resets and Body Styling */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
 body {
-    font-family: 'Arial', sans-serif;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    line-height: 1.6;
+    color: #333;
+    background-color: #f4f4f4;
+    padding: 0px;
 }
 
+/* Container for Content */
+.container {
+    max-width: 1200px;
+    margin: auto;
+    padding: 0 15px;
+}
+
+/* Text Alignment Helper */
+.text-center {
+    text-align: center;
+}
+
+/* Jumbotron for Highlighted Section */
 .jumbotron {
-    background-color: #f8f9fa;
-    padding: 80px 0;
+    background-color: #007bff;
+    color: #fff;
+    padding: 2rem 1rem;
+    margin-bottom: 2rem;
+    border-radius: 0.5rem;
 }
 
-.jumbotron h1 {
+.jumbotron h1.display-4 {
     font-size: 2.5rem;
+    margin-bottom: 1rem;
 }
 
-.content-section {
-    padding: 40px 0;
+.jumbotron p.lead {
+    font-size: 1.25rem;
+    font-weight: 300;
+    margin-bottom: 1rem;
 }
 
-.content-section h2 {
+/* Section Titles */
+.section-tittle, .section-title {
+    margin-bottom: 50px;
+}
+
+.section-tittle h2, .section-title h2 {
+    font-size: 2.5rem;
+    color: #333;
     margin-bottom: 20px;
+}
+
+.section-tittle span, .section-title span {
+    display: block;
+    font-size: 20px;
+    font-weight: 600;
+    color: #4A90E2;
+    margin-bottom: 15px;
+    text-transform: uppercase;
+}
+
+/* Services Section */
+.single-services {
+    background: #fff;
+    border: 1px solid #eee;
+    border-radius: 8px;
+    padding: 20px;
+    margin-bottom: 30px;
+    transition: all 0.3s ease;
+}
+
+.services-ion span, .process-ion span {
+    font-size: 48px;
+    color: #007bff;
+}
+
+.services-cap h5, .process-cap h5 {
+    font-size: 1.25rem;
+    color: #007bff;
+    margin-bottom: 15px;
+}
+
+.single-services:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+}
+
+.single-services:hover .services-cap h5 a {
+    text-decoration: none;
+    color: #0056b3;
+}
+
+/* Browse Button */
+.browse-btn2 {
+    margin-top: 50px;
+    margin-bottom: 40px;
+}
+
+.border-btn2 {
+    display: inline-block;
+    background: transparent;
+    color: #007bff;
+    border: 2px solid #007bff;
+    padding: 10px 30px;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+    text-decoration: none;
+    font-weight: bold;
+}
+
+.border-btn2:hover {
+    background: #007bff;
+    color: #fff;
+}
+
+/* Process Section - Similar to Services */
+.single-process {
+    background: #fff;
+    border: 1px solid #eee;
+    border-radius: 8px;
+    padding: 20px;
+    margin-bottom: 30px;
+    transition: all 0.3s ease;
+}
+
+.single-process:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+}
+
+.process-cap p {
+    font-size: 1rem;
+    color: #666;
+}
+
+/* Featured Job Section Styles */
+.job-card {
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease-in-out;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    height: 100%;
+    min-height: 350px;
+}
+
+.job-card:hover {
+    transform: translateY(-5px);
+}
+
+.job-card-img img {
+    width: 100%;
+    height: auto;
+    object-fit: cover;
+    max-height: 180px;
+}
+
+.job-card-content {
+    padding: 20px;
+    background: #fff;
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
+}
+
+.job-card-content h4 {
+    margin-top: 0;
+    margin-bottom: 10px;
+    font-size: 20px;
+}
+
+.job-card-content ul li {
+    margin-bottom: 5px;
+    color: #6c757d;
+    font-size: 14px;
+}
+
+.job-card-footer {
+    background: #f8f9fa;
+    color: #6c757d;
+    padding: 10px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 14px;
+    margin-top: auto;
+}
+
+/* Latest News Section */
+.latest-news {
+  background-color: #f8f9fa; /* Light grey background for the section */
+  padding: 60px 0; /* Top and bottom padding */
+}
+
+.latest-news .container {
+  max-width: 1200px; /* Adjust based on your design */
+  margin: auto;
+  padding: 0 15px;
+}
+
+.latest-news h2.section-title {
+  color: #333; /* Dark grey/black for text */
+  margin-bottom: 30px; /* Space between title and news items */
+}
+
+.latest-news .news-items {
+  display: flex;
+  flex-wrap: wrap; /* Allows items to wrap in small screens */
+  justify-content: space-between; /* Distributes space between news items */
+  gap: 20px; /* Space between news items */
+}
+
+.latest-news .news-item {
+  background: #ffffff; /* White background for each news item */
+  border: 1px solid #ddd; /* Light border for the cards */
+  padding: 20px; /* Padding inside the news items */
+  border-radius: 5px; /* Slightly rounded corners for the cards */
+  flex: 1; /* Flex grow to fill space */
+  min-width: 280px; /* Minimum width for small screens */
+  box-shadow: 0 2px 5px rgba(0,0,0,0.1); /* Subtle shadow for depth */
+}
+
+.latest-news .news-item h3 {
+  color: #007bff; /* Primary color for headlines */
+  margin-bottom: 15px; /* Space between headline and paragraph */
+}
+
+.latest-news .news-item h3 a {
+  text-decoration: none; /* No underline for the links */
+  color: inherit; /* Inherits color from the parent h3 */
+  transition: color 0.3s ease; /* Smooth transition for hover effect */
+}
+
+.latest-news .news-item h3 a:hover {
+  color: #0056b3; /* Darker shade of blue for hover effect */
+}
+
+.latest-news .news-item p {
+  color: #666; /* Medium grey for text */
+  line-height: 1.6; /* Adjust line height for readability */
+}
+
+/* Why Choose Us Section */
+.why-choose-us {
+  background-color: #f9f9f9; /* Light background to make the section stand out */
+  padding: 60px 0; /* Top and bottom padding */
+}
+
+.why-choose-us .container {
+  max-width: 1200px; /* Consistent max-width with other sections */
+  margin: auto;
+  padding: 0 15px;
+}
+
+.why-choose-us h2.section-title {
+  color: #333; /* Dark color for title */
+  margin-bottom: 40px; /* Space between title and features */
+}
+
+.why-choose-us .features {
+  display: flex;
+  flex-wrap: wrap; /* Allows features to wrap on smaller screens */
+  justify-content: space-between; /* Even spacing between features */
+  gap: 20px; /* Gap between items */
+}
+
+.why-choose-us .feature {
+  background: #ffffff; /* White background for each feature */
+  padding: 20px; /* Padding inside each feature */
+  border-radius: 8px; /* Rounded corners for a modern look */
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1); /* Subtle shadow for depth */
+  flex-basis: calc(33.333% - 20px); /* Flex basis for 3 items per row, accounting for gap */
+  display: flex;
+  flex-direction: column; /* Ensures content is aligned vertically */
+  align-items: center; /* Center-align the items */
+  text-align: center; /* Text aligned to the center */
+  transition: all 0.3s ease; /* Smooth transition for all changes */
+}
+
+.why-choose-us .feature h3 {
+  color: #007bff; /* Primary color for headings */
+  margin-bottom: 15px; /* Space between heading and paragraph */
+}
+
+.why-choose-us .feature p {
+  color: #666; /* Grey color for paragraph text */
+}
+
+/* Optionally, add a hover effect to emphasize the transition */
+.why-choose-us .feature:hover {
+  transform: translateY(-5px); /* Slight lift effect */
+  box-shadow: 0 4px 8px rgba(0,0,0,0.2); /* Enhanced shadow for depth */
 }
