@@ -76,7 +76,7 @@ router.get("/edit-emp-details", checkUserNotLoggedIn, async (req, res) => {
 router.post("/update-emp-details", checkUserNotLoggedIn, async (req, res) => {
     try {
         const { employerName, employerId, email } = req.body;
-        const employerIdToUpdate = req.session.employer._id;
+        const employerIdToUpdate = req.session.employer ? req.session.employer._id : null;
 
         const existingEmployer = await employerModel.findOne({ $or: [{ employerId: employerId }, { email: email }] });
         if (existingEmployer && existingEmployer._id.toString() !== employerIdToUpdate) {
