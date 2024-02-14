@@ -32,10 +32,27 @@
                 <label for="email">Email</label>
                 <input type="email" class="form-control" id="email" name="email" value="<%= user.email %>" required>
             </div>
+            <div id="error-message" style="display: none; color: red; margin: 5px;"></div>
             <button type="submit" class="btn btn-success">Update</button>
         </form>
     </div>
-    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
+    <script>
+        $(document).ready(function() {
+            $('form').submit(function(event) {
+                event.preventDefault();
+        
+                var formData = $(this).serialize(); 
+        
+                $.post('/update-user-details', formData, function(response) {
+                    $('#error-message').hide().empty();
+                    alert('User details updated successfully');
+                }).fail(function(response) {
+                    $('#error-message').text(response.responseJSON.error).show();
+                });
+            });
+        });
+    </script>    
+   <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
 </body>

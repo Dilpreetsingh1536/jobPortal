@@ -34,10 +34,28 @@
                 <input type="email" class="form-control" id="email" name="email" value="<%= employer.email %>" required>
             </div>
             <!-- Add more fields for other employer details if needed -->
+            <div id="error-message" style="display: none; color: red; margin: 5px;"></div>
             <button type="submit" class="btn btn-success">Update</button>
         </form>
     </div>
-    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
+        <script>
+            $(document).ready(function() {
+                $('form').submit(function(event) {
+                    event.preventDefault();
+
+                    var formData = $(this).serialize(); 
+
+                    $.post('/update-emp-details', formData, function(response) {
+                        // Redirect to empDashboard on success
+                        window.location.href = "/empDashboard";
+                    }).fail(function(response) {
+                        // Display error message if there is an error
+                        $('#error-message').text(response.responseJSON.error).show();
+                    });
+                });
+            });
+        </script>
+    <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
 </body>

@@ -77,7 +77,13 @@ router.get("/edit-emp-details", checkUserNotLoggedIn, async (req, res) => {
 router.post("/update-emp-details", checkUserNotLoggedIn, async (req, res) => {
     try {
         const { employerName, employerId, email } = req.body;
-        await employerModel.findByIdAndUpdate(req.session.employer._id, { employerName, employerId, email });
+        const employerIdToUpdate = req.session.employer._id;
+        const existingEmployer = await employerModel.findOne({ $or: [{ employerId: employerId }, { email: email }] });
+        if (existingEmployer && existingEmployer._id.toString() !== employerIdToUpdate) {
+            return res.status(400).json({ error: "Employer ID or email already exists" });
+        }
+
+        await employerModel.findByIdAndUpdate(employerIdToUpdate, { employerName, employerId, email });
         res.redirect("/empDashboard");
     } catch (error) {
         console.error(error);
