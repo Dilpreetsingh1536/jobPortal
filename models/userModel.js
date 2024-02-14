@@ -3,9 +3,6 @@ const mongoose = require("mongoose");
 const uri =
   "mongodb+srv://dilpreet1999:Singh1536@cluster0.4g4xjah.mongodb.net/user_Model?retryWrites=true&w=majority";
 
-//userNewUrParser: true,
-//useUnifiedTopology: true,
-
 mongoose
   .connect(uri, {
     useNewUrlParser: true,
