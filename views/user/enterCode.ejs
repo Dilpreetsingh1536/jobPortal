@@ -20,6 +20,9 @@
         <div class="container">
             <h2>Enter Code</h2>
             <form action="/verify-code" method="post">
+                <% if (error) { %>
+                <p class="error-message"><%= error %></p>
+                <% } %>
                 <label for="email">Email:</label>
                 <input
                     type="text"
@@ -33,8 +36,6 @@
                     type="text"
                     id="sixDigitCode"
                     name="sixDigitCode"
-                    pattern="[0-9]{6}"
-                    required
                 />
                 <button type="submit" class="btn btn-primary">
                     Verify Code

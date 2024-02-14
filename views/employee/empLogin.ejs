@@ -35,6 +35,8 @@
                                 id="employerId"
                                 name="employerId"
                                 placeholder="Enter your Employer Id"
+                                pattern="[A-Za-z0-9_]{4,}"
+                                title="Employer ID must contain at least 4 characters of letters, numbers, or underscores."
                                 required
                             />
                         </div>
@@ -63,7 +65,8 @@
 
                     <div class="signup-link">
                         <p>
-                            Not an employee? <a href="/empSignup">Sign up here</a>
+                            Not an employee?
+                            <a href="/empSignup">Sign up here</a>
                         </p>
                     </div>
                 </div>
