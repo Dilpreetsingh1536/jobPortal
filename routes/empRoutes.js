@@ -5,7 +5,6 @@ const bcrypt = require("bcrypt");
 const nodemailer = require('nodemailer');
 
 
-
 const sixDigitCode = Math.floor(100000 + Math.random() * 900000);
 
 const transporter = nodemailer.createTransport({
@@ -135,6 +134,47 @@ router.get("/empLogin", checkUserNotLoggedIn, (req, res) => {
     res.render("empLogin", { error: errorMessage, user, employer });
 });
 
+router.post("/empLogin_post", checkUserNotLoggedIn, async (req, res) => {
+    const { employerId, password } = req.body;
+
+    if (!employerId || !password) {
+        req.flash("error", "Please provide both employer ID and password.");
+        return res.redirect("/empLogin");
+    }
+
+    try {
+        const employerIdPattern = /^[A-Za-z0-9_]{4,}$/;
+        if (!employerIdPattern.test(employerId)) {
+            req.flash("error", "Invalid format for Employer ID.");
+            return res.redirect("/empLogin");
+        }
+
+        const employer = await employerModel.findOne({ employerId });
+
+        if (!employer) {
+            req.flash("error", "Employer not found.");
+            return res.redirect("/empLogin");
+        }
+
+        const passwordMatch = await bcrypt.compare(password, employer.password);
+        if (!passwordMatch) {
+            req.flash("error", "Invalid password.");
+            return res.redirect("/empLogin");
+        }
+
+        req.session.employer = employer;
+        res.redirect("/empDashboard");
+    } catch (error) {
+        console.error(error);
+        req.flash("error", "Internal Server Error");
+        res.redirect("/empLogin");
+    }
+});
+
+
+//----------------------------------------------------------//
+
+//Employer Signup
 router.get("/empSignup", checkUserNotLoggedIn, (req, res) => {
     const successMessage = req.flash("success");
     const errorMessage = req.flash("error");
@@ -145,16 +185,43 @@ router.get("/empSignup", checkUserNotLoggedIn, (req, res) => {
 
 router.post("/emp-signup-post", checkUserNotLoggedIn, async (req, res) => {
     const { employerName, employerId, email, password, confirmPassword } = req.body;
+
+    const nameRegex = /[A-Za-z\s]{2,}/;
+    if (!nameRegex.test(employerName)) {
+        req.flash("error", "Please enter a valid employer name.");
+        return res.redirect("/empsignup");
+    }
+
+    const employerIdRegex = /[A-Za-z0-9_]{4,}/;
+    if (!employerIdRegex.test(employerId)) {
+        req.flash("error", "Please enter a valid employer ID.");
+        return res.redirect("/empsignup");
+    }
+
+    const existingEmployer = await employerModel.findOne({ employerId });
+    if (existingEmployer) {
+        req.flash("error", "Employer ID already exists.");
+        return res.redirect("/empsignup");
+    }
+
+    const existingEmail = await employerModel.findOne({ email });
+    if (existingEmail) {
+        req.flash("error", "Email already exists.");
+        return res.redirect("/empsignup");
+    }
+
+    const passwordRegex = /(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,}/;
+    if (!passwordRegex.test(password)) {
+        req.flash("error", "Please enter a valid password.");
+        return res.redirect("/empsignup");
+    }
+
+    if (password !== confirmPassword) {
+        req.flash("error", "Passwords do not match.");
+        return res.redirect("/empsignup");
+    }
+
     try {
-        const existingEmployer = await employerModel.findOne({ $or: [{ employerId }, { email }] });
-        if (existingEmployer) {
-            req.flash("error", "Employer ID or email already exists.");
-            return res.redirect("/empSignup");
-        }
-        if (password !== confirmPassword) {
-            req.flash("error", "Passwords do not match.");
-            return res.redirect("/empSignup");
-        }
         const hashedPassword = await bcrypt.hash(password, 10);
         const newEmployer = new employerModel({ employerName, employerId, email, password: hashedPassword });
         await newEmployer.save();
@@ -185,7 +252,7 @@ router.post("/empLogin_post", checkUserNotLoggedIn, async (req, res) => {
     } catch (error) {
         console.error(error);
         req.flash("error", "Internal Server Error");
-        res.redirect("/empLogin");
+        return res.redirect("/empsignup");
     }
 });
 
@@ -201,74 +268,128 @@ router.get("/empLogout", checkUserNotLoggedIn, (req, res) => {
     });
 });
 
+//----------------------------------------------------------//
+
+
+//Emp Password Forgot
+
 router.get("/emp-forgot-password", checkUserNotLoggedIn, (req, res) => {
     const user = req.session.user;
     const employer = req.session.employer;
-    res.render("empforgotPassword", { user, employer });
+    const errorMessage = req.flash("error");
+
+    const savedEmail = req.cookies['emp_forgot_email'] || "";
+
+    res.render("empforgotPassword", { error: errorMessage, user, employer, savedEmail });
 });
 
 router.post("/emp-send-code", checkUserNotLoggedIn, async (req, res) => {
     const { email } = req.body;
+
+    res.cookie('emp_forgot_email', email, { maxAge: 900000, httpOnly: true });
+
+    if (!email) {
+        req.flash("error", "Please provide your email address");
+        return res.redirect("/emp-forgot-password");
+    }
+
     try {
         const employer = await employerModel.findOne({ email });
         if (!employer) {
-            return res.status(404).send("Employer not found");
+            req.flash("error", "Employer not found");
+            return res.redirect("/emp-forgot-password");
         }
         employer.sixDigitCode = sixDigitCode;
-        employer.sixDigitCodeExpires = Date.now() + 3600000;
+        employer.sixDigitCodeExpires = Date.now() + 360000;
         await employer.save();
         sendsixDigitCodeByEmail(email, sixDigitCode);
         res.redirect(`/emp-enter-code?email=${encodeURIComponent(email)}`);
     } catch (error) {
         console.error(error);
-        res.status(500).send("Internal Server Error");
+        req.flash("error", "Internal Server Error");
+        return res.redirect("/emp-forgot-password");
     }
 });
 
+//---------------------------------------------------------------//
+
+//Emp Code Verification
+
 router.get("/emp-enter-code", checkUserNotLoggedIn, (req, res) => {
-    const { email } = req.query;
+    const savedEmail = req.cookies['emp_forgot_email'] || "";
     const user = req.session.user;
     const employer = req.session.employer;
-    res.render("empEnterCode", { email, user, employer });
+    const errorMessage = req.flash("error");
+    
+    res.render("empEnterCode", { error: errorMessage, email: savedEmail, user, employer });
 });
 
 router.post("/emp-verify-code", checkUserNotLoggedIn, async (req, res) => {
     const { email, sixDigitCode } = req.body;
+
+    if (!sixDigitCode) {
+        req.flash("error", "Please enter six-digit code");
+        return res.redirect(`/emp-enter-code?email=${encodeURIComponent(email)}`);
+    }
+
     try {
         const employer = await employerModel.findOne({ email, sixDigitCode, sixDigitCodeExpires: { $gt: Date.now() } });
         if (!employer) {
+            req.flash("error", "Incorrect six-digit code. Please try again.");
             return res.redirect(`/emp-enter-code?email=${encodeURIComponent(email)}&invalidCode=true`);
         }
+
         res.redirect(`/emp-reset-password?email=${encodeURIComponent(email)}`);
     } catch (error) {
         console.error(error);
-        res.status(500).send("Internal Server Error");
+        req.flash("error", "Internal Server Error");
+        return res.redirect(`/emp-enter-code?email=${encodeURIComponent(email)}`);
     }
 });
+
+//---------------------------------------------------------------------//
+
+//Emp Password Update
+
+router.get("/emp-reset-password", checkUserNotLoggedIn, (req, res) => {
+    const savedEmail = req.cookies['emp_forgot_email'] || "";
+    const user = req.session.user;
+    const employer = req.session.employer;
+    const errorMessage = req.flash("error");
+    
+    res.render("empResetPassword", { error: errorMessage, email: savedEmail, user, employer });
+});
+
 
 router.post("/emp-update-password", checkUserNotLoggedIn, async (req, res) => {
     const { email, newPassword, confirmPassword } = req.body;
-    if (newPassword !== confirmPassword) {
-        return res.status(400).send("Passwords do not match.");
-    }
-    try {
-        const hashedPassword = await bcrypt.hash(newPassword, 10);
-        await employerModel.findOneAndUpdate(
-            { email },
-            { $set: { password: hashedPassword, sixDigitCode: null, sixDigitCodeExpires: null } }
-        );
-        res.redirect("/empLogin");
-    } catch (error) {
-        console.error(error);
-        res.status(500).send("Internal Server Error");
+
+    if (!newPassword || !confirmPassword) {
+        req.flash("error", "Password fields are required.");
+        return res.redirect(`/emp-reset-password?email=${encodeURIComponent(email)}`);
+    } else if (newPassword !== confirmPassword) {
+        req.flash("error", "Passwords do not match.");
+        return res.redirect(`/emp-reset-password?email=${encodeURIComponent(email)}`);
+    } else {
+        try {
+            const hashedPassword = await bcrypt.hash(newPassword, 10);
+            await employerModel.findOneAndUpdate(
+                { email },
+                { $set: { password: hashedPassword, sixDigitCode: null, sixDigitCodeExpires: null } }
+            );
+
+            res.clearCookie('emp_forgot_email');
+
+            return res.redirect("/empLogin");
+        } catch (error) {
+            console.error(error);
+            req.flash("error", "Internal Server Error");
+            return res.redirect(`/emp-reset-password?email=${encodeURIComponent(email)}`);
+        }
     }
 });
 
-router.get("/emp-reset-password", checkUserNotLoggedIn, (req, res) => {
-    const { email } = req.query;
-    const user = req.session.user;
-    const employer = req.session.employer;
-    res.render("empResetPassword", { email, user, employer });
-});
+//------------------------------------------------------------//
+
 
 module.exports = router;

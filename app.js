@@ -7,7 +7,9 @@ const MongoStore = require('connect-mongo');
 const path = require("path");
 const userRoutes = require("./routes/userRoutes");
 const empRoutes = require("./routes/empRoutes");
+const cookieParser = require('cookie-parser');
 
+app.use(cookieParser());
 app.use(flash());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));

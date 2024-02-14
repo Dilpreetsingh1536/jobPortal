@@ -30,25 +30,29 @@
                     <% } %>
                     <form method="post" action="/emp-signup-post">
                         <div class="form-group">
-                            <label for="employerName">Employer Name</label>
+                            <label for="employerName">Name</label>
                             <input
                                 type="text"
                                 class="form-control"
                                 id="employerName"
                                 name="employerName"
-                                placeholder="Enter employer name"
+                                placeholder="Enter your name"
                                 required
+                                pattern="[A-Za-z\s]{2,}"
+                                title="Please enter a valid name (only letters and spaces, at least 2 characters)"
                             />
                         </div>
                         <div class="form-group">
-                            <label for="employerId">Employer ID</label>
+                            <label for="employerId">Employer Id</label>
                             <input
                                 type="text"
                                 class="form-control"
                                 id="employerId"
                                 name="employerId"
-                                placeholder="Enter employer ID"
+                                placeholder="Enter your Employer Id"
                                 required
+                                pattern="[A-Za-z0-9_]{4,}"
+                                title="Please enter a valid username (at least 4 characters, letters, numbers, and underscores only)"
                             />
                         </div>
                         <div class="form-group">
@@ -71,12 +75,12 @@
                                 name="password"
                                 placeholder="Enter your password"
                                 required
+                                pattern="(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,}"
+                                title="Password must contain at least 8 characters, including one uppercase letter, one lowercase letter, and one number."
                             />
                         </div>
                         <div class="form-group">
-                            <label for="confirmPassword"
-                                >Confirm Password</label
-                            >
+                            <label for="confirmPassword">Confirm Password</label>
                             <input
                                 type="password"
                                 class="form-control"
