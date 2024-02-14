@@ -18,39 +18,42 @@ mongoose
     console.log(`Not Connected To MONGODB Due To Error Below \n ${err}`);
   });
 
-  const modelSchema = new mongoose.Schema({
-    name: {
-        type: String,
-        required: true,
-        trim: true
-    },
-    username: {
-        type: String,
-        required: true,
-        unique: true,
-        trim: true
-    },
-    email: {
-        type: String,
-        required: true,
-        unique: true,
-        trim: true
-    },
-    password: {
-        type: String,
-        required: true
-    },
-    sixDigitCode: {
-        type: String,
-        default: null
-    },
-    sixDigitCodeExpires: {
-        type: Date,
-        default: null
-    }
+const userSchema = new mongoose.Schema({
+  name: {
+    type: String,
+    required: true,
+    trim: true,
+  },
+  username: {
+    type: String,
+    required: true,
+    unique: true,
+    trim: true,
+  },
+  email: {
+    type: String,
+    required: true,
+    unique: true,
+    trim: true,
+  },
+  password: {
+    type: String,
+    required: true,
+  },
+  sixDigitCode: {
+    type: String,
+    default: null,
+  },
+  sixDigitCodeExpires: {
+    type: Date,
+    default: null,
+  },
 });
 
+userSchema.statics.findById = async function (userId) {
+  return this.findOne({ _id: userId });
+};
 
-const userModel = mongoose.model("userModel", modelSchema);
+const userModel = mongoose.model("userModel", userSchema);
 
 module.exports = userModel;

@@ -13,7 +13,7 @@ body {
     background-color: #fff;
     padding: 20px;
     border-radius: 5px;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 0 10px #000;
 }
 
 .login-form h2 {
@@ -34,7 +34,7 @@ body {
 }
 
 .btn-login {
-    background-color: #007bff;
+    background-color: #007bff !important;
     color: #fff;
     width: 100%;
     padding: 10px;
@@ -44,7 +44,7 @@ body {
 }
 
 .btn-login:hover {
-    background-color: #0056b3;
+    background-color: #0056b3 !important;
 }
 
 .signup-link {
