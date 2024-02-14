@@ -40,10 +40,82 @@ const checkEmployerNotLoggedIn = (req, res, next) => {
     }
 };
 
-router.get("/userDashboard", checkEmployerNotLoggedIn, (req, res) => {
+router.get("/userDashboard", checkEmployerNotLoggedIn, async (req, res) => {
+    try {
+        const userData = await userModel.findById(req.session.user._id);
+        const employer = req.session.employer;
+        const user = {
+            name: userData.name,
+            username: userData.username,
+            email: userData.email,
+        };
+        res.render("userDashboard", { user, employer });
+    } catch (error) {
+        console.error(error);
+        res.status(500).send("Internal Server Error");
+    }
+});
+
+router.get("/edit-user-details", checkEmployerNotLoggedIn, async (req, res) => {
+    try {
+        const userData = await userModel.findById(req.session.user._id);
+        const user = {
+            name: userData.name,
+            username: userData.username,
+            email: userData.email,
+        };
+        res.render("editUserDetails", { user });
+    } catch (error) {
+        console.error(error);
+        res.status(500).send("Internal Server Error");
+    }
+});
+
+router.post("/update-user-details", checkEmployerNotLoggedIn, async (req, res) => {
+    try {
+        const { name, username, email } = req.body;
+        await userModel.findByIdAndUpdate(req.session.user._id, { name, username, email });
+        res.redirect("/userDashboard");
+    } catch (error) {
+        console.error(error);
+        res.status(500).send("Internal Server Error");
+    }
+});
+
+router.get("/change-password", (req, res) => {
     const user = req.session.user;
     const employer = req.session.employer;
-    res.render("userDashboard", { user, employer });
+    res.render("changePassword", { user, employer });
+});
+
+router.post("/change-password", async (req, res) => {
+    const { currentPassword, newPassword, confirmPassword } = req.body;
+    const userId = req.session.user._id; 
+
+    try {
+        const user = await userModel.findById(userId);
+        if (!user) {
+            return res.status(404).json({ error: "User not found" });
+        }
+
+        const passwordMatch = await bcrypt.compare(currentPassword, user.password);
+        if (!passwordMatch) {
+            return res.status(400).json({ error: "Current password is incorrect" });
+        }
+
+        if (newPassword !== confirmPassword) {
+            return res.status(400).json({ error: "New password and confirm password do not match" });
+        }
+
+        const hashedPassword = await bcrypt.hash(newPassword, 10);
+        user.password = hashedPassword;
+        await user.save();
+
+        res.status(200).json({ message: "Password changed successfully" });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: "Internal Server Error" });
+    }
 });
 
 router.get("/signup", checkEmployerNotLoggedIn, (req, res) => {

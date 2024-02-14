@@ -1,28 +1,41 @@
 <!DOCTYPE html>
 <html lang="en">
-    <head>
-        <meta charset="UTF-8" />
-        <meta
-            name="viewport"
-            content="width=device-width, initial-scale=1, shrink-to-fit=no"
-        />
-        <title>User Account</title>
-        <link
-            rel="stylesheet"
-            href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
-        />
-        <link rel="stylesheet" type="text/css" href="css/nav.css" />
-        <link rel="stylesheet" type="text/css" href="css/footer.css" />
-        <link rel="stylesheet" type="text/css" href="css/password.css" />
+<head>
+    <meta charset="UTF-8" />
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1, shrink-to-fit=no"
+    />
+    <title>User Account</title>
+    <link
+        rel="stylesheet"
+        href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+    />
+    <link rel="stylesheet" type="text/css" href="css/nav.css" />
+    <link rel="stylesheet" type="text/css" href="css/footer.css" />
+</head>
+<%- include('./partials/nav.ejs') %>
+<body style="background-color: #f8f9fa;">
+    <div class="container mt-5">
+        <h1 class="mb-4">User Account</h1>
+        <div class="row">
+            <div class="col-md-6">
+                <div class="card" style="border: 1px solid #ccc; border-radius: 8px; box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); padding: 20px; margin-bottom: 20px;">
+                    <div class="card-body">
+                        <h3 class="card-title" style="font-size: 24px; font-weight: bold;">Name: <%= user.name %></h3>
+                        <h5 class="card-subtitle mb-3 text-muted" style="font-size: 18px;">Username: <%= user.username %></h5>
+                        <p class="card-text" style="font-size: 16px; margin-top: 10px;">Email: <%= user.email %></p>
+                        <a href="/edit-user-details" class="btn btn-primary" style="margin-top: 20px;">Edit Details</a>
+                        <a href="/change-password" class="btn btn-info" style="margin-top: 20px;">Change Password</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 
-    </head>
-    <%- include('./partials/nav.ejs') %>
-    <body>
-        <h1>User Account</h1>
-
-        <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
-        <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
-    </body>
-    <%- include('./partials/footer.ejs') %>
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+</body>
+<%- include('./partials/footer.ejs') %>
 </html>
