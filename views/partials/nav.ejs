@@ -10,17 +10,20 @@
 <body>
     <nav>
         <div class="logo-container">
-            <img src="images/logo.png" alt="Career Connect Logo" class="logo-img">
+            <a href="/home">
+                <img src="images/logo.png" alt="Career Connect Logo" class="logo-img">
+            </a>
         </div>
         <ul>
             <li><a href="home">Home</a></li>
-            <li><a href="search">Search</a></li>
 
             <% if (user) { %>
                 <li><a href="userDashboard">Dashboard</a></li>
+                <li><a href="userSearch">Search</a></li>
                 <li><a href="/logout">Logout</a></li>
             <% } else if (employer) { %>
                 <li><a href="empDashboard">Dashboard</a></li>
+                <li><a href="empsearch">Search</a></li>
                 <li><a href="/empLogout">Logout</a></li>
             <% } else { %>
                 <li class="dropdown">

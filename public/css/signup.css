@@ -34,8 +34,7 @@ body {
     height: 40px;
 }
 
-.btn-signup {
-    background-color: #007bff !important;
+.btn-success {
     color: #fff;
     width: 100%;
     padding: 10px;

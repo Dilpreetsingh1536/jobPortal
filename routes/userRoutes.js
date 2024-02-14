@@ -82,13 +82,13 @@ router.post("/update-user-details", checkEmployerNotLoggedIn, async (req, res) =
     }
 });
 
-router.get("/change-password", (req, res) => {
+router.get("/userchangepassword", (req, res) => {
     const user = req.session.user;
     const employer = req.session.employer;
-    res.render("changePassword", { user, employer });
+    res.render("userChangePassword", { user, employer });
 });
 
-router.post("/change-password", async (req, res) => {
+router.post("/userchangepassword", async (req, res) => {
     const { currentPassword, newPassword, confirmPassword } = req.body;
     const userId = req.session.user._id; 
 

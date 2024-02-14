@@ -33,8 +33,7 @@ body {
     height: 40px;
 }
 
-.btn-login {
-    background-color: #007bff !important;
+.btn-success {
     color: #fff;
     width: 100%;
     padding: 10px;
@@ -43,9 +42,6 @@ body {
     cursor: pointer;
 }
 
-.btn-login:hover {
-    background-color: #0056b3 !important;
-}
 
 .signup-link {
     text-align: center;

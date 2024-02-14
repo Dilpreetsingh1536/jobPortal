@@ -41,6 +41,87 @@ const checkUserNotLoggedIn = (req, res, next) => {
     }
 };
 
+router.get("/empDashboard", checkUserNotLoggedIn, async (req, res) => {
+    try {
+        const employerData = await employerModel.findById(req.session.employer._id);
+        const user = req.session.user;
+        const employer = {
+            employerName: employerData.employerName,
+            employerId: employerData.employerId,
+            email: employerData.email,
+        };
+        res.render("empDashboard", { user, employer });
+    } catch (error) {
+        console.error(error);
+        res.status(500).send("Internal Server Error");
+    }
+});
+
+router.get("/edit-emp-details", checkUserNotLoggedIn, async (req, res) => {
+    try {
+        const employerData = await employerModel.findById(req.session.employer._id);
+        const employer = {
+            employerName: employerData.employerName,
+            employerId: employerData.employerId,
+            email: employerData.email,
+        };
+        const user = req.session.user;
+        res.render("editEmpDetails", { employer, user });
+    } catch (error) {
+        console.error(error);
+        res.status(500).send("Internal Server Error");
+    }
+});
+
+
+router.post("/update-emp-details", checkUserNotLoggedIn, async (req, res) => {
+    try {
+        const { employerName, employerId, email } = req.body;
+        await employerModel.findByIdAndUpdate(req.session.employer._id, { employerName, employerId, email });
+        res.redirect("/empDashboard");
+    } catch (error) {
+        console.error(error);
+        res.status(500).send("Internal Server Error");
+    }
+});
+
+router.get("/empchangepassword", (req, res) => {
+    const user = req.session.user;
+    const employer = req.session.employer;
+    res.render("empChangePassword", { user, employer });
+});
+
+router.post("/empchangepassword", checkUserNotLoggedIn, async (req, res) => {
+    const { currentPassword, newPassword, confirmPassword } = req.body;
+    const employerId = req.session.employer._id;
+
+    try {
+        const employer = await employerModel.findById(employerId);
+        if (!employer) {
+            return res.status(404).json({ error: "Employer not found" });
+        }
+
+        const passwordMatch = await bcrypt.compare(currentPassword, employer.password);
+        if (!passwordMatch) {
+            return res.status(400).json({ error: "Current password is incorrect" });
+        }
+
+        if (newPassword !== confirmPassword) {
+            return res.status(400).json({ error: "New password and confirm password do not match" });
+        }
+
+        const hashedPassword = await bcrypt.hash(newPassword, 10);
+        employer.password = hashedPassword;
+        await employer.save();
+
+        res.status(200).json({ message: "Password changed successfully" });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: "Internal Server Error" });
+    }
+});
+
+
 router.get("/empLogin", checkUserNotLoggedIn, (req, res) => {
     const user = req.session.user;
     const employer = req.session.employer;
@@ -81,9 +162,9 @@ router.post("/emp-signup-post", checkUserNotLoggedIn, async (req, res) => {
 });
 
 router.post("/empLogin_post", checkUserNotLoggedIn, async (req, res) => {
-    const { username, password } = req.body;
+    const { employerId, password } = req.body; 
     try {
-        const employer = await employerModel.findOne({ username });
+        const employer = await employerModel.findOne({ employerId });
         if (!employer) {
             req.flash("error", "Invalid employer.");
             return res.redirect("/empLogin");
@@ -100,12 +181,6 @@ router.post("/empLogin_post", checkUserNotLoggedIn, async (req, res) => {
         req.flash("error", "Internal Server Error");
         res.redirect("/empLogin");
     }
-});
-
-router.get("/empDashboard", checkUserNotLoggedIn, (req, res) => {
-    const user = req.session.user;
-    const employer = req.session.employer;
-    res.render("empDashboard", { user, employer });
 });
 
 router.get("/empLogout", checkUserNotLoggedIn, (req, res) => {

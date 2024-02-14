@@ -27,7 +27,7 @@ body {
 
 /* Jumbotron for Highlighted Section */
 .jumbotron {
-    background-color: #007bff;
+    background-color: #28a745;
     color: #fff;
     padding: 2rem 1rem;
     margin-bottom: 2rem;
@@ -60,7 +60,7 @@ body {
     display: block;
     font-size: 20px;
     font-weight: 600;
-    color: #4A90E2;
+    color: #28a745;
     margin-bottom: 15px;
     text-transform: uppercase;
 }
@@ -77,12 +77,12 @@ body {
 
 .services-ion span, .process-ion span {
     font-size: 48px;
-    color: #007bff;
+    color: #28a745;
 }
 
 .services-cap h5, .process-cap h5 {
     font-size: 1.25rem;
-    color: #007bff;
+    color: #28a745;
     margin-bottom: 15px;
 }
 
@@ -93,7 +93,7 @@ body {
 
 .single-services:hover .services-cap h5 a {
     text-decoration: none;
-    color: #0056b3;
+    color: #28a745;
 }
 
 /* Browse Button */
@@ -105,8 +105,8 @@ body {
 .border-btn2 {
     display: inline-block;
     background: transparent;
-    color: #007bff;
-    border: 2px solid #007bff;
+    color: #28a745;
+    border: 2px solid #28a745;
     padding: 10px 30px;
     border-radius: 8px;
     transition: all 0.3s ease;
@@ -115,7 +115,7 @@ body {
 }
 
 .border-btn2:hover {
-    background: #007bff;
+    background: #28a745;
     color: #fff;
 }
 
@@ -227,7 +227,7 @@ body {
 }
 
 .latest-news .news-item h3 {
-  color: #007bff; /* Primary color for headlines */
+  color: #28a745; /* Primary color for headlines */
   margin-bottom: 15px; /* Space between headline and paragraph */
 }
 
@@ -238,7 +238,7 @@ body {
 }
 
 .latest-news .news-item h3 a:hover {
-  color: #0056b3; /* Darker shade of blue for hover effect */
+  color: #28a745; /* Darker shade of blue for hover effect */
 }
 
 .latest-news .news-item p {
@@ -284,7 +284,7 @@ body {
 }
 
 .why-choose-us .feature h3 {
-  color: #007bff; /* Primary color for headings */
+  color: #28a745; /* Primary color for headings */
   margin-bottom: 15px; /* Space between heading and paragraph */
 }
 
