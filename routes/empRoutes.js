@@ -77,6 +77,7 @@ router.post("/update-emp-details", checkUserNotLoggedIn, async (req, res) => {
     try {
         const { employerName, employerId, email } = req.body;
         const employerIdToUpdate = req.session.employer._id;
+
         const existingEmployer = await employerModel.findOne({ $or: [{ employerId: employerId }, { email: email }] });
         if (existingEmployer && existingEmployer._id.toString() !== employerIdToUpdate) {
             return res.status(400).json({ error: "Employer ID or email already exists" });
@@ -85,6 +86,9 @@ router.post("/update-emp-details", checkUserNotLoggedIn, async (req, res) => {
         await employerModel.findByIdAndUpdate(employerIdToUpdate, { employerName, employerId, email });
         res.redirect("/empDashboard");
     } catch (error) {
+        if (error.name === 'MongoServerError' && error.code === 11000) {
+            return res.status(400).json({ error: "Employer ID or email already exists" });
+        }
         console.error(error);
         res.status(500).send("Internal Server Error");
     }

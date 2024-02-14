@@ -84,6 +84,9 @@ router.post("/update-user-details", checkEmployerNotLoggedIn, async (req, res) =
         await userModel.findByIdAndUpdate(userIdToUpdate, { name, username, email });
         res.redirect("/userDashboard");
     } catch (error) {
+        if (error.name === 'MongoServerError' && error.code === 11000) {
+            return res.status(400).json({ error: "Username or email already exists" });
+        }
         console.error(error);
         res.status(500).send("Internal Server Error");
     }
@@ -125,9 +128,7 @@ router.post("/userchangepassword", async (req, res) => {
     }
 });
 
-//---------------------------------------------------------//
 
-//User Signup
 router.get("/signup", checkEmployerNotLoggedIn, (req, res) => {
     const successMessage = req.flash("success");
     const errorMessage = req.flash("error");
