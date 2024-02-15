@@ -1,100 +1,69 @@
 <!DOCTYPE html>
 <html lang="en">
-    <head>
-        <meta charset="UTF-8" />
-        <meta
-            name="viewport"
-            content="width=device-width, initial-scale=1, shrink-to-fit=no"
-        />
-        <title>Signup Page</title>
-        <link
-            rel="stylesheet"
-            href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
-        />
-        <link rel="stylesheet" type="text/css" href="css/nav.css" />
-        <link rel="stylesheet" type="text/css" href="css/footer.css" />
-        <link rel="stylesheet" type="text/css" href="css/signup.css" />
-    </head>
-    <%- include('./partials/nav.ejs') %>
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+    <title>Signup Page</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" />
+    <link rel="stylesheet" type="text/css" href="css/nav.css" />
+    <link rel="stylesheet" type="text/css" href="css/footer.css" />
+    <link rel="stylesheet" type="text/css" href="css/signup.css" />
+</head>
+<%- include('./partials/nav.ejs') %>
+
     <body>
         <div class="container">
             <div class="signup-container">
                 <div class="signup-form">
                     <h2> User Sign-Up</h2>
                     <% if (success) { %>
-                    <p class="success-message"><%= success %></p>
-                    <% } %> <% if (error) { %>
-                    <p class="error-message"><%= error %></p>
-                    <% } %>
-                    <form method="post" action="/signup_post">
-                        <div class="form-group">
-                            <label for="name">Name</label>
-                            <input
-                                type="text"
-                                class="form-control"
-                                id="name"
-                                name="name"
-                                placeholder="Enter your name"
-                                required
-                                pattern="[A-Za-z\s]{2,}"
-                                title="Please enter a valid name (only letters and spaces, at least 2 characters)"
-                            />
-                        </div>
-                        <div class="form-group">
-                            <label for="username">Username</label>
-                            <input
-                                type="text"
-                                class="form-control"
-                                id="username"
-                                name="username"
-                                placeholder="Enter your username"
-                                required
-                                pattern="[A-Za-z0-9_]{4,}"
-                                title="Please enter a valid username (at least 4 characters, letters, numbers, and underscores only)"
-                            />
-                        </div>
-                        <div class="form-group">
-                            <label for="email">Email</label>
-                            <input
-                                type="email"
-                                class="form-control"
-                                id="email"
-                                name="email"
-                                placeholder="Enter your email"
-                                required
-                            />
-                        </div>
-                        <div class="form-group">
-                            <label for="password">Password</label>
-                            <input
-                                type="password"
-                                class="form-control"
-                                id="password"
-                                name="password"
-                                placeholder="Enter your password"
-                                required
-                                pattern="(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,}"
-                                title="Password must contain at least 8 characters, including one uppercase letter, one lowercase letter, and one number."
-                            />
-                        </div>
-                        <div class="form-group">
-                            <label for="confirmPassword">Confirm Password</label>
-                            <input
-                                type="password"
-                                class="form-control"
-                                id="confirmPassword"
-                                name="confirmPassword"
-                                placeholder="Confirm your password"
-                                required
-                            />
-                        </div>
-                        <button type="submit" class="btn btn-success">
-                            Sign Up
-                        </button>
-                    </form>
-                    <p class="text-center mt-3">
-                        Already have an account? <a href="login">Login</a>
-                    </p>
+                        <p class="success-message">
+                            <%= success %>
+                        </p>
+                        <% } %>
+                            <% if (error) { %>
+                                <p class="error-message">
+                                    <%= error %>
+                                </p>
+                                <% } %>
+                                    <form method="post" action="/signup_post">
+                                        <div class="form-group">
+                                            <label for="name">Name</label>
+                                            <input type="text" class="form-control" id="name" name="name"
+                                                placeholder="Enter your name" required pattern="[A-Za-z\s]{2,}"
+                                                title="Please enter a valid name (only letters and spaces, at least 2 characters)" />
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="username">Username</label>
+                                            <input type="text" class="form-control" id="username" name="username"
+                                                placeholder="Enter your username" required pattern="[A-Za-z0-9_]{4,}"
+                                                title="Please enter a valid username (at least 4 characters, letters, numbers, and underscores only)" />
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="email">Email</label>
+                                            <input type="email" class="form-control" id="email" name="email"
+                                                placeholder="Enter your email" required />
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="password">Password</label>
+                                            <input type="password" class="form-control" id="password" name="password"
+                                                placeholder="Enter your password" required
+                                                pattern="(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,}"
+                                                title="Password must contain at least 8 characters, including one uppercase letter, one lowercase letter, and one number." />
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="confirmPassword">Confirm Password</label>
+                                            <input type="password" class="form-control" id="confirmPassword"
+                                                name="confirmPassword" placeholder="Confirm your password" required />
+                                        </div>
+                                        <button type="submit" class="btn btn-success">
+                                            Sign Up
+                                        </button>
+                                    </form>
+                                    <p class="text-center mt-3">
+                                        Already have an account? <a href="login">Login</a>
+                                    </p>
                 </div>
             </div>
         </div>
@@ -104,4 +73,5 @@
         <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
     </body>
     <%- include('./partials/footer.ejs') %>
+
 </html>

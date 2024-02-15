@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
@@ -7,6 +8,7 @@
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" />
     <link rel="stylesheet" type="text/css" href="css/nav.css" />
 </head>
+
 <body>
     <nav>
         <div class="logo-container">
@@ -21,19 +23,19 @@
                 <li><a href="userDashboard">Dashboard</a></li>
                 <li><a href="userSearch">Search</a></li>
                 <li><a href="/logout">Logout</a></li>
-            <% } else if (employer) { %>
-                <li><a href="empDashboard">Dashboard</a></li>
-                <li><a href="empsearch">Search</a></li>
-                <li><a href="/empLogout">Logout</a></li>
-            <% } else { %>
-                <li class="dropdown">
-                    <a href="#" class="account-link">Account</a>
-                    <div class="dropdown-content">
-                        <a href="login">Job Seeker</a>
-                        <a href="empLogin">Recruiter</a>
-                    </div>
-                </li>
-            <% } %>
+                <% } else if (employer) { %>
+                    <li><a href="empDashboard">Dashboard</a></li>
+                    <li><a href="empsearch">Search</a></li>
+                    <li><a href="/empLogout">Logout</a></li>
+                    <% } else { %>
+                        <li class="dropdown">
+                            <a href="#" class="account-link">Account</a>
+                            <div class="dropdown-content">
+                                <a href="login">Job Seeker</a>
+                                <a href="empLogin">Recruiter</a>
+                            </div>
+                        </li>
+                        <% } %>
         </ul>
     </nav>
 
@@ -41,4 +43,5 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
 </body>
+
 </html>

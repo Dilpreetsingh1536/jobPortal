@@ -50,14 +50,14 @@ app.get("/home", (req, res) => {
   res.render("home", { user, employer });
 });
 
-/*SEARCH*/
+/*User Search*/
 app.get('/userSearch', (req, res) => {
   const user = req.session.user;
   const employer = req.session.employer;
   res.render("userSearch", { user, employer });
 })
 
-/*SEARCH*/
+/*Emp Search*/
 app.get('/empSearch', (req, res) => {
   const user = req.session.user;
   const employer = req.session.employer;

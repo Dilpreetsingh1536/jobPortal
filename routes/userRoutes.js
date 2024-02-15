@@ -100,7 +100,7 @@ router.get("/userchangepassword", (req, res) => {
 
 router.post("/userchangepassword", async (req, res) => {
     const { currentPassword, newPassword, confirmPassword } = req.body;
-    const userId = req.session.user._id; 
+    const userId = req.session.user._id;
 
     try {
         const user = await userModel.findById(userId);
@@ -293,7 +293,7 @@ router.get("/enter-code", checkEmployerNotLoggedIn, (req, res) => {
     const user = req.session.user;
     const employer = req.session.employer;
     const errorMessage = req.flash("error");
-    res.render("enterCode", { error: errorMessage, email:savedEmail, user, employer });
+    res.render("enterCode", { error: errorMessage, email: savedEmail, user, employer });
 });
 
 router.post("/verify-code", checkEmployerNotLoggedIn, async (req, res) => {
@@ -324,7 +324,7 @@ router.get("/reset-password", checkEmployerNotLoggedIn, (req, res) => {
     const user = req.session.user;
     const employer = req.session.employer;
     const errorMessage = req.flash("error");
-    res.render("resetPassword", { error: errorMessage, email:savedEmail, user, employer });
+    res.render("resetPassword", { error: errorMessage, email: savedEmail, user, employer });
 });
 
 router.post("/update-password", checkEmployerNotLoggedIn, async (req, res) => {
@@ -337,19 +337,19 @@ router.post("/update-password", checkEmployerNotLoggedIn, async (req, res) => {
         return res.redirect(`/reset-password?email=${encodeURIComponent(email)}`);
     } else {
         try {
-        const hashedPassword = await bcrypt.hash(newPassword, 10);
-        await userModel.findOneAndUpdate(
-            { email },
-            { $set: { password: hashedPassword, sixDigitCode: null, sixDigitCodeExpires: null } }
-        );
-        res.clearCookie('user_forgot_email');
-        res.redirect("/login");
-    } catch (error) {
-        console.error(error);
-        req.flash("error", "Internal Server Error");
+            const hashedPassword = await bcrypt.hash(newPassword, 10);
+            await userModel.findOneAndUpdate(
+                { email },
+                { $set: { password: hashedPassword, sixDigitCode: null, sixDigitCodeExpires: null } }
+            );
+            res.clearCookie('user_forgot_email');
+            res.redirect("/login");
+        } catch (error) {
+            console.error(error);
+            req.flash("error", "Internal Server Error");
             return res.redirect(`/reset-password?email=${encodeURIComponent(email)}`);
+        }
     }
-}
 });
 //----------------------------------------------------------------//
 module.exports = router;
