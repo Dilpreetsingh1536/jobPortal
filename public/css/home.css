@@ -1,4 +1,3 @@
-/* General Resets and Body Styling */
 * {
     margin: 0;
     padding: 0;
@@ -13,19 +12,16 @@ body {
     padding: 0px;
 }
 
-/* Container for Content */
 .container {
     max-width: 1200px;
     margin: auto;
     padding: 0 15px;
 }
 
-/* Text Alignment Helper */
 .text-center {
     text-align: center;
 }
 
-/* Jumbotron for Highlighted Section */
 .jumbotron {
     background-color: #28a745;
     color: #fff;
@@ -45,7 +41,6 @@ body {
     margin-bottom: 1rem;
 }
 
-/* Section Titles */
 .section-tittle, .section-title {
     margin-bottom: 50px;
 }
@@ -65,7 +60,6 @@ body {
     text-transform: uppercase;
 }
 
-/* Services Section */
 .single-services {
     background: #fff;
     border: 1px solid #eee;
@@ -96,7 +90,6 @@ body {
     color: #28a745;
 }
 
-/* Browse Button */
 .browse-btn2 {
     margin-top: 50px;
     margin-bottom: 40px;
@@ -119,7 +112,6 @@ body {
     color: #fff;
 }
 
-/* Process Section - Similar to Services */
 .single-process {
     background: #fff;
     border: 1px solid #eee;
@@ -139,7 +131,6 @@ body {
     color: #666;
 }
 
-/* Featured Job Section Styles */
 .job-card {
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
     transition: transform 0.3s ease-in-out;
@@ -192,108 +183,105 @@ body {
     margin-top: auto;
 }
 
-/* Latest News Section */
 .latest-news {
-  background-color: #f8f9fa; /* Light grey background for the section */
-  padding: 60px 0; /* Top and bottom padding */
+  background-color: #f8f9fa; 
+  padding: 60px 0; 
 }
 
 .latest-news .container {
-  max-width: 1200px; /* Adjust based on your design */
+  max-width: 1200px; 
   margin: auto;
   padding: 0 15px;
 }
 
 .latest-news h2.section-title {
-  color: #333; /* Dark grey/black for text */
-  margin-bottom: 30px; /* Space between title and news items */
+  color: #333;
+  margin-bottom: 30px; 
 }
 
 .latest-news .news-items {
   display: flex;
-  flex-wrap: wrap; /* Allows items to wrap in small screens */
-  justify-content: space-between; /* Distributes space between news items */
-  gap: 20px; /* Space between news items */
+  flex-wrap: wrap; 
+  justify-content: space-between; 
+  gap: 20px; 
 }
 
 .latest-news .news-item {
-  background: #ffffff; /* White background for each news item */
-  border: 1px solid #ddd; /* Light border for the cards */
-  padding: 20px; /* Padding inside the news items */
-  border-radius: 5px; /* Slightly rounded corners for the cards */
-  flex: 1; /* Flex grow to fill space */
-  min-width: 280px; /* Minimum width for small screens */
-  box-shadow: 0 2px 5px rgba(0,0,0,0.1); /* Subtle shadow for depth */
+  background: #ffffff;
+  border: 1px solid #ddd;
+  padding: 20px;
+  border-radius: 5px;
+  flex: 1; 
+  min-width: 280px; 
+  box-shadow: 0 2px 5px rgba(0,0,0,0.1); 
 }
 
 .latest-news .news-item h3 {
-  color: #28a745; /* Primary color for headlines */
-  margin-bottom: 15px; /* Space between headline and paragraph */
+  color: #28a745;
+  margin-bottom: 15px; 
 }
 
 .latest-news .news-item h3 a {
-  text-decoration: none; /* No underline for the links */
-  color: inherit; /* Inherits color from the parent h3 */
-  transition: color 0.3s ease; /* Smooth transition for hover effect */
+  text-decoration: none; 
+  color: inherit; 
+  transition: color 0.3s ease;
 }
 
 .latest-news .news-item h3 a:hover {
-  color: #28a745; /* Darker shade of blue for hover effect */
+  color: #28a745; 
 }
 
 .latest-news .news-item p {
-  color: #666; /* Medium grey for text */
-  line-height: 1.6; /* Adjust line height for readability */
+  color: #666; 
+  line-height: 1.6;
 }
 
-/* Why Choose Us Section */
 .why-choose-us {
-  background-color: #f9f9f9; /* Light background to make the section stand out */
-  padding: 60px 0; /* Top and bottom padding */
+  background-color: #f9f9f9; 
+  padding: 60px 0; 
 }
 
 .why-choose-us .container {
-  max-width: 1200px; /* Consistent max-width with other sections */
+  max-width: 1200px;
   margin: auto;
   padding: 0 15px;
 }
 
 .why-choose-us h2.section-title {
-  color: #333; /* Dark color for title */
-  margin-bottom: 40px; /* Space between title and features */
+  color: #333;
+  margin-bottom: 40px; 
 }
 
 .why-choose-us .features {
   display: flex;
-  flex-wrap: wrap; /* Allows features to wrap on smaller screens */
-  justify-content: space-between; /* Even spacing between features */
-  gap: 20px; /* Gap between items */
+  flex-wrap: wrap; 
+  justify-content: space-between; 
+  gap: 20px; 
 }
 
 .why-choose-us .feature {
-  background: #ffffff; /* White background for each feature */
-  padding: 20px; /* Padding inside each feature */
-  border-radius: 8px; /* Rounded corners for a modern look */
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1); /* Subtle shadow for depth */
-  flex-basis: calc(33.333% - 20px); /* Flex basis for 3 items per row, accounting for gap */
+  background: #ffffff; 
+  padding: 20px; 
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1); 
+  flex-basis: calc(33.333% - 20px); 
   display: flex;
-  flex-direction: column; /* Ensures content is aligned vertically */
-  align-items: center; /* Center-align the items */
-  text-align: center; /* Text aligned to the center */
-  transition: all 0.3s ease; /* Smooth transition for all changes */
+  flex-direction: column; 
+  align-items: center;
+  text-align: center;
+  transition: all 0.3s ease; 
 }
 
 .why-choose-us .feature h3 {
-  color: #28a745; /* Primary color for headings */
-  margin-bottom: 15px; /* Space between heading and paragraph */
+  color: #28a745; 
+  margin-bottom: 15px;
 }
 
 .why-choose-us .feature p {
-  color: #666; /* Grey color for paragraph text */
+  color: #666; 
 }
 
-/* Optionally, add a hover effect to emphasize the transition */
 .why-choose-us .feature:hover {
-  transform: translateY(-5px); /* Slight lift effect */
-  box-shadow: 0 4px 8px rgba(0,0,0,0.2); /* Enhanced shadow for depth */
+  transform: translateY(-5px);
+  box-shadow: 0 4px 8px rgba(0,0,0,0.2);
 }
