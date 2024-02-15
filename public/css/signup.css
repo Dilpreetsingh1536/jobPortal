@@ -1,7 +1,10 @@
+/* Backround Image Link:https://unsplash.com/photos/black-asus-laptop-computer-showing-3-00-sxiSod0tyYQ */
 
 body {
-    background-color: #f8f9fa;
     font-family: 'Arial', sans-serif;
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
 }
 
 .signup-container {
@@ -11,10 +14,11 @@ body {
 }
 
 .signup-form {
-    background-color: #fff;
+    background-color: rgba(0, 0, 0, 0.8); 
     padding: 20px;
     border-radius: 5px;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 0 10px rgba(248, 248, 248, 0.541);
+    color: white;
 }
 
 .signup-form h2 {
@@ -34,9 +38,19 @@ body {
     height: 40px;
 }
 
-.btn-signup {
-    background-color: #007bff;
+.btn-success {
     color: #fff;
+    width: 100%;
+    padding: 10px;
+    border: none;
+    border-radius: 3px;
+    cursor: pointer;
+    font-weight: bold;
+
+}
+
+.btn-login,
+.btn-success {
     width: 100%;
     padding: 10px;
     border: none;
@@ -45,13 +59,8 @@ body {
 }
 
 .btn-login {
-    background-color: #007bff;
+    background-color: #007bff !important;
     color: #fff;
-    width: 100%;
-    padding: 10px;
-    border: none;
-    border-radius: 3px;
-    cursor: pointer;
 }
 
 .btn-signup:hover,

@@ -4,7 +4,7 @@ const userModel = require("../models/userModel");
 const bcrypt = require("bcrypt");
 const nodemailer = require('nodemailer');
 
-
+// Code Send
 const sixDigitCode = Math.floor(100000 + Math.random() * 900000);
 
 const transporter = nodemailer.createTransport({
@@ -32,6 +32,7 @@ function sendsixDigitCodeByEmail(email) {
     });
 }
 
+// Employer Route Restricted
 const checkEmployerNotLoggedIn = (req, res, next) => {
     if (!req.session.employer) {
         next();
@@ -40,17 +41,104 @@ const checkEmployerNotLoggedIn = (req, res, next) => {
     }
 };
 
-//Dashboard
-router.get("/userDashboard", checkEmployerNotLoggedIn, (req, res) => {
-    const user = req.session.user;
-    const employer = req.session.employer;
-    res.render("userDashboard", { user, employer });
-
+// User Dashboard
+router.get("/userDashboard", checkEmployerNotLoggedIn, async (req, res) => {
+    try {
+        const userData = await userModel.findById(req.session.user._id);
+        const employer = req.session.employer;
+        const user = {
+            name: userData.name,
+            username: userData.username,
+            email: userData.email,
+        };
+        res.render("userDashboard", { user, employer });
+    } catch (error) {
+        console.error(error);
+        res.status(500).send("Internal Server Error");
+    }
 });
 
-//---------------------------------------------------------//
+// Edit User Details On Dashboard
+router.get("/edit-user-details", checkEmployerNotLoggedIn, async (req, res) => {
+    try {
+        const userData = await userModel.findById(req.session.user._id);
+        const user = {
+            name: userData.name,
+            username: userData.username,
+            email: userData.email,
+        };
+        res.render("editUserDetails", { user });
+    } catch (error) {
+        console.error(error);
+        res.status(500).send("Internal Server Error");
+    }
+});
 
-//User Signup
+// Update Password On Dashboard
+router.post("/update-user-details", checkEmployerNotLoggedIn, async (req, res) => {
+    try {
+        const { name, username, email } = req.body;
+        const userIdToUpdate = req.session.user._id ? req.session.user._id : null;
+
+        if (!userIdToUpdate) {
+            return res.status(400).json({ error: "User ID is missing from session" });
+        }
+
+        const existingUser = await userModel.findOne({ $or: [{ username: username }, { email: email }] });
+        if (existingUser && existingUser._id.toString() !== userIdToUpdate) {
+            return res.status(400).json({ error: "Username or email already exists" });
+        }
+
+        await userModel.findByIdAndUpdate(userIdToUpdate, { name, username, email });
+        res.redirect("/userDashboard");
+    } catch (error) {
+        if (error.name === 'MongoServerError' && error.code === 11000) {
+            return res.status(400).json({ error: "Username or email already exists" });
+        }
+        console.error(error);
+        res.status(500).send("Internal Server Error");
+    }
+});
+
+router.get("/userchangepassword", (req, res) => {
+    const user = req.session.user;
+    const employer = req.session.employer;
+    res.render("userChangePassword", { user, employer });
+});
+
+router.post("/userchangepassword", async (req, res) => {
+    const { currentPassword, newPassword, confirmPassword } = req.body;
+    const userId = req.session.user._id;
+
+    try {
+        const user = await userModel.findById(userId);
+        if (!user) {
+            return res.status(404).json({ error: "User not found" });
+        }
+
+        const passwordMatch = await bcrypt.compare(currentPassword, user.password);
+        if (!passwordMatch) {
+            return res.status(400).json({ error: "Current password is incorrect" });
+        }
+
+        if (newPassword !== confirmPassword) {
+            return res.status(400).json({ error: "New password and confirm password do not match" });
+        }
+
+        const hashedPassword = await bcrypt.hash(newPassword, 10);
+        user.password = hashedPassword;
+        await user.save();
+
+        res.status(200).json({ message: "Password changed successfully" });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: "Internal Server Error" });
+    }
+});
+
+//-----------------------------------------------------------------------------
+
+// User Signup
 router.get("/signup", checkEmployerNotLoggedIn, (req, res) => {
     const successMessage = req.flash("success");
     const errorMessage = req.flash("error");
@@ -215,7 +303,7 @@ router.get("/enter-code", checkEmployerNotLoggedIn, (req, res) => {
     const user = req.session.user;
     const employer = req.session.employer;
     const errorMessage = req.flash("error");
-    res.render("enterCode", { error: errorMessage, email:savedEmail, user, employer });
+    res.render("enterCode", { error: errorMessage, email: savedEmail, user, employer });
 });
 
 router.post("/verify-code", checkEmployerNotLoggedIn, async (req, res) => {
@@ -246,7 +334,7 @@ router.get("/reset-password", checkEmployerNotLoggedIn, (req, res) => {
     const user = req.session.user;
     const employer = req.session.employer;
     const errorMessage = req.flash("error");
-    res.render("resetPassword", { error: errorMessage, email:savedEmail, user, employer });
+    res.render("resetPassword", { error: errorMessage, email: savedEmail, user, employer });
 });
 
 router.post("/update-password", checkEmployerNotLoggedIn, async (req, res) => {
@@ -259,19 +347,19 @@ router.post("/update-password", checkEmployerNotLoggedIn, async (req, res) => {
         return res.redirect(`/reset-password?email=${encodeURIComponent(email)}`);
     } else {
         try {
-        const hashedPassword = await bcrypt.hash(newPassword, 10);
-        await userModel.findOneAndUpdate(
-            { email },
-            { $set: { password: hashedPassword, sixDigitCode: null, sixDigitCodeExpires: null } }
-        );
-        res.clearCookie('user_forgot_email');
-        res.redirect("/login");
-    } catch (error) {
-        console.error(error);
-        req.flash("error", "Internal Server Error");
+            const hashedPassword = await bcrypt.hash(newPassword, 10);
+            await userModel.findOneAndUpdate(
+                { email },
+                { $set: { password: hashedPassword, sixDigitCode: null, sixDigitCodeExpires: null } }
+            );
+            res.clearCookie('user_forgot_email');
+            res.redirect("/login");
+        } catch (error) {
+            console.error(error);
+            req.flash("error", "Internal Server Error");
             return res.redirect(`/reset-password?email=${encodeURIComponent(email)}`);
+        }
     }
-}
 });
 //----------------------------------------------------------------//
 module.exports = router;

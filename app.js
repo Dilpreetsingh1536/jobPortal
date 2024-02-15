@@ -23,7 +23,7 @@ app.listen(3001, () => {
 app.set("views", [
   path.join(__dirname, "views"),
   path.join(__dirname, "views", "user"),
-  path.join(__dirname, "views", "employee"),
+  path.join(__dirname, "views", "employer"),
   path.join(__dirname, "views", "partials")
 ]);
 
@@ -50,11 +50,18 @@ app.get("/home", (req, res) => {
   res.render("home", { user, employer });
 });
 
-/*SEARCH*/
-app.get('/search', (req, res) => {
+/*User Search*/
+app.get('/userSearch', (req, res) => {
   const user = req.session.user;
   const employer = req.session.employer;
-  res.render("search", { user, employer });
+  res.render("userSearch", { user, employer });
+})
+
+/*Emp Search*/
+app.get('/empSearch', (req, res) => {
+  const user = req.session.user;
+  const employer = req.session.employer;
+  res.render("empSearch", { user, employer });
 })
 
 app.use("/", userRoutes);

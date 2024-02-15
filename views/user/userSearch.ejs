@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+    <title>User Search</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" />
+    <link rel="stylesheet" type="text/css" href="css/nav.css" />
+    <link rel="stylesheet" type="text/css" href="css/footer.css" />
+</head>
+<%- include('./partials/nav.ejs') %>
+
+    <body style="background-color: #f8f9fa;">
+        <div class="container mt-5">
+            <h1>Job Search</h1>
+            <div class="row">
+                <div class="col-md-6">
+                    <input type="text" id="searchInput" class="form-control mb-3" placeholder="Search for jobs..." />
+                    <button onclick="searchJobs()" class="btn btn-success">Search</button>
+                    <button onclick="clearSearch()" class="btn btn-secondary ml-2">Clear</button>
+                </div>
+            </div>
+            <div id="searchResults" class="mt-4">
+            </div>
+        </div>
+
+        <script>
+            function searchJobs() {
+                var query = document.getElementById('searchInput').value;
+            }
+
+            function clearSearch() {
+                document.getElementById('searchInput').value = '';
+                document.getElementById('searchResults').innerHTML = '';
+            }
+        </script>
+
+        <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
+        <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+    </body>
+    <%- include('./partials/footer.ejs') %>
+
+</html>
