@@ -74,7 +74,11 @@ router.get("/edit-user-details", checkEmployerNotLoggedIn, async (req, res) => {
 router.post("/update-user-details", checkEmployerNotLoggedIn, async (req, res) => {
     try {
         const { name, username, email } = req.body;
-        const userIdToUpdate = req.session.user._id ? req.session.user._id : null;;
+        const userIdToUpdate = req.session.user._id ? req.session.user._id : null;
+
+        if (!userIdToUpdate) {
+            return res.status(400).json({ error: "User ID is missing from session" });
+        }
 
         const existingUser = await userModel.findOne({ $or: [{ username: username }, { email: email }] });
         if (existingUser && existingUser._id.toString() !== userIdToUpdate) {

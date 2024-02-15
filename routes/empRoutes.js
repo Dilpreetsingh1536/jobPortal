@@ -78,6 +78,10 @@ router.post("/update-emp-details", checkUserNotLoggedIn, async (req, res) => {
         const { employerName, employerId, email } = req.body;
         const employerIdToUpdate = req.session.employer ? req.session.employer._id : null;
 
+        if (!employerIdToUpdate) {
+            return res.status(400).json({ error: "Employer ID is missing from session" });
+        }
+
         const existingEmployer = await employerModel.findOne({ $or: [{ employerId: employerId }, { email: email }] });
         if (existingEmployer && existingEmployer._id.toString() !== employerIdToUpdate) {
             return res.status(400).json({ error: "Employer ID or email already exists" });
