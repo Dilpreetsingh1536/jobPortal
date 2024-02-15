@@ -4,7 +4,7 @@ const employerModel = require("../models/employerModel");
 const bcrypt = require("bcrypt");
 const nodemailer = require('nodemailer');
 
-
+// Code Send
 const sixDigitCode = Math.floor(100000 + Math.random() * 900000);
 
 const transporter = nodemailer.createTransport({
@@ -32,6 +32,7 @@ function sendsixDigitCodeByEmail(email) {
     });
 }
 
+// User Routes Restricted
 const checkUserNotLoggedIn = (req, res, next) => {
     if (!req.session.user) {
         next();
@@ -40,6 +41,7 @@ const checkUserNotLoggedIn = (req, res, next) => {
     }
 };
 
+//Employer Dashboard
 router.get("/empDashboard", checkUserNotLoggedIn, async (req, res) => {
     try {
         const employerData = await employerModel.findById(req.session.employer._id);
@@ -56,6 +58,7 @@ router.get("/empDashboard", checkUserNotLoggedIn, async (req, res) => {
     }
 });
 
+// Edit Emp Details On Dashboard
 router.get("/edit-emp-details", checkUserNotLoggedIn, async (req, res) => {
     try {
         const employerData = await employerModel.findById(req.session.employer._id);
@@ -72,7 +75,7 @@ router.get("/edit-emp-details", checkUserNotLoggedIn, async (req, res) => {
     }
 });
 
-
+// Update Emp Password On Dashboard
 router.post("/update-emp-details", checkUserNotLoggedIn, async (req, res) => {
     try {
         const { employerName, employerId, email } = req.body;
@@ -134,6 +137,9 @@ router.post("/empchangepassword", checkUserNotLoggedIn, async (req, res) => {
     }
 });
 
+//------------------------------------------------------------------------------
+
+//Employer Login
 
 router.get("/empLogin", checkUserNotLoggedIn, (req, res) => {
     const user = req.session.user;

@@ -4,7 +4,7 @@ const userModel = require("../models/userModel");
 const bcrypt = require("bcrypt");
 const nodemailer = require('nodemailer');
 
-
+// Code Send
 const sixDigitCode = Math.floor(100000 + Math.random() * 900000);
 
 const transporter = nodemailer.createTransport({
@@ -32,6 +32,7 @@ function sendsixDigitCodeByEmail(email) {
     });
 }
 
+// Employer Route Restricted
 const checkEmployerNotLoggedIn = (req, res, next) => {
     if (!req.session.employer) {
         next();
@@ -40,6 +41,7 @@ const checkEmployerNotLoggedIn = (req, res, next) => {
     }
 };
 
+// User Dashboard
 router.get("/userDashboard", checkEmployerNotLoggedIn, async (req, res) => {
     try {
         const userData = await userModel.findById(req.session.user._id);
@@ -56,6 +58,7 @@ router.get("/userDashboard", checkEmployerNotLoggedIn, async (req, res) => {
     }
 });
 
+// Edit User Details On Dashboard
 router.get("/edit-user-details", checkEmployerNotLoggedIn, async (req, res) => {
     try {
         const userData = await userModel.findById(req.session.user._id);
@@ -71,6 +74,7 @@ router.get("/edit-user-details", checkEmployerNotLoggedIn, async (req, res) => {
     }
 });
 
+// Update Password On Dashboard
 router.post("/update-user-details", checkEmployerNotLoggedIn, async (req, res) => {
     try {
         const { name, username, email } = req.body;
@@ -132,7 +136,9 @@ router.post("/userchangepassword", async (req, res) => {
     }
 });
 
+//-----------------------------------------------------------------------------
 
+// User Signup
 router.get("/signup", checkEmployerNotLoggedIn, (req, res) => {
     const successMessage = req.flash("success");
     const errorMessage = req.flash("error");
