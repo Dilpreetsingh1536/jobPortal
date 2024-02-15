@@ -239,7 +239,7 @@ router.post("/emp-signup-post", checkUserNotLoggedIn, async (req, res) => {
 });
 
 router.post("/empLogin_post", checkUserNotLoggedIn, async (req, res) => {
-    const { employerId, password } = req.body; 
+    const { employerId, password } = req.body;
     try {
         const employer = await employerModel.findOne({ employerId });
         if (!employer) {
@@ -324,7 +324,7 @@ router.get("/emp-enter-code", checkUserNotLoggedIn, (req, res) => {
     const user = req.session.user;
     const employer = req.session.employer;
     const errorMessage = req.flash("error");
-    
+
     res.render("empEnterCode", { error: errorMessage, email: savedEmail, user, employer });
 });
 
@@ -360,7 +360,7 @@ router.get("/emp-reset-password", checkUserNotLoggedIn, (req, res) => {
     const user = req.session.user;
     const employer = req.session.employer;
     const errorMessage = req.flash("error");
-    
+
     res.render("empResetPassword", { error: errorMessage, email: savedEmail, user, employer });
 });
 
