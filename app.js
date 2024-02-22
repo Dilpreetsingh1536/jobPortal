@@ -28,10 +28,10 @@ app.set("views", [
 ]);
 
 /* SESSION */
-const uri = "mongodb+srv://dilpreet1999:Singh1536@cluster0.4g4xjah.mongodb.net/user_Model?retryWrites=true&w=majority";
+const uri = "mongodb+srv://dilpreet1999:Singh1536@cluster0.4g4xjah.mongodb.net/?retryWrites=true&w=majority";
 const accountSessionStore = MongoStore.create({
   mongoUrl: uri,
-  dbName: "career_Connect",
+  dbName: "career_connect_session",
   collectionName: "sessions",
 });
 
