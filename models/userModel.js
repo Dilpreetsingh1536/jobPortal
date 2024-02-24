@@ -9,7 +9,7 @@ mongoose
     useUnifiedTopology: true,
   })
   .then(() => {
-    console.log("=======Connected to MONGODB=======");
+    console.log("=======Connected to MONGODB for User=======");
   })
   .catch((err) => {
     console.log(`Not Connected To MONGODB Due To Error Below \n ${err}`);

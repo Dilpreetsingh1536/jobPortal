@@ -7,6 +7,7 @@ const MongoStore = require('connect-mongo');
 const path = require("path");
 const userRoutes = require("./routes/userRoutes");
 const empRoutes = require("./routes/empRoutes");
+const adminRoutes = require("./routes/adminRoutes");
 const cookieParser = require('cookie-parser');
 
 app.use(cookieParser());
@@ -24,6 +25,7 @@ app.set("views", [
   path.join(__dirname, "views"),
   path.join(__dirname, "views", "user"),
   path.join(__dirname, "views", "employer"),
+  path.join(__dirname, "views", "admin"),
   path.join(__dirname, "views", "partials")
 ]);
 
@@ -47,22 +49,27 @@ app.use(session({
 app.get("/home", (req, res) => {
   const user = req.session.user;
   const employer = req.session.employer;
-  res.render("home", { user, employer });
+  const admin = req.session.admin;
+  res.render("home", { user, admin, employer });
 });
 
 /*User Search*/
 app.get('/userSearch', (req, res) => {
   const user = req.session.user;
   const employer = req.session.employer;
-  res.render("userSearch", { user, employer });
+  const admin = req.session.admin;
+  res.render("userSearch", { user, employer, admin });
 })
 
 /*Emp Search*/
 app.get('/empSearch', (req, res) => {
   const user = req.session.user;
   const employer = req.session.employer;
-  res.render("empSearch", { user, employer });
+  const admin = req.session.admin;
+  res.render("empSearch", { user, employer, admin });
 })
 
 app.use("/", userRoutes);
 app.use("/", empRoutes);
+app.use("/", adminRoutes);
+
