@@ -8,6 +8,8 @@ const path = require("path");
 const userRoutes = require("./routes/userRoutes");
 const empRoutes = require("./routes/empRoutes");
 const adminRoutes = require("./routes/adminRoutes");
+const jobRoutes = require("./routes/jobRoutes");
+
 const cookieParser = require('cookie-parser');
 
 app.use(cookieParser());
@@ -25,6 +27,7 @@ app.set("views", [
   path.join(__dirname, "views"),
   path.join(__dirname, "views", "user"),
   path.join(__dirname, "views", "employer"),
+  path.join(__dirname, "views", "job"),
   path.join(__dirname, "views", "admin"),
   path.join(__dirname, "views", "partials")
 ]);
@@ -69,7 +72,11 @@ app.get('/empSearch', (req, res) => {
   res.render("empSearch", { user, employer, admin });
 })
 
+
+
 app.use("/", userRoutes);
 app.use("/", empRoutes);
 app.use("/", adminRoutes);
+app.use("/", jobRoutes);
+
 

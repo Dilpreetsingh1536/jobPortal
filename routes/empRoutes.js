@@ -1,6 +1,8 @@
 const express = require("express");
 const router = express.Router();
 const employerModel = require("../models/employerModel");
+const jobModel = require("../models/jobModel");
+
 const bcrypt = require("bcrypt");
 const nodemailer = require('nodemailer');
 
@@ -56,13 +58,19 @@ router.get("/empDashboard", checkUserNotLoggedIn, checkAdminNotLoggedIn, async (
         const employerData = await employerModel.findById(req.session.employer._id);
         const user = req.session.user;
         const admin = req.session.admin;
+        const error = req.flash("error");
+        const success = req.flash("success");
+
 
         const employer = {
             employerName: employerData.employerName,
             employerId: employerData.employerId,
             email: employerData.email,
         };
-        res.render("empDashboard", { user, admin, employer });
+
+        const jobs = await jobModel.find();
+
+        res.render("empDashboard", { user, admin, employer, jobs, error: error, success: success });
     } catch (error) {
         console.error(error);
         res.status(500).send("Internal Server Error");
@@ -113,6 +121,7 @@ router.post("/update-emp-details", checkUserNotLoggedIn, checkAdminNotLoggedIn, 
         res.status(500).send("Internal Server Error");
     }
 });
+
 
 router.get("/empchangepassword", (req, res) => {
     const user = req.session.user;
@@ -428,6 +437,7 @@ router.post("/emp-update-password", checkUserNotLoggedIn, checkAdminNotLoggedIn,
 });
 
 //------------------------------------------------------------//
+
 
 
 module.exports = router;

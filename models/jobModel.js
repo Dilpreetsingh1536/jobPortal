@@ -1,5 +1,6 @@
 const mongoose = require("mongoose");
 
+
 const uri =
   "mongodb+srv://dilpreet1999:Singh1536@cluster0.4g4xjah.mongodb.net/careerconnect_model?retryWrites=true&w=majority";
 
@@ -15,6 +16,18 @@ mongoose
     console.log(`Not Connected To MONGODB Due To Error Below \n ${err}`);
   });
 
-  const jobModel = mongoose.model("jobModel", jobSchema);
+  const jobSchema = new mongoose.Schema({
+    jobTitle: { type: String, required: true },
+    sector: { type: String, required: true },
+    salary: { type: String, required: true },
+    street: { type: String, required: true },
+    city: { type: String, required: true },
+    province: { type: String, required: true },
+    postalCode: { type: String, required: true },
+    description: { type: String, required: true },
+    employerId: { type: mongoose.Schema.Types.ObjectId, ref: 'employerModel', required: true }, 
+});
 
-  module.exports = jobModel;
+const jobModel = mongoose.model("jobModel", jobSchema);
+
+module.exports = jobModel;

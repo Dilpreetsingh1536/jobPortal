@@ -82,4 +82,5 @@ router.get("/adminLogout", checkEmployerNotLoggedIn, checkUserNotLoggedIn, (req,
         }
     });
 });
+
 module.exports = router;
