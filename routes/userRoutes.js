@@ -41,17 +41,28 @@ const checkEmployerNotLoggedIn = (req, res, next) => {
     }
 };
 
+// Admin Routes Restricted
+const checkAdminNotLoggedIn = (req, res, next) => {
+    if (!req.session.admin) {
+        next();
+    } else {
+        res.redirect('/home');
+    }
+};
+
 // User Dashboard
-router.get("/userDashboard", checkEmployerNotLoggedIn, async (req, res) => {
+router.get("/userDashboard", checkEmployerNotLoggedIn, checkAdminNotLoggedIn, async (req, res) => {
     try {
         const userData = await userModel.findById(req.session.user._id);
         const employer = req.session.employer;
+        const admin = req.session.admin;
+
         const user = {
             name: userData.name,
             username: userData.username,
             email: userData.email,
         };
-        res.render("userDashboard", { user, employer });
+        res.render("userDashboard", { user, admin, employer });
     } catch (error) {
         console.error(error);
         res.status(500).send("Internal Server Error");
@@ -59,7 +70,7 @@ router.get("/userDashboard", checkEmployerNotLoggedIn, async (req, res) => {
 });
 
 // Edit User Details On Dashboard
-router.get("/edit-user-details", checkEmployerNotLoggedIn, async (req, res) => {
+router.get("/edit-user-details", checkEmployerNotLoggedIn, checkAdminNotLoggedIn, async (req, res) => {
     try {
         const userData = await userModel.findById(req.session.user._id);
         const user = {
@@ -75,7 +86,7 @@ router.get("/edit-user-details", checkEmployerNotLoggedIn, async (req, res) => {
 });
 
 // Update Password On Dashboard
-router.post("/update-user-details", checkEmployerNotLoggedIn, async (req, res) => {
+router.post("/update-user-details", checkEmployerNotLoggedIn, checkAdminNotLoggedIn, async (req, res) => {
     try {
         const { name, username, email } = req.body;
         const userIdToUpdate = req.session.user._id ? req.session.user._id : null;
@@ -103,7 +114,9 @@ router.post("/update-user-details", checkEmployerNotLoggedIn, async (req, res) =
 router.get("/userchangepassword", (req, res) => {
     const user = req.session.user;
     const employer = req.session.employer;
-    res.render("userChangePassword", { user, employer });
+    const admin = req.session.admin;
+
+    res.render("userChangePassword", { user, admin, employer });
 });
 
 router.post("/userchangepassword", async (req, res) => {
@@ -139,17 +152,19 @@ router.post("/userchangepassword", async (req, res) => {
 //-----------------------------------------------------------------------------
 
 // User Signup
-router.get("/signup", checkEmployerNotLoggedIn, (req, res) => {
+router.get("/signup", checkEmployerNotLoggedIn, checkAdminNotLoggedIn, (req, res) => {
     const successMessage = req.flash("success");
     const errorMessage = req.flash("error");
     const user = req.session.user;
+    const admin = req.session.admin;
+
     const employer = req.session.employer;
 
-    res.render("signup", { success: successMessage, error: errorMessage, user, employer });
+    res.render("signup", { success: successMessage, error: errorMessage, user, admin, employer });
 });
 
 
-router.post("/signup_post", checkEmployerNotLoggedIn, async (req, res) => {
+router.post("/signup_post", checkEmployerNotLoggedIn, checkAdminNotLoggedIn, async (req, res) => {
     const { name, username, email, password, confirmPassword } = req.body;
 
     const nameRegex = /[A-Za-z\s]{2,}/;
@@ -200,11 +215,13 @@ router.post("/signup_post", checkEmployerNotLoggedIn, async (req, res) => {
 //-------------------------------------------------------------------------------------//
 
 //User Login
-router.get("/login", checkEmployerNotLoggedIn, (req, res) => {
+router.get("/login", checkEmployerNotLoggedIn, checkAdminNotLoggedIn, (req, res) => {
     const user = req.session.user;
     const employer = req.session.employer;
+    const admin = req.session.admin;
+
     const errorMessage = req.flash("error");
-    res.render("user/login", { error: errorMessage, user, employer });
+    res.render("user/login", { error: errorMessage, user, admin, employer });
 });
 
 router.post("/login_post", checkEmployerNotLoggedIn, async (req, res) => {
@@ -245,7 +262,7 @@ router.post("/login_post", checkEmployerNotLoggedIn, async (req, res) => {
 //------------------------------------------------------------------//
 
 //Logout
-router.get("/logout", checkEmployerNotLoggedIn, (req, res) => {
+router.get("/logout", checkEmployerNotLoggedIn, checkAdminNotLoggedIn, (req, res) => {
     req.session.destroy((err) => {
         if (err) {
             console.error(err);
@@ -260,15 +277,17 @@ router.get("/logout", checkEmployerNotLoggedIn, (req, res) => {
 
 //User Password Forgot
 
-router.get("/forgot-password", checkEmployerNotLoggedIn, (req, res) => {
+router.get("/forgot-password", checkEmployerNotLoggedIn, checkAdminNotLoggedIn, (req, res) => {
     const user = req.session.user;
     const employer = req.session.employer;
+    const admin = req.session.admin;
+
     const errorMessage = req.flash("error");
     const savedEmail = req.cookies['user_forgot_email'] || "";
-    res.render("forgotPassword", { error: errorMessage, user, savedEmail, employer });
+    res.render("forgotPassword", { error: errorMessage, user, admin, savedEmail, employer });
 });
 
-router.post("/send-code", checkEmployerNotLoggedIn, async (req, res) => {
+router.post("/send-code", checkEmployerNotLoggedIn, checkAdminNotLoggedIn, async (req, res) => {
     const { email } = req.body;
 
     res.cookie('user_forgot_email', email, { maxAge: 900000, httpOnly: true });
@@ -298,15 +317,17 @@ router.post("/send-code", checkEmployerNotLoggedIn, async (req, res) => {
 //-----------------------------------------------------------------//
 
 //User Code Verification
-router.get("/enter-code", checkEmployerNotLoggedIn, (req, res) => {
+router.get("/enter-code", checkEmployerNotLoggedIn, checkAdminNotLoggedIn, (req, res) => {
     const savedEmail = req.cookies['user_forgot_email'] || "";
     const user = req.session.user;
     const employer = req.session.employer;
+    const admin = req.session.admin;
+
     const errorMessage = req.flash("error");
-    res.render("enterCode", { error: errorMessage, email: savedEmail, user, employer });
+    res.render("enterCode", { error: errorMessage, email: savedEmail, user, admin, employer });
 });
 
-router.post("/verify-code", checkEmployerNotLoggedIn, async (req, res) => {
+router.post("/verify-code", checkEmployerNotLoggedIn, checkAdminNotLoggedIn, async (req, res) => {
     const { email, sixDigitCode } = req.body;
     if (!sixDigitCode) {
         req.flash("error", "Please enter six-digit code");
@@ -329,15 +350,17 @@ router.post("/verify-code", checkEmployerNotLoggedIn, async (req, res) => {
 //----------------------------------------------------------------------------------//
 
 //User Password Update
-router.get("/reset-password", checkEmployerNotLoggedIn, (req, res) => {
+router.get("/reset-password", checkEmployerNotLoggedIn, checkAdminNotLoggedIn, (req, res) => {
     const savedEmail = req.cookies['user_forgot_email'] || "";
     const user = req.session.user;
+    const admin = req.session.admin;
+
     const employer = req.session.employer;
     const errorMessage = req.flash("error");
-    res.render("resetPassword", { error: errorMessage, email: savedEmail, user, employer });
+    res.render("resetPassword", { error: errorMessage, email: savedEmail, user, admin, employer });
 });
 
-router.post("/update-password", checkEmployerNotLoggedIn, async (req, res) => {
+router.post("/update-password", checkEmployerNotLoggedIn, checkAdminNotLoggedIn, async (req, res) => {
     const { email, newPassword, confirmPassword } = req.body;
     if (!newPassword || !confirmPassword) {
         req.flash("error", "Password fields are required.");

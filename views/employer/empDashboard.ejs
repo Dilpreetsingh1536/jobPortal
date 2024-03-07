@@ -1,64 +1,189 @@
 <!DOCTYPE html>
 <html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta
+            name="viewport"
+            content="width=device-width, initial-scale=1, shrink-to-fit=no"
+        />
+        <title>Employer Dashboard</title>
+        <link
+            rel="stylesheet"
+            href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+        />
+        <link rel="stylesheet" type="text/css" href="css/nav.css" />
+        <link rel="stylesheet" type="text/css" href="css/footer.css" />
+    </head>
+    <%- include('./partials/nav.ejs') %>
 
-<head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
-    <title>Employer Dashboard</title>
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" />
-    <link rel="stylesheet" type="text/css" href="css/nav.css" />
-    <link rel="stylesheet" type="text/css" href="css/footer.css" />
-</head>
-<%- include('./partials/nav.ejs') %>
-
-    <body style="background-color: #f8f9fa;">
+    <body style="background-color: #f8f9fa">
         <div class="container mt-5">
             <h1 class="mb-4">Employer Dashboard</h1>
             <div class="row">
                 <div class="col-md-6">
-                    <div class="card"
-                        style="border: 1px solid #ccc; border-radius: 8px; box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); padding: 20px; margin-bottom: 20px;">
+                    <div
+                        class="card"
+                        style="
+                            border: 1px solid #ccc;
+                            border-radius: 8px;
+                            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+                            padding: 20px;
+                            margin-bottom: 20px;
+                        "
+                    >
                         <div class="card-body">
-                            <h3 class="card-title" style="font-size: 24px; font-weight: bold;">Company: <%=
-                                    employer.employerName %>
+                            <h3
+                                class="card-title"
+                                style="font-size: 24px; font-weight: bold"
+                            >
+                                Company: <%= employer.employerName %>
                             </h3>
-                            <h5 class="card-subtitle mb-3 text-muted" style="font-size: 18px;">ID: <%=
-                                    employer.employerId %>
+                            <h5
+                                class="card-subtitle mb-3 text-muted"
+                                style="font-size: 18px"
+                            >
+                                ID: <%= employer.employerId %>
                             </h5>
-                            <p class="card-text" style="font-size: 16px; margin-top: 10px;">Email: <%= employer.email %>
+                            <p
+                                class="card-text"
+                                style="font-size: 16px; margin-top: 10px"
+                            >
+                                Email: <%= employer.email %>
                             </p>
-                            <a href="/edit-emp-details" class="btn btn-success" style="margin-top: 20px;">Edit
-                                Details</a>
-                            <a href="/empChangePassword" class="btn btn-info" style="margin-top: 20px;">Change
-                                Password</a>
+                            <a
+                                href="/edit-emp-details"
+                                class="btn btn-success"
+                                style="margin-top: 20px"
+                                >Edit Details</a
+                            >
+                            <a
+                                href="/empChangePassword"
+                                class="btn btn-info"
+                                style="margin-top: 20px"
+                                >Change Password</a
+                            >
                         </div>
                     </div>
                 </div>
                 <div class="col-md-6">
-                    <div class="card"
-                        style="border: 1px solid #ccc; border-radius: 8px; box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); padding: 20px; margin-bottom: 20px;">
+                    <div
+                        class="card"
+                        style="
+                            border: 1px solid #ccc;
+                            border-radius: 8px;
+                            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+                            padding: 20px;
+                            margin-bottom: 20px;
+                        "
+                    >
                         <div class="card-body">
-                            <h3 class="card-title" style="font-size: 24px; font-weight: bold;">New Applications</h3>
-                            <!-- Add content here for new job applications -->
+                            <h3
+                                class="card-title"
+                                style="font-size: 24px; font-weight: bold"
+                            >
+                                New Applications
+                            </h3>
                         </div>
                     </div>
                 </div>
             </div>
             <div class="row">
                 <div class="col-md-6">
-                    <div class="card"
-                        style="border: 1px solid #ccc; border-radius: 8px; box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); padding: 20px; margin-bottom: 20px;">
+                    <div
+                        class="card"
+                        style="
+                            border: 1px solid #ccc;
+                            border-radius: 8px;
+                            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+                            padding: 20px;
+                            margin-bottom: 20px;
+                        "
+                    >
                         <div class="card-body">
-                            <h3 class="card-title" style="font-size: 24px; font-weight: bold;">Posted Jobs</h3>
-                            <!-- Add content here for posted jobs -->
+                            <h3
+                                class="card-title"
+                                style="font-size: 24px; font-weight: bold"
+                            >
+                                Posted Jobs
+                            </h3>
+
+                            <% if (error && error.length > 0) { %>
+                            <div class="alert alert-danger" role="alert">
+                                <%= error %>
+                            </div>
+                            <% } %> <% if (success && success.length > 0) { %>
+                            <div class="alert alert-success" role="alert">
+                                <%= success %>
+                            </div>
+                            <% } %>
+
+                            <form action="/setEditJobId" method="post">
+                                <% if (jobs && jobs.length > 0) { %>
+                                <ul class="list-group">
+                                    <% jobs.forEach(job => { %>
+                                    <li class="list-group-item">
+                                        <h5><%= job.jobTitle %></h5>
+                                        <p>
+                                            <strong>Sector:</strong> <%=
+                                            job.sector %>
+                                        </p>
+                                        <p>
+                                            <strong>Salary:</strong> <%=
+                                            job.salary %>
+                                        </p>
+                                        <p>
+                                            <strong>Location:</strong> <%=
+                                            job.street %>, <%= job.city %>, <%=
+                                            job.province %> <%= job.postalCode
+                                            %>
+                                        </p>
+                                        <p>
+                                            <strong>Description:</strong> <%=
+                                            job.description %>
+                                        </p>
+                                        <button
+                                            type="submit"
+                                            class="btn btn-warning"
+                                            name="jobId"
+                                            value="<%= job._id %>"
+                                        >
+                                            Edit
+                                        </button>
+                                    </li>
+                                    <% }); %>
+                                </ul>
+                                <% } else { %>
+                                <p>No jobs posted yet.</p>
+                                <% } %>
+                            </form>
+
+                            <a
+                                href="/listJob"
+                                class="btn btn-success"
+                                style="margin-top: 20px"
+                                >List a Job</a
+                            >
                         </div>
                     </div>
                 </div>
                 <div class="col-md-6">
-                    <div class="card"
-                        style="border: 1px solid #ccc; border-radius: 8px; box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); padding: 20px; margin-bottom: 20px;">
+                    <div
+                        class="card"
+                        style="
+                            border: 1px solid #ccc;
+                            border-radius: 8px;
+                            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+                            padding: 20px;
+                            margin-bottom: 20px;
+                        "
+                    >
                         <div class="card-body">
-                            <h3 class="card-title" style="font-size: 24px; font-weight: bold;">New Messages</h3>
+                            <h3
+                                class="card-title"
+                                style="font-size: 24px; font-weight: bold"
+                            >
+                                New Messages
+                            </h3>
                             <!-- Add content here for new messages -->
                         </div>
                     </div>
@@ -71,5 +196,4 @@
         <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
     </body>
     <%- include('./partials/footer.ejs') %>
-
 </html>
