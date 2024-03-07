@@ -17,88 +17,139 @@
     <%- include('./partials/nav.ejs') %>
 
     <body style="background-color: #f8f9fa">
-        <div class="container mt-5">
-            <h1>Job Search</h1>
-            <div class="row">
-                <div class="col-md-6">
-                    <div class="form-group">
-                        <label for="job">Job:</label>
-                        <input
-                            type="text"
-                            class="form-control"
-                            id="job"
-                            placeholder="Enter job"
-                        />
+        <form id="searchForm" method="post" action="/searchJob">
+            <div class="container mt-5">
+                <h1>Job Search</h1>
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="job">Job:</label>
+                            <input
+                                type="text"
+                                class="form-control"
+                                id="job"
+                                name="job"
+                                placeholder="Enter job"
+                            />
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="location">Location:</label>
+                            <input
+                                type="text"
+                                class="form-control"
+                                id="location"
+                                name="location"
+                                placeholder="Street/ City/ Province/ Postal Code"
+                            />
+                        </div>
+                    </div>
+                    <div class="col-md-12">
+                        <button type="submit" class="btn btn-success">
+                            Search
+                        </button>
                     </div>
                 </div>
-                <div class="col-md-6">
-                    <div class="form-group">
-                        <label for="location">Location:</label>
-                        <input
-                            type="text"
-                            class="form-control"
-                            id="location"
-                            placeholder="Enter location"
-                        />
+
+                <div class="row mt-4">
+                    <div class="col-md-3">
+                        <div class="form-group">
+                            <label for="salary">Filter by Salary:</label>
+                            <select
+                                class="form-control"
+                                id="salary"
+                                name="salary"
+                            >
+                                <option value="">Select Salary Range</option>
+                                <option value="0-50000">$0 - $50,000</option>
+                                <option value="50001-100000">
+                                    $50,001 - $100,000
+                                </option>
+                                <option value="100001-150000">
+                                    $100,001 - $150,000
+                                </option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="form-group">
+                            <label for="sector">Filter by Sector:</label>
+                            <select
+                                class="form-control"
+                                id="sector"
+                                name="sector"
+                            >
+                                <option value="">Select Sector</option>
+                                <% uniqueSectors.forEach(sector => { %>
+                                <option value="<%= sector %>">
+                                    <%= sector %>
+                                </option>
+                                <% }); %>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="form-group">
+                            <label for="company">Filter by Company:</label>
+                            <select
+                                class="form-control"
+                                id="company"
+                                name="company"
+                            >
+                                <option value="">Select Company</option>
+                                <% uniqueCompanies.forEach(company => { %>
+                                <option value="<%= company %>">
+                                    <%= company %>
+                                </option>
+                                <% }); %>
+                            </select>
+                        </div>
                     </div>
                 </div>
-                <div class="col-md-12">
-                    <button
-                        type="button"
-                        class="btn btn-success"
-                        onclick="searchJobs()"
-                    >
-                        Search
-                    </button>
+
+                <div id="searchResults" class="mt-4">
+                    <% if (jobs && jobs.length > 0) { %>
+                    <ul class="list-group">
+                        <% jobs.forEach(job => { %>
+                        <li class="list-group-item mb-3">
+                            <div class="d-flex w-100 justify-content-between">
+                                <h5 class="mb-1"><%= job.jobTitle %></h5>
+                                <small><%= job.postedDate %></small>
+                            </div>
+                            <p class="mb-1">
+                                <strong>Company:</strong> <%=
+                                employer.employerName %>
+                            </p>
+                            <p class="mb-1">
+                                <strong>Sector:</strong> <%= job.sector %>
+                            </p>
+                            <p class="mb-1">
+                                <strong>Salary:</strong> <%= job.salary %>
+                            </p>
+                            <p class="mb-1">
+                                <strong>Location:</strong> <%= job.street %>,
+                                <%= job.city %>, <%= job.province %> <%=
+                                job.postalCode %>
+                            </p>
+                            <p class="mb-1">
+                                <strong>Description:</strong> <%=
+                                job.description %>
+                            </p>
+                            <a
+                                href="/applyJob/<%= job._id %>"
+                                class="btn btn-success"
+                                >Apply</a
+                            >
+                        </li>
+                        <% }); %>
+                    </ul>
+                    <% } else { %>
+                    <p class="text-muted text-center">No jobs posted yet.</p>
+                    <% } %>
                 </div>
             </div>
-
-            <div class="row mt-4">
-                <div class="col-md-3">
-                    <div class="form-group">
-                        <label for="salary">Filter by Salary:</label>
-                        <select class="form-control" id="salary">
-                            <option value="">Select Salary Range</option>
-                            <option value="0-50000">$0 - $50,000</option>
-                            <option value="50001-100000">
-                                $50,001 - $100,000
-                            </option>
-                            <option value="100001-150000">
-                                $100,001 - $150,000
-                            </option>
-                        </select>
-                    </div>
-                </div>
-                <div class="col-md-3">
-                    <div class="form-group">
-                        <label for="sector">Filter by Sector:</label>
-                        <select class="form-control" id="sector">
-                            <option value="">Select Sector</option>
-                            <option value="IT">IT</option>
-                            <option value="Finance">Finance</option>
-                            <option value="Healthcare">Healthcare</option>
-                        </select>
-                    </div>
-                </div>
-                <div class="col-md-3">
-                    <div class="form-group">
-                        <label for="title">Filter by Company:</label>
-                        <select class="form-control" id="company">
-                            <option value="">Select Company</option>
-                            <option value="IT">IT</option>
-                            <option value="Finance">Finance</option>
-                            <option value="Healthcare">Healthcare</option>
-                        </select>
-                    </div>
-                </div>
-            </div>
-
-            <div id="searchResults" class="mt-4"></div>
-        </div>
-
-        <script>
-            function searchJobs() {}
-        </script>
+        </form>
 
         <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>

@@ -1,6 +1,8 @@
 const express = require("express");
 const router = express.Router();
 const jobModel = require("../models/jobModel");
+const employerModel = require("../models/employerModel");
+
 
 // Update job function
 async function updateJobById(jobId, updatedFields) {
@@ -40,12 +42,94 @@ const checkUserNotLoggedIn = (req, res, next) => {
 };
 
 /*Job Search*/
-router.get('/searchJob', checkUserNotLoggedIn, checkAdminNotLoggedIn, (req, res) => {
+router.get('/searchJob', checkUserNotLoggedIn, checkAdminNotLoggedIn, async (req, res) => {
+    try {
+        const user = req.session.user;
+        const employer = req.session.employer;
+        const admin = req.session.admin;
+
+        const jobs = await jobModel.find().populate('employerId', 'employerName sector').exec();
+
+        const uniqueSectors = Array.from(new Set(jobs.map(job => job.sector)));
+        const uniqueCompanies = Array.from(new Set(jobs.map(job => job.employerId.employerName)));
+
+        res.render("searchJob", { user, employer, admin, jobs, uniqueSectors, uniqueCompanies });
+    } catch (error) {
+        console.error(error);
+        req.flash("error", "Internal Server Error");
+        res.redirect("/searchJob");
+    }
+});
+
+router.post('/searchJob', checkUserNotLoggedIn, checkAdminNotLoggedIn, async (req, res) => {
     const user = req.session.user;
     const employer = req.session.employer;
     const admin = req.session.admin;
-    res.render("searchJob", { user, employer, admin });
-})
+    try {
+        const { job, location, salary, sector, company } = req.body;
+
+        const filter = {};
+
+        if (job) {
+            filter.jobTitle = new RegExp(job, 'i');
+        }
+
+        if (location) {
+            filter.$or = [
+                { street: new RegExp(location, 'i') },
+                { city: new RegExp(location, 'i') },
+                { province: new RegExp(location, 'i') },
+                { postalCode: new RegExp(location, 'i') },
+            ];
+        }
+
+        if (salary) {
+            const [minSalary, maxSalary] = salary.split('-');
+            const minSalaryValue = parseInt(minSalary.replace(/\D/g, ''), 10);
+            const maxSalaryValue = parseInt(maxSalary.replace(/\D/g, ''), 10);
+
+            if (minSalaryValue <= 50000 && maxSalaryValue >= 0) {
+                filter.salary = { $lte: 50000 };
+            } else if (minSalaryValue <= 100000 && maxSalaryValue >= 51000) {
+                filter.salary = { $gte: 51000, $lte: 100000 };
+            } else if (minSalaryValue <= 150000 && maxSalaryValue >= 110000) {
+                filter.salary = { $gte: 110000, $lte: 150000 };
+            } else if (minSalaryValue > 150000) {
+                filter.salary = { $gt: 150000 };
+            }
+        }
+        
+
+        if (sector) {
+            filter.sector = new RegExp(sector, 'i');
+        }
+
+        if (company) {
+            const employersMatchingCompany = await employerModel.find({
+                employerName: new RegExp(company, 'i'),
+            });
+
+            const employerIds = employersMatchingCompany.map((employer) => employer._id);
+
+            filter.employerId = { $in: employerIds };
+        }
+
+        const uniqueSectors = await jobModel.distinct('sector');
+        const uniqueCompanies = await employerModel.distinct('employerName');
+
+        const jobs = await jobModel.find(filter).populate('employerId', 'employerName').exec();
+
+        res.render('searchJob', { user, employer, admin, jobs, uniqueSectors, uniqueCompanies });
+    } catch (error) {
+        console.error(error);
+        req.flash('error', 'Internal Server Error');
+        res.redirect('/searchJob');
+    }
+});
+
+
+
+
 
 /*Job Listing*/
 router.get('/listJob', checkUserNotLoggedIn, checkAdminNotLoggedIn, (req, res) => {
@@ -110,7 +194,7 @@ router.post("/add-job", checkUserNotLoggedIn, checkAdminNotLoggedIn, async (req,
 
 //Edit Job
 
-router.get('/editJob', checkUserNotLoggedIn, checkAdminNotLoggedIn, checkJobSession,async (req, res) => {
+router.get('/editJob', checkUserNotLoggedIn, checkAdminNotLoggedIn, checkJobSession, async (req, res) => {
     try {
         const jobId = req.session.editJobId;
         const job = await jobModel.findById(jobId);
@@ -131,7 +215,7 @@ router.get('/editJob', checkUserNotLoggedIn, checkAdminNotLoggedIn, checkJobSess
     }
 });
 
-router.post('/edit-job', checkUserNotLoggedIn, checkAdminNotLoggedIn,checkJobSession, async (req, res) => {
+router.post('/edit-job', checkUserNotLoggedIn, checkAdminNotLoggedIn, checkJobSession, async (req, res) => {
     const jobId = req.session.editJobId;
     const { jobTitle, sector, salary, street, city, province, postalCode, description } = req.body;
 
