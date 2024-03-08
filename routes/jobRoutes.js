@@ -42,16 +42,17 @@ const checkUserNotLoggedIn = (req, res, next) => {
 };
 
 /*Job Search*/
-router.get('/searchJob', checkUserNotLoggedIn, checkAdminNotLoggedIn, async (req, res) => {
+router.get('/searchJob', async (req, res) => {
     try {
         const user = req.session.user;
         const employer = req.session.employer;
         const admin = req.session.admin;
 
-        const jobs = await jobModel.find().populate('employerId', 'employerName sector').exec();
+        const uniqueSectors = await jobModel.distinct('sector');
 
-        const uniqueSectors = Array.from(new Set(jobs.map(job => job.sector)));
-        const uniqueCompanies = Array.from(new Set(jobs.map(job => job.employerId.employerName)));
+        const uniqueCompanies = await employerModel.distinct('employerName');
+
+        const jobs = await jobModel.find().populate('employerId', 'employerName sector').exec();
 
         res.render("searchJob", { user, employer, admin, jobs, uniqueSectors, uniqueCompanies });
     } catch (error) {
@@ -61,7 +62,10 @@ router.get('/searchJob', checkUserNotLoggedIn, checkAdminNotLoggedIn, async (req
     }
 });
 
-router.post('/searchJob', checkUserNotLoggedIn, checkAdminNotLoggedIn, async (req, res) => {
+
+
+
+router.post('/searchJob', async (req, res) => {
     const user = req.session.user;
     const employer = req.session.employer;
     const admin = req.session.admin;
@@ -84,19 +88,19 @@ router.post('/searchJob', checkUserNotLoggedIn, checkAdminNotLoggedIn, async (re
         }
 
         if (salary) {
-            const [minSalary, maxSalary] = salary.split('-');
-            const minSalaryValue = parseInt(minSalary.replace(/\D/g, ''), 10);
-            const maxSalaryValue = parseInt(maxSalary.replace(/\D/g, ''), 10);
-
-            if (minSalaryValue <= 50000 && maxSalaryValue >= 0) {
-                filter.salary = { $lte: 50000 };
-            } else if (minSalaryValue <= 100000 && maxSalaryValue >= 51000) {
-                filter.salary = { $gte: 51000, $lte: 100000 };
-            } else if (minSalaryValue <= 150000 && maxSalaryValue >= 110000) {
-                filter.salary = { $gte: 110000, $lte: 150000 };
-            } else if (minSalaryValue > 150000) {
-                filter.salary = { $gt: 150000 };
-            }
+            const [minSalaryStr, maxSalaryStr] = salary.split('-');
+        
+            const extractNumericValue = (salaryString) => {
+                return parseFloat(salaryString.replace(/[^\d.]/g, ''));
+            };
+        
+            const minSalary = extractNumericValue(minSalaryStr);
+            const maxSalary = extractNumericValue(maxSalaryStr);
+        
+            filter.salary = {
+                $gte: minSalary,
+                $lte: maxSalary,
+            };
         }
         
 
@@ -133,35 +137,34 @@ router.post('/searchJob', checkUserNotLoggedIn, checkAdminNotLoggedIn, async (re
 
 /*Job Listing*/
 router.get('/listJob', checkUserNotLoggedIn, checkAdminNotLoggedIn, (req, res) => {
-
-    const successMessage = req.flash("success");
-    const errorMessage = req.flash("error");
+    const { success, error } = req.query;
     const user = req.session.user;
     const employer = req.session.employer;
     const admin = req.session.admin;
-    res.render("listJob", { user, employer, admin, success: successMessage, error: errorMessage });
-})
+    res.render("listJob", { user, employer, admin, success, error });
+});
 
 router.post("/add-job", checkUserNotLoggedIn, checkAdminNotLoggedIn, async (req, res) => {
+    const user = req.session.user;
+    const employer = req.session.employer;
+    const admin = req.session.admin;
     const { jobTitle, sector, salary, street, city, province, postalCode, description } = req.body;
 
     const postalCodeRegex = /^[A-Za-z]\d[A-Za-z][ -]?\d[A-Za-z]\d$/;
     const provinceRegex = /^(AB|BC|MB|NB|NL|NS|NT|NU|ON|PE|QC|SK|YT)$/;
 
     if (!postalCodeRegex.test(postalCode)) {
-        req.flash("error", "Please enter a valid postal code. Eg: 'A1A 2B3'");
-        return res.redirect("/listJob");
+        return res.render("listJob", { error: "Please enter a valid postal code. Eg: 'A1A 2B3'", user, employer, admin });
     }
 
     if (!provinceRegex.test(province)) {
-        req.flash("error", "Please enter a valid province. Eg: 'ON, SK'");
-        return res.redirect("/listJob");
+        return res.render("listJob", { error: "Please enter a valid province. Eg: 'ON, SK'", user, employer, admin });
     }
 
     if (isNaN(salary) || salary.trim() === '') {
-        req.flash("error", "Please enter a valid numeric salary.");
-        return res.redirect("/listJob");
+        return res.render("listJob", { error: "Please enter a valid numeric salary.", user, employer, admin });
     }
+
     try {
         const salaryWithDollar = `$${salary}`;
         const employerId = req.session.employer._id;
@@ -178,17 +181,15 @@ router.post("/add-job", checkUserNotLoggedIn, checkAdminNotLoggedIn, async (req,
             employerId,
         });
 
-
         await newJob.save();
 
-        req.flash("success", "Job added successfully!");
-        return res.redirect("/listJob");
+        return res.render("listJob", { user, employer, admin, success: "Job added successfully!", error: null });
     } catch (error) {
         console.error(error);
-        req.flash("error", "Internal Server Error");
-        return res.redirect("/listJob");
+        return res.render("listJob", { user, employer, admin, success: null, error: "Internal Server Error" });
     }
 });
+
 
 //---------------------------------------------------------------//
 
@@ -257,6 +258,21 @@ router.post('/edit-job', checkUserNotLoggedIn, checkAdminNotLoggedIn, checkJobSe
         console.error(error);
         req.flash('error', 'Internal Server Error');
         res.redirect("/editJob");
+    }
+});
+
+
+//Delete Job
+router.post('/deleteJob', async (req, res) => {
+    try {
+        const jobIdToDelete = req.body.jobId;
+
+        await jobModel.findByIdAndDelete(jobIdToDelete);
+
+        res.status(200).send({ message: 'Job deleted successfully' });
+    } catch (error) {
+        console.error(error);
+        res.status(500).send({ error: 'Internal Server Error' });
     }
 });
 

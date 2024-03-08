@@ -68,8 +68,8 @@ router.get("/empDashboard", checkUserNotLoggedIn, checkAdminNotLoggedIn, async (
             email: employerData.email,
         };
 
-        const jobs = await jobModel.find();
-
+        const jobs = await jobModel.find({ employerId: employerData._id });
+        
         res.render("empDashboard", { user, admin, employer, jobs, error: error, success: success });
     } catch (error) {
         console.error(error);
