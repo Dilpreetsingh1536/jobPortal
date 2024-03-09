@@ -67,7 +67,10 @@ router.get("/empDashboard", checkUserNotLoggedIn, checkAdminNotLoggedIn, async (
             employerId: employerData.employerId,
             email: employerData.email,
         };
-        res.render("empDashboard", { user, employer });
+
+        const jobs = await jobModel.find({ employerId: employerData._id });
+        
+        res.render("empDashboard", { user, admin, employer, jobs, error: error, success: success });
     } catch (error) {
         console.error(error);
         res.status(500).send("Internal Server Error");
