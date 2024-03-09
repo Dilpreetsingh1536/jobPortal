@@ -263,19 +263,44 @@ router.post('/edit-job', checkUserNotLoggedIn, checkAdminNotLoggedIn, checkJobSe
 
 
 //Delete Job
+router.get('/deleteJob', async (req, res) => {
+    const user = req.session.user;
+    const employer = req.session.employer;
+    const admin = req.session.admin;
+
+    const jobId = req.session.jobId;
+
+    res.render('deleteJob', { user, employer, admin, jobId });
+});
+
+
 router.post('/deleteJob', async (req, res) => {
     try {
-        const jobIdToDelete = req.body.jobId;
+        const jobId = req.session.deleteJobId;
 
-        await jobModel.findByIdAndDelete(jobIdToDelete);
+        if (!jobId) {
+            req.flash('error', 'Job ID not found in the session.');
+            return res.redirect('/empDashboard');
+        }
 
-        res.status(200).send({ message: 'Job deleted successfully' });
+        await jobModel.findByIdAndDelete(jobId);
+
+        delete req.session.deleteJobId;
+
+        req.flash('success', 'Job deleted successfully.');
+        res.redirect('/empDashboard');
     } catch (error) {
         console.error(error);
-        res.status(500).send({ error: 'Internal Server Error' });
+        req.flash('error', 'Error deleting the job.');
+        res.redirect('/empDashboard');
     }
 });
 
+router.get('/setDeleteJobId/:jobId', (req, res) => {
+    const jobId = req.params.jobId;
+    req.session.deleteJobId = jobId;
+    res.redirect('/deleteJob');
+});
 
 
 //--------------------------------------------------------------------//
