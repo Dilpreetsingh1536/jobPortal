@@ -46,7 +46,7 @@
                             </h3>
                             <ul>
                                 <% users.forEach(function(user, index) { %>
-                                    <li tyle=" margin-bottom: 7px;">
+                                    <li style=" margin-bottom: 7px;">
                                         <%= user.username %>
                                             <form action="/deleteUser" method="POST" style="display: inline;">
                                                 <input type="hidden" name="email" value="<%= user.email %>">
