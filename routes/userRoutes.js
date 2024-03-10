@@ -61,6 +61,15 @@ const checkEducationSession = (req, res, next) => {
     }
 };
 
+// If Experienece not in session route Restricted
+const checkExperienceSession = (req, res, next) => {
+    if (req.session.editExperienceId) {
+        next();
+    } else {
+        res.redirect('/home');
+    }
+};
+
 // User Dashboard
 router.get("/userDashboard", checkEmployerNotLoggedIn, checkAdminNotLoggedIn, async (req, res) => {
     try {
@@ -635,7 +644,78 @@ router.post('/edit-education', checkEmployerNotLoggedIn, checkAdminNotLoggedIn, 
 });
 
 
+//Delete Education
+router.get('/deleteEducation', checkEducationSession, async (req, res) => {
+    try {
+        const educationId = req.session.editEducationId;
+        const user = req.session.user;
+        const employer = req.session.employer;
+        const admin = req.session.admin;
 
+        if (!educationId) {
+            req.flash('error', 'Education not found.');
+            return res.redirect('/userDashboard');
+        }
+
+        res.render('deleteEducation', {
+            educationId,
+            user,
+            admin,
+            employer,
+            success: req.flash('success'),
+            error: req.flash('error'),
+        });
+    } catch (error) {
+        console.error(error);
+        req.flash('error', 'Internal Server Error');
+        res.redirect('/userDashboard');
+    }
+});
+
+
+const getUserById = async (userId) => {
+    return await userModel.findById(userId);
+};
+
+const deleteEducationById = async (userId, educationId) => {
+    try {
+        const user = await getUserById(userId);
+
+        user.education = user.education.filter(edu => edu._id.toString() !== educationId);
+
+        await user.save();
+
+        return user;
+    } catch (error) {
+        throw error;
+    }
+};
+
+
+router.post('/delete-education', checkAdminNotLoggedIn, checkEducationSession, async (req, res) => {
+    try {
+        const userId = req.session.user._id;
+        const educationId = req.session.editEducationId;
+
+        await deleteEducationById(userId, educationId);
+
+        delete req.session.editEducationId;
+
+        req.flash('success', 'Education deleted successfully!');
+        res.redirect('/userDashboard');
+    } catch (error) {
+        console.error(error);
+        req.flash('error', 'Error deleting the education.');
+        res.redirect('/userDashboard');
+    }
+});
+
+
+router.get('/setDeleteEduId/:educationId', (req, res) => {
+    const { educationId } = req.params;
+    req.session.editEducationId = educationId;
+    res.redirect('/deleteEducation');
+});
 
 
 
@@ -655,6 +735,168 @@ router.get('/clearEduSession', (req, res) => {
     res.redirect('/userDashboard');
 });
 
+
+//Edit Experienece
+
+router.get('/editExperience', checkEmployerNotLoggedIn, checkAdminNotLoggedIn, checkExperienceSession, async (req, res) => {
+    try {
+        const experienceId = req.session.editExperienceId;
+        const user = req.session.user;
+        const employer = req.session.employer;
+        const admin = req.session.admin;
+
+        const experience = user.experience.find(exp => exp._id.toString() === experienceId);
+
+        if (!experience) {
+            req.flash("error", "Experience not found.");
+            return res.redirect("/userDashboard");
+        }
+
+        res.render("editExperience", { experienceId, user, admin, employer, experience, success: req.flash("success"), error: req.flash("error") });
+    } catch (error) {
+        console.error(error);
+        req.flash("error", "Internal Server Error");
+        res.redirect("/userDashboard");
+    }
+});
+
+//Update experience
+const updateExperienceById = async (userId, experienceId, updatedFields) => {
+    try {
+        const user = await userModel.findById(userId);
+        const experienceToUpdate = user.experience.id(experienceId);
+
+        if (!experienceToUpdate) {
+            throw new Error("Education not found");
+        }
+
+        experienceToUpdate.set(updatedFields);
+
+        await user.save();  
+
+        return user;  
+    } catch (error) {
+        throw error;
+    }
+};
+
+router.post('/edit-experience', checkEmployerNotLoggedIn, checkAdminNotLoggedIn, async (req, res) => {
+    try {
+        const userId = req.session.user._id;
+        const experienceId = req.session.editExperienceId;
+        const { jobTitle, company, expStartDate, expEndDate, description } = req.body;
+
+        if (!jobTitle || !company || !expStartDate || !description) {
+            req.flash('error', 'Please fill in all required fields.');
+            return res.redirect('/editExperience');
+        }
+
+        if (expEndDate && expStartDate > expEndDate) {
+            req.flash('error', 'End date should be equal to or after the start date.');
+            return res.redirect('/editExperience');
+        }
+
+        const updatedUser = await updateExperienceById(userId, experienceId, {
+            jobTitle,
+            company,
+            expStartDate,
+            expEndDate,
+            description,
+        });
+
+        req.session.user = updatedUser;
+
+        req.flash('success', 'Experience updated successfully!');
+        res.redirect('/editExperience');
+    } catch (error) {
+        console.error(error);
+        req.flash('error', 'Internal Server Error');
+        res.redirect('/editExperience');
+    }
+});
+
+// Delete Experience
+router.get('/deleteExperience', checkExperienceSession, async (req, res) => {
+    try {
+        const experienceId = req.session.editExperienceId;
+        const user = req.session.user;
+        const employer = req.session.employer;
+        const admin = req.session.admin;
+
+        if (!experienceId) {
+            req.flash('error', 'Experience not found.');
+            return res.redirect('/userDashboard');
+        }
+
+        res.render('deleteExperience', {
+            experienceId,
+            user,
+            admin,
+            employer,
+            success: req.flash('success'),
+            error: req.flash('error'),
+        });
+    } catch (error) {
+        console.error(error);
+        req.flash('error', 'Internal Server Error');
+        res.redirect('/userDashboard');
+    }
+});
+
+const deleteExperienceById = async (userId, experienceId) => {
+    try {
+        const user = await getUserById(userId);
+
+        user.experience = user.experience.filter(exp => exp._id.toString() !== experienceId);
+
+        await user.save();
+
+        return user;
+    } catch (error) {
+        throw error;
+    }
+};
+
+router.post('/delete-experience', checkAdminNotLoggedIn, checkExperienceSession, async (req, res) => {
+    try {
+        const userId = req.session.user._id;
+        const experienceId = req.session.editExperienceId;
+
+        await deleteExperienceById(userId, experienceId);
+
+        delete req.session.editExperienceId;
+
+        req.flash('success', 'Experience deleted successfully!');
+        res.redirect('/userDashboard');
+    } catch (error) {
+        console.error(error);
+        req.flash('error', 'Error deleting the experience.');
+        res.redirect('/userDashboard');
+    }
+});
+
+router.get('/setDeleteExpId/:experienceId', (req, res) => {
+    const { experienceId } = req.params;
+    req.session.editExperienceId = experienceId;
+    res.redirect('/deleteExperience');
+});
+
+
+// Store experience in session to store
+
+router.post('/setEditExperienceId', (req, res) => {
+    const { experienceId } = req.body;
+    req.session.editExperienceId = experienceId;
+
+    res.redirect('/editExperience');
+});
+
+// Destroy Experience session
+router.get('/clearExpSession', (req, res) => {
+    req.session.editExperienceId = null;
+
+    res.redirect('/userDashboard');
+});
 
 
 
