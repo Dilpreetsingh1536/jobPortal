@@ -82,38 +82,60 @@
                         >
                             Education
                         </h3>
+                        <form action="/setEditEducationId" method="post">
+                            <% if (user.education.length === 0) { %>
+                            <h2>No education posted.</h2>
+                            <% } else { %>
+                            <div class="list-group">
+                                <% user.education.forEach((edu, index) => { %>
+                                <div
+                                    class="list-group-item"
+                                    style="margin-top: 0.5em"
+                                >
+                                    <h5 class="mb-1">
+                                        <%= edu.educationTitle %>
+                                    </h5>
+                                    <p class="mb-1"><%= edu.major %></p>
+                                    <p class="mb-1">
+                                        <%= edu.institutionName %>
+                                    </p>
+                                    <small>
+                                        <% if (edu.startDate) { %> <%=
+                                        edu.startDate.toLocaleDateString('en-CA')
+                                        %> <% } %> - <% if (edu.endDate) { %>
+                                        <%=
+                                        edu.endDate.toLocaleDateString('en-CA')
+                                        %> <% } else { %> Present <% } %>
+                                    </small>
+                                    <div style="margin-top: 0.5em">
+                                        <button
+                                            type="submit"
+                                            class="btn btn-warning btn-sm"
+                                            name="educationId"
+                                            value="<%= edu._id %>"
+                                        >
+                                            Edit
+                                        </button>
 
-                        <% if (user.education.length === 0) { %>
-                        <h2>No education posted.</h2>
-                        <% } else { %>
-                        <div class="list-group" >
-                            <% user.education.forEach(edu => { %>
-                            <div
-                                class="list-group-item"
-                                style="margin-top: 0.5em"
-                            >
-                                <h5 class="mb-1"><%= edu.educationTitle %></h5>
-                                <p class="mb-1"><%= edu.major %></p>
-                                <p class="mb-1"><%= edu.institutionName %></p>
-                                <small>
-                                    <%=
-                                    edu.startDate.toLocaleDateString('en-CA') %>
-                                    - <%= edu.endDate ?
-                                    edu.endDate.toLocaleDateString('en-CA') :
-                                    'Present' %>
-                                </small>
+                                        <a
+                                            href="/delete-education/<%= edu._id %>"
+                                            class="btn btn-danger btn-sm"
+                                        >
+                                            Delete
+                                        </a>
+                                    </div>
+                                </div>
+                                <% }); %>
                             </div>
-                            <% }); %>
-                        </div>
 
-                        <a
-                            href="/add-education-form"
-                            style="margin-top: 2em"
-                            class="btn btn-info"
-                            >Add</a
-                        >
-
-                        <% } %>
+                            <a
+                                href="/add-education-form"
+                                style="margin-top: 2em"
+                                class="btn btn-info"
+                                >Add</a
+                            >
+                            <% } %>
+                        </form>
                     </div>
                 </div>
             </div>

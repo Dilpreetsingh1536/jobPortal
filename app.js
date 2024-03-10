@@ -72,8 +72,6 @@ app.get('/empSearch', (req, res) => {
   res.render("empSearch", { user, employer, admin });
 })
 
-
-
 app.use("/", userRoutes);
 app.use("/", empRoutes);
 app.use("/", adminRoutes);

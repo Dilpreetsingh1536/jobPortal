@@ -32,6 +32,8 @@ function sendsixDigitCodeByEmail(email) {
     });
 }
 
+
+
 // Employer Route Restricted
 const checkEmployerNotLoggedIn = (req, res, next) => {
     if (!req.session.employer) {
@@ -44,6 +46,15 @@ const checkEmployerNotLoggedIn = (req, res, next) => {
 // Admin Routes Restricted
 const checkAdminNotLoggedIn = (req, res, next) => {
     if (!req.session.admin) {
+        next();
+    } else {
+        res.redirect('/home');
+    }
+};
+
+// If Education not in session route Restricted
+const checkEducationSession = (req, res, next) => {
+    if (req.session.editEducationId) {
         next();
     } else {
         res.redirect('/home');
@@ -423,7 +434,7 @@ router.post('/add-education', checkEmployerNotLoggedIn, checkAdminNotLoggedIn, a
 
 
         if (endDate && startDate > endDate) {
-            return res.render("addExperience", {
+            return res.render("addEducation", {
                 user,
                 employer,
                 admin,
@@ -542,6 +553,108 @@ router.post("/add-experience", checkEmployerNotLoggedIn, checkAdminNotLoggedIn, 
 });
 
 //------------------------------------------------------//
+
+//Edit Education
+
+router.get('/editEducation', checkEmployerNotLoggedIn, checkAdminNotLoggedIn, checkEducationSession, async (req, res) => {
+    try {
+        const educationId = req.session.editEducationId;
+        const user = req.session.user;
+        const employer = req.session.employer;
+        const admin = req.session.admin;
+
+        const education = user.education.find(edu => edu._id.toString() === educationId);
+
+        if (!education) {
+            req.flash("error", "Education not found.");
+            return res.redirect("/editEducation");
+        }
+
+        res.render("editEducation", { educationId, user, admin, employer, education, success: req.flash("success"), error: req.flash("error") });
+    } catch (error) {
+        console.error(error);
+        req.flash("error", "Internal Server Error");
+        res.redirect("/editEducation");
+    }
+});
+
+//Update education
+const updateEducationById = async (userId, educationId, updatedFields) => {
+    try {
+        const user = await userModel.findById(userId);
+        const educationToUpdate = user.education.id(educationId);
+
+        if (!educationToUpdate) {
+            throw new Error("Education not found");
+        }
+
+        educationToUpdate.set(updatedFields);
+
+        await user.save();  
+
+        return user;  
+    } catch (error) {
+        throw error;
+    }
+};
+
+
+router.post('/edit-education', checkEmployerNotLoggedIn, checkAdminNotLoggedIn, async (req, res) => {
+    try {
+        const userId = req.session.user._id;
+        const educationId = req.session.editEducationId;
+        const { educationTitle, major, institutionName, startDate, endDate } = req.body;
+
+        if (!educationTitle || !major || !institutionName || !startDate) {
+            req.flash('error', 'Please fill in all required fields.');
+            return res.redirect('/editEducation');
+        }
+
+        if (endDate && startDate > endDate) {
+            req.flash('error', 'End date should be equal to or after the start date.');
+            return res.redirect('/editEducation');
+        }
+
+        const updatedUser = await updateEducationById(userId, educationId, {
+            educationTitle,
+            major,
+            institutionName,
+            startDate,
+            endDate,
+        });
+
+        req.session.user = updatedUser;  
+
+        req.flash('success', 'Education updated successfully!');
+        res.redirect('/editEducation');
+    } catch (error) {
+        console.error(error);
+        req.flash('error', 'Internal Server Error');
+        res.redirect('/editEducation');
+    }
+});
+
+
+
+
+
+
+// Store education in session to store
+
+router.post('/setEditEducationId', (req, res) => {
+    const { educationId } = req.body;
+    req.session.editEducationId = educationId;
+
+    res.redirect('/editEducation');
+});
+
+// Destroy Education session
+router.get('/clearEduSession', (req, res) => {
+    req.session.editEducationId = null;
+
+    res.redirect('/userDashboard');
+});
+
 
 
 
