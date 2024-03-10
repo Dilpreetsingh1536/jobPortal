@@ -73,7 +73,8 @@ router.get("/empDashboard", checkUserNotLoggedIn, checkAdminNotLoggedIn, async (
         res.render("empDashboard", { user, admin, employer, jobs, error: error, success: success });
     } catch (error) {
         console.error(error);
-        res.status(500).send("Internal Server Error");
+        req.flash("error", "Internal Server Error");
+        res.redirect("/empDashboard");
     }
 });
 

@@ -89,20 +89,20 @@ router.post('/searchJob', async (req, res) => {
 
         if (salary) {
             const [minSalaryStr, maxSalaryStr] = salary.split('-');
-        
+
             const extractNumericValue = (salaryString) => {
                 return parseFloat(salaryString.replace(/[^\d.]/g, ''));
             };
-        
+
             const minSalary = extractNumericValue(minSalaryStr);
             const maxSalary = extractNumericValue(maxSalaryStr);
-        
+
             filter.salary = {
                 $gte: minSalary,
                 $lte: maxSalary,
             };
         }
-        
+
 
         if (sector) {
             filter.sector = new RegExp(sector, 'i');
