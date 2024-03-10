@@ -1,33 +1,30 @@
 <nav>
     <div class="logo-container">
         <a href="/home">
-            <img
-                src="images/logo.png"
-                alt="Career Connect Logo"
-                class="logo-img"
-            />
+            <img src="images/logo.png" alt="Career Connect Logo" class="logo-img" />
         </a>
     </div>
     <ul>
-        <li><a href="home">Home</a></li>
-        <li><a href="searchJob">Job Search</a></li>
-        <% if (user) { %>
-        <li><a href="userDashboard">Dashboard</a></li>
-        <li><a href="empsearch">Search</a></li>
+        <li><a href="/home">Home</a></li>
+        <li><a href="/searchJob">Job Search</a></li>
+        <% if (admin) { %>
+        <li><a href="/adminDashboard">Dashboard</a></li>
+        <li><a href="/adminLogout">Logout</a></li>
+        <% } else if (user) { %>
+        <li><a href="/userDashboard">Dashboard</a></li>
+        <li><a href="/empsearch">Search</a></li>
         <li><a href="/logout">Logout</a></li>
         <% } else if (employer) { %>
-        <li><a href="empDashboard">Dashboard</a></li>
-        <li><a href="userSearch">Search</a></li>
+        <li><a href="/empDashboard">Dashboard</a></li>
+        <li><a href="/userSearch">Search</a></li>
         <li><a href="/empLogout">Logout</a></li>
-        <% } else if (admin) { %>
-        <li><a href="adminDashboard">Dashboard</a></li>
-        <li><a href="/adminLogout">Logout</a></li>
         <% } else { %>
         <li class="dropdown">
             <a href="#" class="account-link">Account</a>
             <div class="dropdown-content">
-                <a href="login">Job Seeker</a>
-                <a href="empLogin">Recruiter</a>
+                <a href="/login">Job Seeker</a>
+                <a href="/empLogin">Recruiter</a>
+                <a href="/adminlogin">Admin</a>
             </div>
         </li>
         <% } %>

@@ -1,7 +1,9 @@
 const express = require("express");
 const router = express.Router();
 const adminModel = require("../models/adminModel");
-
+const userModel = require("../models/userModel");
+const employerModel = require("../models/employerModel");
+const jobModel = require( "../models/jobModel" );
 
 // Admin Routes Restricted
 
@@ -62,12 +64,18 @@ router.post("/admin_post", checkEmployerNotLoggedIn, checkUserNotLoggedIn, async
 });
 
 // admin dashboard
-router.get("/adminDashboard", checkUserNotLoggedIn, checkEmployerNotLoggedIn, (req, res) => {
+router.get("/adminDashboard", checkUserNotLoggedIn, checkEmployerNotLoggedIn, async (req, res) => {
     const user = req.session.user;
     const employer = req.session.employer;
     const admin = req.session.admin;
 
-    res.render("adminDashboard", { user, admin, employer });
+    // Fetch all users from the database
+    const users = await userModel.find({});
+    const employers = await employerModel.find({});
+    const jobs = await  jobModel.find();
+
+    // Pass the users to the adminDashboard template
+    res.render("adminDashboard", { user, admin, employer, users, employers, jobs });
 });
 
 //Logout
@@ -82,5 +90,41 @@ router.get("/adminLogout", checkEmployerNotLoggedIn, checkUserNotLoggedIn, (req,
         }
     });
 });
+
+router.post('/deleteEmployer', async (req, res) => {
+    const { email } = req.body;
+    try {
+        await employerModel.deleteOne({ email });
+        console.log('Employer deleted successfully.');
+        res.redirect('/adminDashboard'); // Redirect back to the admin dashboard or wherever appropriate
+    } catch (error) {
+        console.error('Error deleting employer:', error);
+        res.status(500).send('Error deleting employer');
+    }
+});
+
+router.post('/deleteUser', async (req, res) => {
+    const { email } = req.body;
+    try {
+        await userModel.deleteOne({ email });
+        console.log('User deleted successfully.');
+        res.redirect('/adminDashboard'); // Redirect back to the admin dashboard or wherever appropriate
+    } catch (error) {
+        console.error('Error deleting user:', error);
+        res.status(500).send('Error deleting user');
+    }
+});
+router.post('/deleteUser', async (req, res) => {
+    const { email } = req.body;
+    try {
+        await userModel.deleteOne({ email });
+        console.log('User deleted successfully.');
+        res.redirect('/adminDashboard'); // Redirect back to the admin dashboard or wherever appropriate
+    } catch (error) {
+        console.error('Error deleting user:', error);
+        res.status(500).send('Error deleting user');
+    }
+});
+
 
 module.exports = router;
