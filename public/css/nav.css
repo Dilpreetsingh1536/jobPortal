@@ -1,23 +1,19 @@
 .logo-container {
-  display: flex;
-  align-items: center;
-}
-
-.logo {
-  margin-left: 10px; 
+    display: flex;
+    align-items: center;
 }
 
 .logo-img {
-  width: 130px; 
-  height: 100px; 
-  margin-right: 10px; 
+    width: 300px;
+
+    margin-right: 10px;
 }
 
 nav {
     display: flex;
     justify-content: space-between;
     padding: 1rem 2rem;
-    background-color: #a9add3;
+    background-color: #212529;
     align-items: center;
 }
 
@@ -36,7 +32,7 @@ nav ul li:last-child {
 }
 
 nav ul li a {
-    color: #333;
+    color: #ecf0f1;
     text-transform: uppercase;
     font-weight: bold;
     padding: 0.5rem;
@@ -45,7 +41,7 @@ nav ul li a {
 }
 
 nav ul li a:hover {
-    background-color: #474f9b;
+    background-color: #28a745;
     color: white;
 }
 
@@ -56,7 +52,7 @@ nav ul li a:hover {
 .dropdown-content {
     display: none;
     position: absolute;
-    background-color: #a9add3;
+    background-color: #000;
     box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
     z-index: 1;
     margin-top: 5px;
@@ -67,7 +63,7 @@ nav ul li a:hover {
 }
 
 .dropdown-content a {
-    color: #333;
+    color: #ecf0f1;
     padding: 8px 12px;
     text-decoration: none;
     display: block;
@@ -75,6 +71,6 @@ nav ul li a:hover {
 }
 
 .dropdown-content a:hover {
-    background-color: white;
-    color: #000000;
+    background-color: #28a745;
+    color: white;
 }

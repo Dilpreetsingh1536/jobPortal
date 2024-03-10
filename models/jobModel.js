@@ -1,10 +1,8 @@
 const mongoose = require("mongoose");
 
-const uri =
-  "mongodb+srv://dilpreet1999:Singh1536@cluster0.4g4xjah.mongodb.net/user_Model?retryWrites=true&w=majority";
 
-//userNewUrParser: true,
-//useUnifiedTopology: true,
+const uri =
+  "mongodb+srv://dilpreet1999:Singh1536@cluster0.4g4xjah.mongodb.net/careerconnect_model?retryWrites=true&w=majority";
 
 mongoose
   .connect(uri, {
@@ -12,42 +10,22 @@ mongoose
     useUnifiedTopology: true,
   })
   .then(() => {
-    console.log("=======Connected to MONGODB=======");
+    console.log("=======Connected to MONGODB for Job Listing=======");
   })
   .catch((err) => {
     console.log(`Not Connected To MONGODB Due To Error Below \n ${err}`);
   });
 
-const jobSchema = new mongoose.Schema({
-    company: {
-        type: String,
-        required: [true,'Company name is required']
-    },
-    position: {
-        type: string,
-        required: [true,'Job position is required'],
-        minlength: 200
-    },
-    status: {
-        type: string,
-        enum: ['in process', 'rejected', 'pending', 'interview'],
-        default: 'pending'
-    },
-    workType: {
-        type: string,
-        enum: ['part-time', 'full-time', 'contract','internship'],
-        default: 'full-time'
-    },
-    workLocation: {
-        type: string,
-        enum: ['waterloo','toronto','new-york','london','mumbai'],
-        default: 'toronto',
-        required: [true, 'Job location is required']
-    },
-    author: {
-        type: mongoose.Types.ObjectId,
-        ref: 'userModel'
-    }  
+  const jobSchema = new mongoose.Schema({
+    jobTitle: { type: String, required: true },
+    sector: { type: String, required: true },
+    salary: { type: String, required: true },
+    street: { type: String, required: true },
+    city: { type: String, required: true },
+    province: { type: String, required: true },
+    postalCode: { type: String, required: true },
+    description: { type: String, required: true },
+    employerId: { type: mongoose.Schema.Types.ObjectId, ref: 'employerModel', required: true }, 
 });
 
 const jobModel = mongoose.model("jobModel", jobSchema);

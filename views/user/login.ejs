@@ -16,11 +16,12 @@
         <link rel="stylesheet" type="text/css" href="css/footer.css" />
     </head>
     <%- include('./partials/nav.ejs') %>
-    <body>
+
+    <body style="background-image: url('/images/background-image.jpg');" >
         <div class="container">
             <div class="login-container">
                 <div class="login-form">
-                    <h2>Login</h2>
+                    <h2>User Login</h2>
 
                     <% if (error) { %>
                     <p class="error-message"><%= error %></p>
@@ -35,6 +36,8 @@
                                 id="username"
                                 name="username"
                                 placeholder="Enter your username"
+                                pattern="^[A-Za-z0-9_]{4,}$"
+                                title="Username must contain only letters, numbers, and underscores. Minimum length is 4 characters."
                                 required
                             />
                         </div>
@@ -49,7 +52,7 @@
                                 required
                             />
                         </div>
-                        <button type="submit" class="btn btn-login">
+                        <button type="submit" class="btn btn-success">
                             Login
                         </button>
                     </form>
