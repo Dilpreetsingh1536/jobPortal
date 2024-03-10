@@ -47,11 +47,10 @@ router.get('/searchJob', async (req, res) => {
         const employer = req.session.employer;
         const admin = req.session.admin;
 
-        // Fetch distinct sectors and companies for filtering options
         const uniqueSectors = await jobModel.distinct('sector');
-        const uniqueCompanies = await employerModel.distinct('employerName', { 'status': 'approved' }); // Ensure this makes sense depending on your schema. You might need to adjust it.
+        // Fetch uniqueCompanies without applying the 'status' condition
+        const uniqueCompanies = await employerModel.distinct('employerName');
 
-        // Update here to only include jobs that have been approved
         const jobs = await jobModel.find({ status: 'approved' }).populate('employerId', 'employerName sector').exec();
 
         res.render("searchJob", { user, employer, admin, jobs, uniqueSectors, uniqueCompanies });
