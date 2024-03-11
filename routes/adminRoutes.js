@@ -3,7 +3,7 @@ const router = express.Router();
 const adminModel = require("../models/adminModel");
 const userModel = require("../models/userModel");
 const employerModel = require("../models/employerModel");
-const jobModel = require( "../models/jobModel" );
+const jobModel = require("../models/jobModel");
 
 // Admin Routes Restricted
 
@@ -75,18 +75,18 @@ router.get("/adminDashboard", checkUserNotLoggedIn, checkEmployerNotLoggedIn, as
     let jobPage = req.query.jobPage || 1;
 
     const users = await userModel.find({})
-                                 .skip((perPage * userPage) - perPage)
-                                 .limit(perPage);
+        .skip((perPage * userPage) - perPage)
+        .limit(perPage);
     const userCount = await userModel.countDocuments();
 
     const employers = await employerModel.find({})
-                                         .skip((perPage * employerPage) - perPage)
-                                         .limit(perPage);
+        .skip((perPage * employerPage) - perPage)
+        .limit(perPage);
     const employerCount = await employerModel.countDocuments();
 
     const jobs = await jobModel.find({})
-                               .skip((perPage * jobPage) - perPage)
-                               .limit(perPage);
+        .skip((perPage * jobPage) - perPage)
+        .limit(perPage);
     const jobCount = await jobModel.countDocuments();
 
     res.render("adminDashboard", {
@@ -120,7 +120,7 @@ router.post('/deleteEmployer', async (req, res) => {
     try {
         await employerModel.deleteOne({ email });
         console.log('Employer deleted successfully.');
-        res.redirect('/adminDashboard'); // Redirect back to the admin dashboard or wherever appropriate
+        res.redirect('/adminDashboard');
     } catch (error) {
         console.error('Error deleting employer:', error);
         res.status(500).send('Error deleting employer');
@@ -132,7 +132,7 @@ router.post('/deleteUser', async (req, res) => {
     try {
         await userModel.deleteOne({ email });
         console.log('User deleted successfully.');
-        res.redirect('/adminDashboard'); // Redirect back to the admin dashboard or wherever appropriate
+        res.redirect('/adminDashboard');
     } catch (error) {
         console.error('Error deleting user:', error);
         res.status(500).send('Error deleting user');
@@ -144,7 +144,7 @@ router.post('/deleteJob', async (req, res) => {
     try {
         await jobModel.findByIdAndDelete(jobId);
         console.log('Job deleted successfully.');
-        res.redirect('/adminDashboard'); // Adjust the redirect as needed
+        res.redirect('/adminDashboard');
     } catch (error) {
         console.error('Error deleting job:', error);
         res.status(500).send('Error deleting job');
@@ -162,7 +162,7 @@ router.post('/admin/updateJobStatus', async (req, res) => {
 
     try {
         await jobModel.findByIdAndUpdate(jobId, { status: action });
-        res.redirect('/adminDashboard'); // Or wherever you want to redirect after the action
+        res.redirect('/adminDashboard');
     } catch (error) {
         console.error('Failed to update job status:', error);
         res.status(500).send('Server error');

@@ -599,9 +599,9 @@ const updateEducationById = async (userId, educationId, updatedFields) => {
 
         educationToUpdate.set(updatedFields);
 
-        await user.save();  
+        await user.save();
 
-        return user;  
+        return user;
     } catch (error) {
         throw error;
     }
@@ -632,7 +632,7 @@ router.post('/edit-education', checkEmployerNotLoggedIn, checkAdminNotLoggedIn, 
             endDate,
         });
 
-        req.session.user = updatedUser;  
+        req.session.user = updatedUser;
 
         req.flash('success', 'Education updated successfully!');
         res.redirect('/editEducation');
@@ -772,9 +772,9 @@ const updateExperienceById = async (userId, experienceId, updatedFields) => {
 
         experienceToUpdate.set(updatedFields);
 
-        await user.save();  
+        await user.save();
 
-        return user;  
+        return user;
     } catch (error) {
         throw error;
     }
