@@ -1,54 +1,104 @@
 .container {
-    margin-top: 20px; /* Adjust margin-top as needed */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
-h1 {
-    font-size: 2rem;
-    margin-bottom: 20px;
+/* Contact Information */
+.contact-info-box,
+#social-media,
+#faqs,
+#feedback,
+#subscription {
+  max-width: 800px; 
+  margin-bottom: 40px;
+  text-align: center;
 }
 
-p {
-    font-size: 1rem;
-    margin-bottom: 20px;
+/* Contact Form */
+#contact-form {
+  width: 100%;
+  max-width: 400px; 
+  margin-top: 30px; 
+  background-color: #f8f9fa; 
+  padding: 20px;
+  border-radius: 5px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  color: #212529; 
+  text-align: center;
 }
 
-.form-group {
-    margin-bottom: 20px;
+#contact-form h2 {
+  margin-bottom: 20px;
 }
 
-label {
-    font-size: 1rem;
-    margin-bottom: 5px;
-    display: block;
+#contact-form p {
+  margin-bottom: 10px;
 }
 
-input[type="text"],
-input[type="email"],
-textarea {
-    width: 100%;
-    padding: 10px;
-    border: 1px solid #ccc;
-    border-radius: 5px;
-    margin-bottom: 10px;
+#contact-form .form-group {
+  margin-bottom: 15px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
-textarea {
-    resize: vertical;
+#contact-form label {
+  font-weight: bold;
 }
 
-button[type="submit"] {
-    display: block;
-    width: 100%;
-    padding: 10px;
-    background-color: #28a745 !important;
-    color: #fff;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    font-size: 16px;
-    transition: background-color 0.3s ease;
+#contact-form input[type="text"],
+#contact-form input[type="email"],
+#contact-form textarea {
+  width: 100%;
+  max-width: 300px; 
+  padding: 10px;
+  border: 1px solid #ced4da; 
+  border-radius: 5px;
+  box-sizing: border-box;
+  margin-bottom: 10px;
 }
 
-button[type="submit"]:hover {
-    background-color: #218838;
+#contact-form textarea {
+  resize: vertical;
+}
+
+#contact-form button[type="submit"] {
+  background-color: #28a745; 
+  color: #fff;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+#contact-form button[type="submit"]:hover {
+  background-color: #0056b3; 
+}
+
+/* Social Media Links */
+#social-media {
+  margin-bottom: 40px;
+  margin-top: 20px;
+  list-style: none; 
+}
+
+#social-media ul {
+  padding: 0;
+}
+
+#social-media ul li {
+  display: inline-block;
+  margin-right: 10px;
+}
+
+#social-media ul li a {
+  text-decoration: none;
+  color: #333;
+  transition: color 0.3s ease;
+}
+
+#social-media ul li a:hover {
+  color: #28a745;
 }
