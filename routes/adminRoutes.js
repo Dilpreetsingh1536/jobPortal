@@ -24,6 +24,14 @@ const checkUserNotLoggedIn = (req, res, next) => {
     }
 };
 
+const checkNotLoggedIn = (req, res, next) => {
+    if (!req.session.user && !req.session.employer && !req.session.admin) {
+        res.redirect('/home');
+    } else {
+        next();
+    }
+};
+
 //admin login
 router.get("/adminLogin", checkEmployerNotLoggedIn, checkUserNotLoggedIn, (req, res) => {
     const user = req.session.user;
@@ -64,7 +72,7 @@ router.post("/admin_post", checkEmployerNotLoggedIn, checkUserNotLoggedIn, async
 });
 
 // admin dashboard
-router.get("/adminDashboard", checkUserNotLoggedIn, checkEmployerNotLoggedIn, async (req, res) => {
+router.get("/adminDashboard", checkUserNotLoggedIn, checkEmployerNotLoggedIn, checkNotLoggedIn,  async (req, res) => {
     const user = req.session.user;
     const employer = req.session.employer;
     const admin = req.session.admin;
