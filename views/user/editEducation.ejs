@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
-    <title>Add Experience</title>
+    <title>Edit Education</title>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" />
     <link rel="stylesheet" type="text/css" href="css/nav.css" />
     <link rel="stylesheet" type="text/css" href="css/footer.css" />
@@ -14,7 +14,7 @@
 
     <body>
         <div class="container">
-            <h1 style="margin-top: 15px">Add Experience</h1>
+            <h1 style="margin-top: 15px">Edit Education</h1>
             <% if (success) { %>
                 <p class="success-message">
                     <%= success %>
@@ -25,33 +25,36 @@
                             <%= error %>
                         </p>
                         <% } %>
-                            <form method="post" action="/add-experience">
+                            <form method="post" action="/edit-education">
                                 <div class="form-group">
-                                    <label for="jobTitle">Job Title</label>
-                                    <input type="text" class="form-control" id="jobTitle" name="jobTitle" required />
+                                    <label for="educationTitle">Education Title</label>
+                                    <input type="text" class="form-control" id="educationTitle" name="educationTitle"
+                                        value="<%= education.educationTitle %>" required />
                                 </div>
                                 <div class="form-group">
-                                    <label for="company">Company</label>
-                                    <input type="text" class="form-control" id="company" name="company" required />
+                                    <label for="major">Major</label>
+                                    <input type="text" class="form-control" id="major" name="major"
+                                        value="<%= education.major %>" required />
                                 </div>
                                 <div class="form-group">
-                                    <label for="expStartDate">Start Date</label>
-                                    <input type="date" class="form-control" id="expStartDate" name="expStartDate"
-                                        required />
+                                    <label for="institutionName">Institution Name</label>
+                                    <input type="text" class="form-control" id="institutionName" name="institutionName"
+                                        value="<%= education.institutionName %>" required />
                                 </div>
                                 <div class="form-group">
-                                    <label for="expEndDate">End Date</label>
-                                    <input type="date" class="form-control" id="expEndDate" name="expEndDate" />
+                                    <label for="startDate">Start Date</label>
+                                    <input type="date" class="form-control" id="startDate" name="startDate"
+                                        value="<%= education.startDate.split('T')[0] %>" required />
                                 </div>
                                 <div class="form-group">
-                                    <label for="description">Description</label>
-                                    <textarea class="form-control" id="description" name="description" rows="3"
-                                        required></textarea>
+                                    <label for="endDate">End Date</label>
+                                    <input type="date" class="form-control" id="endDate" name="endDate"
+                                        value="<%= education.endDate ? education.endDate.split('T')[0] : '' %>" />
                                 </div>
                                 <button type="submit" class="btn btn-success">
-                                    Add Experience
+                                    Save Changes
                                 </button>
-                                <a href="/userDashboard" class="btn btn-info">Back</a>
+                                <a href="/clearEduSession" class="btn btn-info">Back</a>
                             </form>
         </div>
 

@@ -26,6 +26,7 @@ mongoose
     postalCode: { type: String, required: true },
     description: { type: String, required: true },
     employerId: { type: mongoose.Schema.Types.ObjectId, ref: 'employerModel', required: true }, 
+    status: { type: String, required: true, default: 'pending' },
 });
 
 const jobModel = mongoose.model("jobModel", jobSchema);
