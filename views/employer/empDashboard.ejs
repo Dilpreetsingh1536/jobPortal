@@ -141,6 +141,10 @@
                                             <strong>Description:</strong> <%=
                                             job.description %>
                                         </p>
+                                        <p>
+                                            <strong>Job Status:</strong> <%=
+                                            job.status %>
+                                        </p>
                                         <button
                                             type="submit"
                                             class="btn btn-warning"
@@ -149,6 +153,12 @@
                                         >
                                             Edit
                                         </button>
+
+                                        <a
+                                            href="/setDeleteJobId/<%= job._id %>"
+                                            class="btn btn-danger"
+                                            >Delete</a
+                                        >
                                     </li>
                                     <% }); %>
                                 </ul>

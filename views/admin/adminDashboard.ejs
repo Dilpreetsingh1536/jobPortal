@@ -1,42 +1,31 @@
 <!DOCTYPE html>
 <html lang="en">
-    <head>
-        <meta charset="UTF-8" />
-        <meta
-            name="viewport"
-            content="width=device-width, initial-scale=1, shrink-to-fit=no"
-        />
-        <title>Admin Account</title>
-        <link
-            rel="stylesheet"
-            href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
-        />
-        <link rel="stylesheet" type="text/css" href="css/nav.css" />
-        <link rel="stylesheet" type="text/css" href="css/footer.css" />
-    </head>
-    <%- include('./partials/nav.ejs') %>
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+    <title>Admin Account</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" />
+    <link rel="stylesheet" type="text/css" href="css/nav.css" />
+    <link rel="stylesheet" type="text/css" href="css/footer.css" />
+</head>
+<%- include('./partials/nav.ejs') %>
 
     <body style="background-color: #f8f9fa">
         <div class="container mt-5">
             <h1 class="mb-4">Admin Account</h1>
             <div class="row">
-               
+
                 <div class="col-md-6">
-                    <div
-                        class="card"
-                        style="
+                    <div class="card" style="
                             border: 1px solid #ccc;
                             border-radius: 8px;
                             box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
                             padding: 20px;
                             margin-bottom: 20px;
-                        "
-                    >
+                        ">
                         <div class="card-body">
-                            <h3
-                                class="card-title"
-                                style="font-size: 24px; font-weight: bold"
-                            >
+                            <h3 class="card-title" style="font-size: 24px; font-weight: bold">
                                 New Messages
                             </h3>
                             <!-- Add content here for applied jobs -->
@@ -44,70 +33,231 @@
                     </div>
                 </div>
                 <div class="col-md-6">
-                    <div
-                        class="card"
-                        style="
+                    <div class="card" style="
                             border: 1px solid #ccc;
                             border-radius: 8px;
                             box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
                             padding: 20px;
                             margin-bottom: 20px;
-                        "
-                    >
+                        ">
                         <div class="card-body">
-                            <h3
-                                class="card-title"
-                                style="font-size: 24px; font-weight: bold"
-                            >
+                            <h3 class="card-title" style="font-size: 24px; font-weight: bold">
                                 List of Users
                             </h3>
-                            <!-- Add content here for applied jobs -->
+                            <ul>
+                                <% users.forEach(function(user, index) { %>
+                                    <li style=" margin-bottom: 7px;">
+                                        <%= user.username %>
+                                            <form action="/deleteUser" method="POST" style="display: inline;">
+                                                <input type="hidden" name="email" value="<%= user.email %>">
+                                                <button type="submit" class="btn btn-danger btn-sm">Delete</button>
+                                            </form>
+                                            <button type="button" class="btn btn-primary btn-sm" data-toggle="modal"
+                                                data-target="#userModal<%= index %>">View</button>
+                                            <div class="modal fade" id="userModal<%= index %>" tabindex="-1"
+                                                role="dialog" aria-labelledby="userModalLabel<%= index %>"
+                                                aria-hidden="true">
+                                                <div class="modal-dialog" role="document">
+                                                    <div class="modal-content">
+                                                        <div class="modal-header">
+                                                            <h5 class="modal-title" id="userModalLabel<%= index %>">User
+                                                                Details</h5>
+                                                            <button type="button" class="close" data-dismiss="modal"
+                                                                aria-label="Close">
+                                                                <span aria-hidden="true">&times;</span>
+                                                            </button>
+                                                        </div>
+                                                        <div class="modal-body">
+                                                            <p>Name: <%= user.name %>
+                                                            </p>
+                                                            <p>Username: <%= user.username %>
+                                                            </p>
+                                                            <p>Email: <%= user.email %>
+                                                            </p>
+                                                            <!-- Add more user details here -->
+                                                        </div>
+                                                        <div class="modal-footer">
+                                                            <button type="button" class="btn btn-secondary"
+                                                                data-dismiss="modal">Close</button>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                    </li>
+                                    <% }); %>
+                            </ul>
+                            <!-- <nav aria-label="User Page Navigation" style="background-color: #f8f9fa;">
+                                <ul class="pagination">
+                                    <% for(let i = 1; i <= usersPages; i++) { %>
+                                        <li class="page-item <%= i == userCurrent ? 'active' : '' %>">
+                                            <a class="page-link" href="/adminDashboard?userPage=<%= i %>&employerPage=<%= employerCurrent %>&jobPage=<%= jobCurrent %>"> <%= i %> </a>
+                                        </li>
+                                    <% } %>
+                                </ul>
+                            </nav> -->
                         </div>
                     </div>
                 </div>
             </div>
             <div class="row">
                 <div class="col-md-6">
-                    <div
-                        class="card"
-                        style="
+                    <div class="card" style="
                             border: 1px solid #ccc;
                             border-radius: 8px;
                             box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
                             padding: 20px;
                             margin-bottom: 20px;
-                        "
-                    >
+                        ">
                         <div class="card-body">
-                            <h3
-                                class="card-title"
-                                style="font-size: 24px; font-weight: bold"
-                            >
-                                Employers Jobs
-                            </h3>
-                            <!-- Add content here for applied jobs -->
+                            <h3 class="card-title" style="font-size: 24px; font-weight: bold">Employer's Jobs</h3>
+                            <ul class="list-group">
+                                <% jobs.forEach(function(job, index) { %>
+                                    <li class="list-group-item mb-3">
+                                        <div><strong>
+                                                <%= job.jobTitle %>
+                                            </strong> - <em>Status: <%= job.status %></em></div>
+                                        <div class="d-flex align-items-center mt-2">
+                                            <button type="button" class="btn btn-primary btn-sm mr-2"
+                                                data-toggle="modal" data-target="#jobModal<%= index %>">View</button>
+
+                                            <form action="/deleteJob" method="POST" class="d-inline-block mr-2">
+                                                <input type="hidden" name="jobId" value="<%= job._id %>">
+                                                <button type="submit" class="btn btn-danger btn-sm">Delete</button>
+                                            </form>
+
+                                            <form action="/admin/updateJobStatus" method="POST"
+                                                class="d-flex align-items-center mr-2">
+                                                <input type="hidden" name="jobId" value="<%= job._id %>" />
+                                                <select name="action" class="custom-select custom-select-sm mr-2">
+                                                    <option value="">Select Action</option>
+                                                    <option value="approved">Approve</option>
+                                                    <option value="rejected">Reject</option>
+                                                </select>
+                                                <button type="submit" class="btn btn-success btn-sm">Update</button>
+                                            </form>
+                                        </div>
+
+                                        <div class="modal fade" id="jobModal<%= index %>" tabindex="-1" role="dialog"
+                                            aria-labelledby="jobModalLabel<%= index %>" aria-hidden="true">
+                                            <div class="modal-dialog" role="document">
+                                                <div class="modal-content">
+                                                    <div class="modal-header">
+                                                        <h5 class="modal-title" id="jobModalLabel<%= index %>">Job
+                                                            Details</h5>
+                                                        <button type="button" class="close" data-dismiss="modal"
+                                                            aria-label="Close">
+                                                            <span aria-hidden="true">&times;</span>
+                                                        </button>
+                                                    </div>
+                                                    <div class="modal-body">
+                                                        <p>Job Title: <%= job.jobTitle %>
+                                                        </p>
+                                                        <p>Sector: <%= job.sector %>
+                                                        </p>
+                                                        <p>Salary: <%= job.salary %>
+                                                        </p>
+                                                        <p>Description: <%= job.description %>
+                                                        </p>
+                                                        <p>City: <%= job.city %>
+                                                        </p>
+                                                        <p>Province: <%= job.province %>
+                                                        </p>
+                                                        <p>Postal Code: <%= job.postalCode %>
+                                                        </p>
+                                                        <p>Status: <%= job.status %>
+                                                        </p>
+                                                        <!-- Additional job details here -->
+                                                    </div>
+                                                    <div class="modal-footer">
+                                                        <button type="button" class="btn btn-secondary"
+                                                            data-dismiss="modal">Close</button>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </li>
+                                    <% }); %>
+                            </ul>
+                            <nav aria-label="Jobs Page Navigation" style="background-color: #f8f9fa;">
+                                <ul class="pagination">
+                                    <% for(let i=1; i <=jobsPages; i++) { %>
+                                        <li class="page-item <%= i == jobCurrent ? 'active' : '' %>">
+                                            <a class="page-link"
+                                                href="/adminDashboard?jobsPages=<%= i %>&employerPage=<%= employerCurrent %>&jobPage=<%= jobCurrent %>">
+                                                <%= i %>
+                                            </a>
+                                        </li>
+                                        <% } %>
+                                </ul>
+                            </nav>
                         </div>
                     </div>
                 </div>
+
                 <div class="col-md-6">
-                    <div
-                        class="card"
-                        style="
+                    <div class="card" style="
                             border: 1px solid #ccc;
                             border-radius: 8px;
                             box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
                             padding: 20px;
                             margin-bottom: 20px;
-                        "
-                    >
+                        ">
                         <div class="card-body">
-                            <h3
-                                class="card-title"
-                                style="font-size: 24px; font-weight: bold"
-                            >
-                                List Of Employer
+                            <h3 class="card-title" style="font-size: 24px; font-weight: bold">
+                                List of Employers
                             </h3>
-                            <!-- Add content here for liked jobs -->
+                            <ul>
+                                <% employers.forEach(function(employee, index) { %>
+                                    <li style=" margin-bottom: 7px;">
+                                        <%= employee.employerName %>
+                                            <form action="/deleteEmployer" method="POST" style="display: inline;">
+                                                <input type="hidden" name="email" value="<%= employee.email %>">
+                                                <button type="submit" class="btn btn-danger btn-sm">Delete</button>
+                                            </form>
+                                            <button type="button" class="btn btn-primary btn-sm" data-toggle="modal"
+                                                data-target="#employerModal<%= index %>">View</button>
+                                            <div class="modal fade" id="employerModal<%= index %>" tabindex="-1"
+                                                role="dialog" aria-labelledby="employerModalLabel<%= index %>"
+                                                aria-hidden="true">
+                                                <div class="modal-dialog" role="document">
+                                                    <div class="modal-content">
+                                                        <div class="modal-header">
+                                                            <h5 class="modal-title" id="employerModalLabel<%= index %>">
+                                                                Employer Details</h5>
+                                                            <button type="button" class="close" data-dismiss="modal"
+                                                                aria-label="Close">
+                                                                <span aria-hidden="true">&times;</span>
+                                                            </button>
+                                                        </div>
+                                                        <div class="modal-body">
+                                                            <p>Employer Name: <%= employee.employerName %>
+                                                            </p>
+                                                            <p>Employer ID: <%= employee.employerId %>
+                                                            </p>
+                                                            <p>Email: <%= employee.email %>
+                                                            </p>
+                                                            <!-- Add more employer details here -->
+                                                        </div>
+                                                        <div class="modal-footer">
+                                                            <button type="button" class="btn btn-secondary"
+                                                                data-dismiss="modal">Close</button>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                    </li>
+                                    <% }); %>
+
+                            </ul>
+                            <!-- <nav aria-label="Employers Page Navigation" style="background-color: #f8f9fa;">
+                                <ul class="pagination">
+                                    <% for(let i = 1; i <= employersPages; i++) { %>
+                                        <li class="page-item <%= i == employerCurrent ? 'active' : '' %>">
+                                            <a class="page-link" href="/adminDashboard?employersPages=<%= i %>&employerPage=<%= employerCurrent %>&jobPage=<%= jobCurrent %>"> <%= i %> </a>
+                                        </li>
+                                    <% } %>
+                                </ul>
+                            </nav> -->
                         </div>
                     </div>
                 </div>
@@ -119,4 +269,5 @@
         <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
     </body>
     <%- include('./partials/footer.ejs') %>
+
 </html>

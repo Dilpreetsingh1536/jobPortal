@@ -20,7 +20,7 @@ app.set("view engine", "ejs");
 app.use(express.static("public"));
 
 app.listen(3001, () => {
-  console.log("Server is listening at port 3001");
+    console.log("Server is listening at port 3001");
 });
 
 app.set("views", [
@@ -36,41 +36,41 @@ app.set("views", [
 /* SESSION */
 const uri = "mongodb+srv://dilpreet1999:Singh1536@cluster0.4g4xjah.mongodb.net/?retryWrites=true&w=majority";
 const accountSessionStore = MongoStore.create({
-  mongoUrl: uri,
-  dbName: "career_connect_session",
-  collectionName: "sessions",
+    mongoUrl: uri,
+    dbName: "career_connect_session",
+    collectionName: "sessions",
 });
 
 app.use(session({
-  secret: "A secret key to sign the cookie",
-  resave: false,
-  saveUninitialized: false,
-  store: accountSessionStore,
+    secret: "A secret key to sign the cookie",
+    resave: false,
+    saveUninitialized: false,
+    store: accountSessionStore,
 }));
 
 
 /* HOME */
 app.get("/home", (req, res) => {
-  const user = req.session.user;
-  const employer = req.session.employer;
-  const admin = req.session.admin;
-  res.render("home", { user, admin, employer });
+    const user = req.session.user;
+    const employer = req.session.employer;
+    const admin = req.session.admin;
+    res.render("home", { user, admin, employer });
 });
 
 /*User Search*/
 app.get('/userSearch', (req, res) => {
-  const user = req.session.user;
-  const employer = req.session.employer;
-  const admin = req.session.admin;
-  res.render("userSearch", { user, employer, admin });
+    const user = req.session.user;
+    const employer = req.session.employer;
+    const admin = req.session.admin;
+    res.render("userSearch", { user, employer, admin });
 })
 
 /*Emp Search*/
 app.get('/empSearch', (req, res) => {
-  const user = req.session.user;
-  const employer = req.session.employer;
-  const admin = req.session.admin;
-  res.render("empSearch", { user, employer, admin });
+    const user = req.session.user;
+    const employer = req.session.employer;
+    const admin = req.session.admin;
+    res.render("empSearch", { user, employer, admin });
 })
 
 /* contactUs */
@@ -80,10 +80,17 @@ app.get("/contactUs", (req, res) => {
   const admin = req.session.admin;
   res.render("contactUs", { user, employer, admin });
 });
+/*Abous us*/
+app.get('/aboutUs', (req, res) => {
+    const user = req.session.user;
+    const employer = req.session.employer;
+    const admin = req.session.admin;
+    res.render('aboutUs', { user, employer, admin });
+});
+
+
 
 app.use("/", userRoutes);
 app.use("/", empRoutes);
 app.use("/", adminRoutes);
 app.use("/", jobRoutes);
-
-
