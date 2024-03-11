@@ -10,94 +10,83 @@
     <link rel="stylesheet" type="text/css" href="css/contactUs.css" />
 </head>
 <body>
-    <!-- Navigation bar -->
     <%- include('./partials/nav.ejs') %>
-    
-    <div class="container">
-        <h1>Contact Us</h1>
-        <p>If you have any questions, feedback, or need assistance, please don't hesitate to contact us. We're here to help!</p>
-        
-        <div class="contact-grid">
-            <!-- Contact Information -->
-            <div class="contact-info-box">
-                <h2>Contact Information</h2>
-                <div class="contact-info">
-                    <p><strong>Phone:</strong> 123-456-7890</p>
-                    <p><strong>Email:</strong> info@careerconnect.com</p>
-                    <p><strong>Address:</strong> 98 Ottawa Street North, Kitchener, Canada</p> 
+
+    <div class="container mt-5">
+        <div class="row">
+            <!-- Left Column -->
+            <div class="col-md-6">
+                <!-- Contact Information -->
+                <div class="contact-info-box mb-4">
+                    <h2>Contact Information</h2>
+                    <div class="contact-info">
+                        <p><strong>Phone:</strong> 123-456-7890</p>
+                        <p><strong>Email:</strong> info@careerconnect.com</p>
+                        <p><strong>Address:</strong> 98 Ottawa Street North, Kitchener, Canada</p> 
+                    </div>
+                </div>
+
+                <div class="section-container">
+                    <!-- Social Media Links -->
+                    <section id="social-media" class="mb-4">
+                        <h2>Connect With Us</h2>
+                        <p>Follow us on social media for updates and announcements:</p>
+                        <ul>
+                            <li>
+                                <a href="#" target="_blank" rel="noopener noreferrer">
+                                    <img src="https://img.icons8.com/fluent/48/000000/linkedin.png" alt="LinkedIn">
+                                </a>
+                            </li>
+                            <li>
+                                <a href="#" target="_blank" rel="noopener noreferrer">
+                                    <img src="https://img.icons8.com/fluent/48/000000/twitter.png" alt="Twitter">
+                                </a>
+                            </li>
+                            <li>
+                                <a href="#" target="_blank" rel="noopener noreferrer">
+                                    <img src="https://img.icons8.com/fluent/48/000000/facebook-new.png" alt="Facebook">
+                                </a>
+                            </li>
+                        </ul>
+                    </section>
+                    
+                    <!-- Feedback or Suggestions -->
+                    <section id="feedback" class="mb-4">
+                        <h2>Feedback</h2>
+                        <p>We value your feedback! Send us your suggestions at feedback@careerconnect.com.</p>
+                    </section>
+                        
                 </div>
             </div>
 
-             
-            <!-- Contact Form -->
-            <section id="contact-form">
-                <h2>Contact Form</h2>
-                <p>Send us a message directly using the form below:</p>
-                <form action="/contact" method="POST">
-                    <div class="form-group">
-                        <label for="name">Your Name:</label>
-                        <input type="text" id="name" name="name" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="email">Your Email:</label>
-                        <input type="email" id="email" name="email" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="message">Your Message:</label>
-                        <textarea id="message" name="message" rows="4" required></textarea>
-                    </div>
-                    <button type="submit">Send Message</button>
-                </form>
-            </section>
+            <!-- Right Column - Contact Form -->
+            <div class="col-md-6">
+                <section id="contact-form">
+                    <h2>Contact Form</h2>
+                    <p>Send us a message directly using the form below:</p>
+                    <form action="/contact" method="POST">
+                        <div class="form-group">
+                            <label for="name">Your Name:</label>
+                            <input type="text" id="name" name="name" class="form-control" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="email">Your Email:</label>
+                            <input type="email" id="email" name="email" class="form-control" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="message">Your Message:</label>
+                            <textarea id="message" name="message" class="form-control" rows="4" required></textarea>
+                        </div>
+                        <button type="submit" class="btn btn-success">Send Message</button>
+                    </form>
+                </section>
+            </div>
         </div>
-        <!-- Social Media Links -->
-        <section id="social-media">
-            <h2>Connect With Us</h2>
-            <p>Follow us on social media for updates and announcements:</p>
-            <ul>
-                <li>
-                    <a href="#" target="_blank" rel="noopener noreferrer">
-                        <img src="https://img.icons8.com/fluent/48/000000/linkedin.png" alt="LinkedIn">
-                    </a>
-                </li>
-                <li>
-                    <a href="#" target="_blank" rel="noopener noreferrer">
-                        <img src="https://img.icons8.com/fluent/48/000000/twitter.png" alt="Twitter">
-                    </a>
-                </li>
-                <li>
-                    <a href="#" target="_blank" rel="noopener noreferrer">
-                        <img src="https://img.icons8.com/fluent/48/000000/facebook-new.png" alt="Facebook">
-                    </a>
-                </li>
-            </ul>
-        </section>
-        
-        <!-- Frequently Asked Questions (FAQs) -->
-        <section id="faqs">
-            <h2>FAQs</h2>
-            <p>Check out our <a href="/faq">FAQs</a> for answers to common questions.</p>
-        </section>
-        
-        <!-- Feedback or Suggestions -->
-        <section id="feedback">
-            <h2>Feedback</h2>
-            <p>We value your feedback! Send us your suggestions at feedback@careerconnect.com.</p>
-        </section>
-            
-        
-       
-        
-        <!-- Subscription Options -->
-        <section id="subscription">
-            <h2>Stay Updated</h2>
-            <p>Subscribe to our newsletter for the latest job opportunities and updates. <a href="/subscribe">Subscribe Now</a>.</p>
-        </section>
-        
-        
     </div>
-    
-   
+
     <%- include('./partials/footer.ejs') %>
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
 </body>
 </html>
