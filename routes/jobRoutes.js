@@ -269,38 +269,56 @@ router.get('/deleteJob', async (req, res) => {
     const employer = req.session.employer;
     const admin = req.session.admin;
 
-    const jobId = req.session.jobId;
+    let jobId = req.query.jobId;
 
-    res.render('deleteJob', { user, employer, admin, jobId });
+    // If jobId is not in the query, try getting it from the session
+    if (!jobId && req.session.jobId) {
+        jobId = req.session.jobId;
+    }
+
+
+    res.render('deleteJob', { user, employer, admin, jobId, success: null, error: null  });
 });
 
 router.post('/deleteJob', async (req, res) => {
     try {
-        const jobId = req.session.deleteJobId;
+        const { jobId } = req.body; 
 
         if (!jobId) {
-            req.flash('error', 'Job ID not found in the session.');
-            return res.redirect('/empDashboard');
+            console.error('Job ID not provided');
+            return res.render('deleteJob', {
+                error: 'No job ID provided. Please try again.',
+                success: null,
+                jobId: null, // No jobId to operate on
+            });
         }
 
         await jobModel.findByIdAndDelete(jobId);
+        console.log('Job deleted successfully.');
 
-        delete req.session.deleteJobId;
-
-        req.flash('success', 'Job deleted successfully.');
-        res.redirect('/empDashboard');
+        res.render('deleteJob', {
+            success: 'Job deleted successfully.',
+            error: null,
+            jobId: null, 
+        });
     } catch (error) {
-        console.error(error);
-        req.flash('error', 'Error deleting the job.');
-        res.redirect('/empDashboard');
+        console.error('Error deleting job:', error);
+
+        res.render('deleteJob', {
+            error: 'Error deleting the job. Please try again.',
+            success: null,
+            jobId: req.body.jobId,
+        });
     }
 });
 
+
 router.get('/setDeleteJobId/:jobId', (req, res) => {
-    const jobId = req.params.jobId;
-    req.session.deleteJobId = jobId;
+    const { jobId } = req.params;
+    req.session.jobId = jobId;
     res.redirect('/deleteJob');
 });
+
 
 //--------------------------------------------------------------------//
 
