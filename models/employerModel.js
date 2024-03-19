@@ -57,6 +57,10 @@ const employerSchema = new mongoose.Schema({
             return Math.random().toString(36).substr(2, 10);
         },
     },
+    logo: {
+        type: String,
+        default: '/images/profile_logo.png', 
+    },
 });
 
 const employerModel = mongoose.model("employerModel", employerSchema);

@@ -64,13 +64,23 @@ app.get('/userSearch', (req, res) => {
   res.render("userSearch", { user, employer, admin });
 })
 
-/*Emp Search*/
-app.get('/empSearch', (req, res) => {
+/* contactUs */
+app.get("/contactUs", (req, res) => {
   const user = req.session.user;
   const employer = req.session.employer;
   const admin = req.session.admin;
-  res.render("empSearch", { user, employer, admin });
-})
+  res.render("contactUs", { user, employer, admin });
+});
+
+/*Abous us*/
+app.get('/aboutUs', (req, res) => {
+    const user = req.session.user;
+    const employer = req.session.employer;
+    const admin = req.session.admin;
+    res.render('aboutUs', { user, employer, admin });
+});
+
+
 
 app.use("/", userRoutes);
 app.use("/", empRoutes);
