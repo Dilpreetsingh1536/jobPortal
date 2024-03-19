@@ -4,7 +4,6 @@ const userModel = require("../models/userModel");
 const bcrypt = require("bcrypt");
 const nodemailer = require('nodemailer');
 const ContactMessageModel = require('../models/contactMessageModel');
-const employerModel = require("../models/employerModel");
 
 // Code Send
 const sixDigitCode = Math.floor(100000 + Math.random() * 900000);
@@ -601,9 +600,9 @@ const updateEducationById = async (userId, educationId, updatedFields) => {
 
         educationToUpdate.set(updatedFields);
 
-        await user.save();  
+        await user.save();
 
-        return user;  
+        return user;
     } catch (error) {
         throw error;
     }
@@ -634,7 +633,7 @@ router.post('/edit-education', checkEmployerNotLoggedIn, checkAdminNotLoggedIn, 
             endDate,
         });
 
-        req.session.user = updatedUser;  
+        req.session.user = updatedUser;
 
         req.flash('success', 'Education updated successfully!');
         res.redirect('/editEducation');
@@ -774,9 +773,9 @@ const updateExperienceById = async (userId, experienceId, updatedFields) => {
 
         experienceToUpdate.set(updatedFields);
 
-        await user.save();  
+        await user.save();
 
-        return user;  
+        return user;
     } catch (error) {
         throw error;
     }
@@ -902,42 +901,20 @@ router.get('/clearExpSession', (req, res) => {
 
 router.post('/contact', async (req, res) => {
     try {
-        const { name, email, message } = req.body;
-        const newContactMessage = new ContactMessageModel({
-            name,
-            email,
-            message,
-        });
-
-        await newContactMessage.save();
-        res.json({ status: 'success', message: 'Your message has been sent successfully!' });
+      const { name, email, message } = req.body;
+      const newContactMessage = new ContactMessageModel({
+        name,
+        email,
+        message,
+      });
+  
+      await newContactMessage.save();
+      res.json({ status: 'success', message: 'Your message has been sent successfully!' });
     } catch (error) {
-        console.log(error);
-        res.json({ status: 'error', message: 'An error occurred while sending your message. Please try again.' });
+      console.log(error);
+      res.json({ status: 'error', message: 'An error occurred while sending your message. Please try again.' });
     }
-});
-
-//Recruiters Page
-router.get('/recruiterPage', checkAdminNotLoggedIn, checkEmployerNotLoggedIn, async (req, res) => {
-    const user = req.session.user;
-    const employer = req.session.employer;
-    const admin = req.session.admin;
-    try {
-        console.log("Fetching recruiters...");
-        const recruiters = await employerModel.find({}, 'employerName registrationNumber logo');
-
-        recruiters.forEach(recruiter => {
-            recruiter.registrationNumber = recruiter.registrationNumber.toUpperCase();
-        });
-        res.render('recruiterPage', { recruiters, user, employer, admin, });
-    } catch (error) {
-        console.error("Error fetching recruiters:", error);
-        req.flash('error', 'Internal Server Error');
-        res.redirect('/recruiterPage');
-    }
-});
-
-
-//------------------------------------------------------------//
+  });
+  
 
 module.exports = router;

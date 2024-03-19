@@ -1,0 +1,108 @@
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem;
+}
+.contact-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2rem;
+}
+.contact-info-box, #contact-form, #social-media, #faqs, #feedback, #subscription {
+  background-color: #f9f9f9;
+  padding: 2rem;
+  border-radius: 5px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+#contact-form form {
+  border: 2px solid #28A745;
+  padding: 2rem;
+  border-radius: 5px;
+}
+#contact-form button {
+  color: white;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 5px;
+  cursor: pointer;
+}
+#contact-form button:hover {
+  background-color: #28A745;
+}
+#social-media ul {
+  list-style: none;
+  padding: 0;
+  display: flex;
+  justify-content: center;
+}
+#social-media li {
+  margin: 0 1rem;
+}
+#social-media img {
+  width: 48px;
+  height: 48px;
+}
+h2 {
+  margin-bottom: 1rem;
+}
+p {
+  margin-bottom: 1rem;
+}
+.form-group {
+  margin-bottom: 1rem;
+}
+.form-group label {
+  display: block;
+  margin-bottom: .5rem;
+}
+.form-group input, .form-group textarea {
+  width: 100%;
+  padding: .5rem;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+}
+.section-container {
+  margin-top: 2rem;
+}
+
+.section-container section {
+  background-color: #f9f9f9;
+  padding: 2rem;
+  border-radius: 5px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  margin-bottom: 2rem;
+}
+
+.section-container h2 {
+  color: #28A745;
+  margin-bottom: 1rem;
+}
+
+.section-container p, .section-container ul {
+  margin-bottom: 1rem;
+}
+
+.section-container ul {
+  list-style-type: none;
+  padding: 0;
+  display: flex;
+  justify-content: space-around;
+}
+
+.section-container li {
+  margin: 0 1rem;
+}
+
+.section-container li a {
+  display: inline-block;
+  margin: 0 5px;
+}
+
+.section-container a {
+  color: #28A745;
+  text-decoration: none;
+}
+
+.section-container a:hover {
+  text-decoration: underline;
+}

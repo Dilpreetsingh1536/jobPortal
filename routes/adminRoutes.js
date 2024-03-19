@@ -3,7 +3,8 @@ const router = express.Router();
 const adminModel = require("../models/adminModel");
 const userModel = require("../models/userModel");
 const employerModel = require("../models/employerModel");
-const jobModel = require( "../models/jobModel" );
+const jobModel = require("../models/jobModel");
+const contactMessageModel = require("../models/contactMessageModel");
 
 // Admin Routes Restricted
 
@@ -21,6 +22,14 @@ const checkUserNotLoggedIn = (req, res, next) => {
         next();
     } else {
         res.redirect('/home');
+    }
+};
+
+const checkNotLoggedIn = (req, res, next) => {
+    if (!req.session.user && !req.session.employer && !req.session.admin) {
+        res.redirect('/home');
+    } else {
+        next();
     }
 };
 
@@ -64,7 +73,7 @@ router.post("/admin_post", checkEmployerNotLoggedIn, checkUserNotLoggedIn, async
 });
 
 // admin dashboard
-router.get("/adminDashboard", checkUserNotLoggedIn, checkEmployerNotLoggedIn, async (req, res) => {
+router.get("/adminDashboard", checkUserNotLoggedIn, checkEmployerNotLoggedIn, checkNotLoggedIn,  async (req, res) => {
     const user = req.session.user;
     const employer = req.session.employer;
     const admin = req.session.admin;
@@ -73,30 +82,38 @@ router.get("/adminDashboard", checkUserNotLoggedIn, checkEmployerNotLoggedIn, as
     let userPage = req.query.userPage || 1;
     let employerPage = req.query.employerPage || 1;
     let jobPage = req.query.jobPage || 1;
+    let messagePage = req.query.messagePage || 1;
 
     const users = await userModel.find({})
-                                 .skip((perPage * userPage) - perPage)
-                                 .limit(perPage);
+        .skip((perPage * userPage) - perPage)
+        .limit(perPage);
     const userCount = await userModel.countDocuments();
 
     const employers = await employerModel.find({})
-                                         .skip((perPage * employerPage) - perPage)
-                                         .limit(perPage);
+        .skip((perPage * employerPage) - perPage)
+        .limit(perPage);
     const employerCount = await employerModel.countDocuments();
 
     const jobs = await jobModel.find({})
-                               .skip((perPage * jobPage) - perPage)
-                               .limit(perPage);
+        .skip((perPage * jobPage) - perPage)
+        .limit(perPage);
     const jobCount = await jobModel.countDocuments();
 
+    const messages = await contactMessageModel.find({})
+        .skip((perPage * messagePage) - perPage)
+        .limit(perPage);
+    const messageCount = await contactMessageModel.countDocuments();
+
     res.render("adminDashboard", {
-        user, admin, employer, users, employers, jobs,
+        user, admin, employer, users, employers, jobs, messages,
         userCurrent: userPage,
         usersPages: Math.ceil(userCount / perPage),
         employerCurrent: employerPage,
         employersPages: Math.ceil(employerCount / perPage),
         jobCurrent: jobPage,
-        jobsPages: Math.ceil(jobCount / perPage)
+        jobsPages: Math.ceil(jobCount / perPage),
+        messageCurrent: messagePage,
+        messagesPages: Math.ceil(messageCount / perPage)
     });
 });
 
@@ -120,7 +137,7 @@ router.post('/deleteEmployer', async (req, res) => {
     try {
         await employerModel.deleteOne({ email });
         console.log('Employer deleted successfully.');
-        res.redirect('/adminDashboard'); // Redirect back to the admin dashboard or wherever appropriate
+        res.redirect('/adminDashboard');
     } catch (error) {
         console.error('Error deleting employer:', error);
         res.status(500).send('Error deleting employer');
@@ -132,7 +149,7 @@ router.post('/deleteUser', async (req, res) => {
     try {
         await userModel.deleteOne({ email });
         console.log('User deleted successfully.');
-        res.redirect('/adminDashboard'); // Redirect back to the admin dashboard or wherever appropriate
+        res.redirect('/adminDashboard');
     } catch (error) {
         console.error('Error deleting user:', error);
         res.status(500).send('Error deleting user');
@@ -144,12 +161,26 @@ router.post('/deleteJob', async (req, res) => {
     try {
         await jobModel.findByIdAndDelete(jobId);
         console.log('Job deleted successfully.');
-        res.redirect('/adminDashboard'); // Adjust the redirect as needed
+        res.redirect('/adminDashboard');
     } catch (error) {
         console.error('Error deleting job:', error);
         res.status(500).send('Error deleting job');
     }
 });
+
+router.post('/deleteMessage', async (req, res) => {
+    const { messageId } = req.body;
+    try {
+        await contactMessageModel.findByIdAndDelete(messageId);
+        console.log('Message deleted successfully.');
+        res.redirect('/adminDashboard');
+    } catch (error) {
+        console.error('Error deleting message:', error);
+        res.status(500).send('Error deleting message');
+    }
+});
+
+
 
 router.post('/admin/updateJobStatus', async (req, res) => {
     const { jobId, action } = req.body;
@@ -162,7 +193,7 @@ router.post('/admin/updateJobStatus', async (req, res) => {
 
     try {
         await jobModel.findByIdAndUpdate(jobId, { status: action });
-        res.redirect('/adminDashboard'); // Or wherever you want to redirect after the action
+        res.redirect('/adminDashboard');
     } catch (error) {
         console.error('Failed to update job status:', error);
         res.status(500).send('Server error');

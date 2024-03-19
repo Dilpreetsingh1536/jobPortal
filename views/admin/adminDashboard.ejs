@@ -17,18 +17,30 @@
             <div class="row">
 
                 <div class="col-md-6">
-                    <div class="card" style="
-                            border: 1px solid #ccc;
-                            border-radius: 8px;
-                            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-                            padding: 20px;
-                            margin-bottom: 20px;
-                        ">
+                    <div class="card" style="border: 1px solid #ccc; border-radius: 8px; box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); padding: 20px; margin-bottom: 20px;">
                         <div class="card-body">
-                            <h3 class="card-title" style="font-size: 24px; font-weight: bold">
-                                New Messages
-                            </h3>
-                            <!-- Add content here for applied jobs -->
+                            <h3 class="card-title" style="font-size: 24px; font-weight: bold">New Messages</h3>
+                            <ul>
+                                <% messages.forEach(function(message, index) { %>
+                                    <li style="margin-bottom: 7px;">
+                                        <strong>From:</strong> <%= message.name %> (<%= message.email %>)
+                                        <p><strong>Message:</strong> <%= message.message %></p>
+                                        <form action="/deleteMessage" method="POST" style="display: inline;">
+                                            <input type="hidden" name="messageId" value="<%= message._id %>">
+                                            <button type="submit" class="btn btn-danger btn-sm">Delete</button>
+                                        </form>
+                                    </li>
+                                <% }); %>
+                            </ul>
+                            <nav aria-label="Message Page Navigation" style="background-color: #f8f9fa;">
+                                <ul class="pagination">
+                                    <% for(let i = 1; i <= messagesPages; i++) { %>
+                                        <li class="page-item <%= i == messageCurrent ? 'active' : '' %>">
+                                            <a class="page-link" href="/adminDashboard?messagesPages=<%= i %>&userPage=<%= userCurrent %>&employerPage=<%= employerCurrent %>&jobPage=<%= jobCurrent %>"><%= i %></a>
+                                        </li>
+                                    <% } %>
+                                </ul>
+                            </nav>
                         </div>
                     </div>
                 </div>
@@ -52,11 +64,8 @@
                                                 <input type="hidden" name="email" value="<%= user.email %>">
                                                 <button type="submit" class="btn btn-danger btn-sm">Delete</button>
                                             </form>
-                                            <!-- View Button -->
                                             <button type="button" class="btn btn-primary btn-sm" data-toggle="modal"
                                                 data-target="#userModal<%= index %>">View</button>
-
-                                            <!-- User Modal -->
                                             <div class="modal fade" id="userModal<%= index %>" tabindex="-1"
                                                 role="dialog" aria-labelledby="userModalLabel<%= index %>"
                                                 aria-hidden="true">
@@ -89,15 +98,15 @@
                                     </li>
                                     <% }); %>
                             </ul>
-                            <!-- <nav aria-label="User Page Navigation" style="background-color: #f8f9fa;">
+                            <nav aria-label="User Page Navigation" style="background-color: #f8f9fa;">
                                 <ul class="pagination">
                                     <% for(let i = 1; i <= usersPages; i++) { %>
                                         <li class="page-item <%= i == userCurrent ? 'active' : '' %>">
-                                            <a class="page-link" href="/adminDashboard?userPage=<%= i %>&employerPage=<%= employerCurrent %>&jobPage=<%= jobCurrent %>"> <%= i %> </a>
+                                            <a class="page-link" href="/adminDashboard?usersPages=<%= i %>&employerPage=<%= employerCurrent %>&jobPage=<%= jobCurrent %>"> <%= i %> </a>
                                         </li>
                                     <% } %>
                                 </ul>
-                            </nav> -->
+                            </nav>
                         </div>
                     </div>
                 </div>
@@ -120,17 +129,14 @@
                                                 <%= job.jobTitle %>
                                             </strong> - <em>Status: <%= job.status %></em></div>
                                         <div class="d-flex align-items-center mt-2">
-                                            <!-- View Button -->
                                             <button type="button" class="btn btn-primary btn-sm mr-2"
                                                 data-toggle="modal" data-target="#jobModal<%= index %>">View</button>
 
-                                            <!-- Delete Button -->
                                             <form action="/deleteJob" method="POST" class="d-inline-block mr-2">
                                                 <input type="hidden" name="jobId" value="<%= job._id %>">
                                                 <button type="submit" class="btn btn-danger btn-sm">Delete</button>
                                             </form>
 
-                                            <!-- Combined Action Form -->
                                             <form action="/admin/updateJobStatus" method="POST"
                                                 class="d-flex align-items-center mr-2">
                                                 <input type="hidden" name="jobId" value="<%= job._id %>" />
@@ -139,12 +145,10 @@
                                                     <option value="approved">Approve</option>
                                                     <option value="rejected">Reject</option>
                                                 </select>
-                                                <button type="submit"
-                                                    class="btn btn-success btn-sm">Update</button>
+                                                <button type="submit" class="btn btn-success btn-sm">Update</button>
                                             </form>
                                         </div>
 
-                                        <!-- Job Modal -->
                                         <div class="modal fade" id="jobModal<%= index %>" tabindex="-1" role="dialog"
                                             aria-labelledby="jobModalLabel<%= index %>" aria-hidden="true">
                                             <div class="modal-dialog" role="document">
@@ -188,16 +192,17 @@
                             </ul>
                             <nav aria-label="Jobs Page Navigation" style="background-color: #f8f9fa;">
                                 <ul class="pagination">
-                                    <% for(let i = 1; i <= jobsPages; i++) { %>
+                                    <% for(let i=1; i <=jobsPages; i++) { %>
                                         <li class="page-item <%= i == jobCurrent ? 'active' : '' %>">
-                                            <a class="page-link" href="/adminDashboard?jobsPages=<%= i %>&employerPage=<%= employerCurrent %>&jobPage=<%= jobCurrent %>"> <%= i %> </a>
+                                            <a class="page-link"
+                                                href="/adminDashboard?jobsPages=<%= i %>&employerPage=<%= employerCurrent %>&userPage=<%= userCurrent %>">
+                                                <%= i %>
+                                            </a>
                                         </li>
-                                    <% } %>
+                                        <% } %>
                                 </ul>
                             </nav>
                         </div>
-
-
                     </div>
                 </div>
 
@@ -221,11 +226,8 @@
                                                 <input type="hidden" name="email" value="<%= employee.email %>">
                                                 <button type="submit" class="btn btn-danger btn-sm">Delete</button>
                                             </form>
-                                            <!-- View Button -->
                                             <button type="button" class="btn btn-primary btn-sm" data-toggle="modal"
                                                 data-target="#employerModal<%= index %>">View</button>
-
-                                            <!-- Employer Modal -->
                                             <div class="modal fade" id="employerModal<%= index %>" tabindex="-1"
                                                 role="dialog" aria-labelledby="employerModalLabel<%= index %>"
                                                 aria-hidden="true">
@@ -259,15 +261,15 @@
                                     <% }); %>
 
                             </ul>
-                            <!-- <nav aria-label="Employers Page Navigation" style="background-color: #f8f9fa;">
+                            <nav aria-label="Employers Page Navigation" style="background-color: #f8f9fa;">
                                 <ul class="pagination">
                                     <% for(let i = 1; i <= employersPages; i++) { %>
                                         <li class="page-item <%= i == employerCurrent ? 'active' : '' %>">
-                                            <a class="page-link" href="/adminDashboard?employersPages=<%= i %>&employerPage=<%= employerCurrent %>&jobPage=<%= jobCurrent %>"> <%= i %> </a>
+                                            <a class="page-link" href="/adminDashboard?employersPages=<%= i %>&userPage=<%= userCurrent %>&jobPage=<%= jobCurrent %>"> <%= i %> </a>
                                         </li>
                                     <% } %>
                                 </ul>
-                            </nav> -->
+                            </nav>
                         </div>
                     </div>
                 </div>

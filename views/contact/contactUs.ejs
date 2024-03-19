@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Contact Us - CareerConnect</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+    <link rel="stylesheet" type="text/css" href="css/nav.css" />
+    <link rel="stylesheet" type="text/css" href="css/footer.css" />
+    <link rel="stylesheet" type="text/css" href="css/contactUs.css" />
+</head>
+<body>
+    <%- include('./partials/nav.ejs') %>
+
+    <div class="container mt-5">
+        <div class="row">
+            <!-- Left Column -->
+            <div class="col-md-6">
+                <!-- Contact Information -->
+                <div class="contact-info-box mb-4">
+                    <h2>Contact Information</h2>
+                    <div class="contact-info">
+                        <p><strong>Phone:</strong> 123-456-7890</p>
+                        <p><strong>Email:</strong> info@careerconnect.com</p>
+                        <p><strong>Address:</strong> 98 Ottawa Street North, Kitchener, Canada</p> 
+                    </div>
+                </div>
+
+                <div class="section-container">
+                    <!-- Social Media Links -->
+                    <section id="social-media" class="mb-4">
+                        <h2>Connect With Us</h2>
+                        <p>Follow us on social media for updates and announcements:</p>
+                        <ul>
+                            <li>
+                                <a href="#" target="_blank" rel="noopener noreferrer">
+                                    <img src="https://img.icons8.com/fluent/48/000000/linkedin.png" alt="LinkedIn">
+                                </a>
+                            </li>
+                            <li>
+                                <a href="#" target="_blank" rel="noopener noreferrer">
+                                    <img src="https://img.icons8.com/fluent/48/000000/twitter.png" alt="Twitter">
+                                </a>
+                            </li>
+                            <li>
+                                <a href="#" target="_blank" rel="noopener noreferrer">
+                                    <img src="https://img.icons8.com/fluent/48/000000/facebook-new.png" alt="Facebook">
+                                </a>
+                            </li>
+                        </ul>
+                    </section>
+                    
+                    <!-- Feedback or Suggestions -->
+                    <section id="feedback" class="mb-4">
+                        <h2>Feedback</h2>
+                        <p>We value your feedback! Send us your suggestions at feedback@careerconnect.com.</p>
+                    </section>
+                        
+                </div>
+            </div>
+
+            <!-- Right Column - Contact Form -->
+            <div class="col-md-6">
+                <section id="contact-form">
+                    <h2>Contact Form</h2>
+                    <p>Send us a message directly using the form below:</p>
+                    <form action="/contact" method="POST">
+                        <div class="form-group">
+                            <label for="name">Your Name:</label>
+                            <input type="text" id="name" name="name" class="form-control" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="email">Your Email:</label>
+                            <input type="email" id="email" name="email" class="form-control" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="message">Your Message:</label>
+                            <textarea id="message" name="message" class="form-control" rows="4" required></textarea>
+                        </div>
+                        <button type="submit" class="btn btn-success">Send Message</button>
+                    </form>
+                </section>
+            </div>
+        </div>
+    </div>
+
+    <%- include('./partials/footer.ejs') %>
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+
+    <script>
+        document.getElementById('contact-form').addEventListener('submit', function(e) {
+          e.preventDefault(); // Prevent the default form submission
+      
+          const formData = {
+            name: document.getElementById('name').value,
+            email: document.getElementById('email').value,
+            message: document.getElementById('message').value
+          };
+      
+          fetch('/contact', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(formData),
+          })
+          .then(response => response.json())
+          .then(data => {
+            const messageContainer = document.createElement('div');
+            messageContainer.className = `alert alert-${data.status === 'success' ? 'success' : 'danger'}`;
+            messageContainer.role = 'alert';
+            messageContainer.textContent = data.message;
+            document.getElementById('contact-form').prepend(messageContainer);
+      
+            // Optional: Clear the form fields after successful submission
+            if (data.status === 'success') {
+              document.getElementById('name').value = '';
+              document.getElementById('email').value = '';
+              document.getElementById('message').value = '';
+            }
+          })
+          .catch(error => console.error('Error:', error));
+        });
+      </script>
+      
+</body>
+</html>

@@ -40,7 +40,7 @@ const checkUserNotLoggedIn = (req, res, next) => {
     }
 };
 
-/*Job Search - Updated to only show approved jobs*/
+/*Job Search */
 router.get('/searchJob', async (req, res) => {
     try {
         const user = req.session.user;
@@ -48,7 +48,7 @@ router.get('/searchJob', async (req, res) => {
         const admin = req.session.admin;
 
         const uniqueSectors = await jobModel.distinct('sector');
-        // Fetch uniqueCompanies without applying the 'status' condition
+        
         const uniqueCompanies = await employerModel.distinct('employerName');
 
         const jobs = await jobModel.find({ status: 'approved' }).populate('employerId', 'employerName sector').exec();
@@ -70,7 +70,7 @@ router.post('/searchJob', async (req, res) => {
     try {
         const { job, location, salary, sector, company } = req.body;
 
-        const filter = { status: 'approved' }; // Filter jobs by 'approved' status
+        const filter = { status: 'approved' };
 
         if (job) {
             filter.jobTitle = new RegExp(job, 'i');
@@ -110,7 +110,7 @@ router.post('/searchJob', async (req, res) => {
             const employersMatchingCompany = await employerModel.find({
                 employerName: new RegExp(company, 'i'),
             });
-            
+
             const employerIds = employersMatchingCompany.map((employer) => employer._id);
 
             filter.employerId = { $in: employerIds };
@@ -135,7 +135,7 @@ router.post('/searchJob', async (req, res) => {
 /*Job Listing*/
 router.get('/listJob', checkUserNotLoggedIn, checkAdminNotLoggedIn, (req, res) => {
     const { success, error } = req.query;
-        const user = req.session.user;
+    const user = req.session.user;
     const employer = req.session.employer;
     const admin = req.session.admin;
     res.render("listJob", { user, employer, admin, success, error });
@@ -170,7 +170,6 @@ router.post("/add-job", checkUserNotLoggedIn, checkAdminNotLoggedIn, async (req,
         const salaryWithDollar = `$${salary}`;
         const employerId = req.session.employer._id;
 
-        // Create and save new job
         const newJob = new jobModel({
             jobTitle,
             sector,
@@ -185,7 +184,6 @@ router.post("/add-job", checkUserNotLoggedIn, checkAdminNotLoggedIn, async (req,
 
         await newJob.save();
 
-        // Render with success message
         return res.render("listJob", { user, employer, admin, success: "Job added successfully!", error: null });
     } catch (error) {
         console.error(error);
@@ -271,38 +269,56 @@ router.get('/deleteJob', async (req, res) => {
     const employer = req.session.employer;
     const admin = req.session.admin;
 
-    const jobId = req.session.jobId;
+    let jobId = req.query.jobId;
 
-    res.render('deleteJob', { user, employer, admin, jobId });
+    // If jobId is not in the query, try getting it from the session
+    if (!jobId && req.session.jobId) {
+        jobId = req.session.jobId;
+    }
+
+
+    res.render('deleteJob', { user, employer, admin, jobId, success: null, error: null  });
 });
 
 router.post('/deleteJob', async (req, res) => {
     try {
-        const jobId = req.session.deleteJobId;
+        const { jobId } = req.body; 
 
         if (!jobId) {
-            req.flash('error', 'Job ID not found in the session.');
-            return res.redirect('/empDashboard');
+            console.error('Job ID not provided');
+            return res.render('deleteJob', {
+                error: 'No job ID provided. Please try again.',
+                success: null,
+                jobId: null, // No jobId to operate on
+            });
         }
 
         await jobModel.findByIdAndDelete(jobId);
+        console.log('Job deleted successfully.');
 
-        delete req.session.deleteJobId;
-
-        req.flash('success', 'Job deleted successfully.');
-        res.redirect('/empDashboard');
+        res.render('deleteJob', {
+            success: 'Job deleted successfully.',
+            error: null,
+            jobId: null, 
+        });
     } catch (error) {
-        console.error(error);
-        req.flash('error', 'Error deleting the job.');
-        res.redirect('/empDashboard');
+        console.error('Error deleting job:', error);
+
+        res.render('deleteJob', {
+            error: 'Error deleting the job. Please try again.',
+            success: null,
+            jobId: req.body.jobId,
+        });
     }
 });
 
+
 router.get('/setDeleteJobId/:jobId', (req, res) => {
-    const jobId = req.params.jobId;
-    req.session.deleteJobId = jobId;
+    const { jobId } = req.params;
+    req.session.jobId = jobId;
     res.redirect('/deleteJob');
 });
+
 
 //--------------------------------------------------------------------//
 
