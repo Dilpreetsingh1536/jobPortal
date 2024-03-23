@@ -6,7 +6,7 @@
             name="viewport"
             content="width=device-width, initial-scale=1, shrink-to-fit=no"
         />
-        <title>Recruiters</title>
+        <title>Employers</title>
         <link
             rel="stylesheet"
             href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
@@ -18,25 +18,35 @@
 
     <body style="background-color: #f8f9fa">
         <div class="container mt-5">
-            <h1>Recruiters</h1>
+            <h1>Employers</h1>
             <div class="row">
-                <% recruiters.forEach(recruiter => { %>
+                <% employers.forEach(employer => { %>
                 <div class="col-md-3 mb-4">
                     <div class="card">
                         <img
-                            src="<%= recruiter.logo %>"
+                            src="<%= employer.logo %>"
                             class="card-img-top"
-                            alt="Recruiter Logo"
+                            alt="Employer Logo"
                         />
                         <div class="card-body">
                             <h5 class="card-title">
-                                <%= recruiter.employerName %>
+                                <%= employer.employerName %>
                             </h5>
+
                             <p class="card-text">
                                 Registration Number: <%=
-                                recruiter.registrationNumber %>
+                                employer.registrationNumber %>
                             </p>
-                            <a href="#" class="btn btn-primary">Message</a>
+                            <form action="/viewProfile" method="post">
+                                <input
+                                    type="hidden"
+                                    name="employerId"
+                                    value="<%= employer._id %>"
+                                />
+                                <button type="submit" class="btn btn-primary">
+                                    View Profile
+                                </button>
+                            </form>
                         </div>
                     </div>
                 </div>

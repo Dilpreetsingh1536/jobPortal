@@ -1,22 +1,27 @@
 <nav>
     <div class="logo-container">
         <a href="/home">
-            <img src="images/logo.png" alt="Career Connect Logo" class="logo-img" />
+            <img
+                src="images/logo.png"
+                alt="Career Connect Logo"
+                class="logo-img"
+            />
         </a>
     </div>
     <ul>
         <li><a href="/home">Home</a></li>
         <li><a href="/searchJob">Job Search</a></li>
         <% if (user) { %>
-            <li><a href="/userDashboard">Dashboard</a></li>
-            <li class="dropdown">
-                <a href="#" class="account-link">Company Info</a>
-                <div class="dropdown-content">
-                    <a href="contactUs">Contact</a>
-                    <a href="/aboutUs">About Us</a>
-                </div>
-            </li>
-            <li><a href="/logout">Logout</a></li>
+        <li><a href="/userDashboard">Dashboard</a></li>
+        <li><a href="/employerPage">Employers</a></li>
+        <li class="dropdown">
+            <a href="#" class="account-link">Company Info</a>
+            <div class="dropdown-content">
+                <a href="contactUs">Contact</a>
+                <a href="/aboutUs">About Us</a>
+            </div>
+        </li>
+        <li><a href="/logout">Logout</a></li>
         <% } else if (admin) { %>
         <li><a href="/adminDashboard">Dashboard</a></li>
         <li><a href="/adminLogout">Logout</a></li>
@@ -32,11 +37,11 @@
         <li><a href="/empLogout">Logout</a></li>
         <% } else { %>
         <li class="dropdown">
-                <a href="#" class="account-link">Company Info</a>
-                <div class="dropdown-content">
-                    <a href="contactUs">Contact</a>
-                    <a href="/aboutUs">About Us</a>
-                </div>
+            <a href="#" class="account-link">Company Info</a>
+            <div class="dropdown-content">
+                <a href="contactUs">Contact</a>
+                <a href="/aboutUs">About Us</a>
+            </div>
         </li>
         <li class="dropdown">
             <a href="#" class="account-link">Account</a>

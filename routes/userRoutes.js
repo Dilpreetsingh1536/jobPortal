@@ -1,6 +1,10 @@
 const express = require("express");
 const router = express.Router();
 const userModel = require("../models/userModel");
+const employerModel = require("../models/employerModel");
+const jobModel = require("../models/jobModel");
+
+
 const bcrypt = require("bcrypt");
 const nodemailer = require('nodemailer');
 const ContactMessageModel = require('../models/contactMessageModel');
@@ -899,22 +903,76 @@ router.get('/clearExpSession', (req, res) => {
     res.redirect('/userDashboard');
 });
 
+//Contact Page 
 router.post('/contact', async (req, res) => {
     try {
-      const { name, email, message } = req.body;
-      const newContactMessage = new ContactMessageModel({
-        name,
-        email,
-        message,
-      });
-  
-      await newContactMessage.save();
-      res.json({ status: 'success', message: 'Your message has been sent successfully!' });
+        const { name, email, message } = req.body;
+        const newContactMessage = new ContactMessageModel({
+            name,
+            email,
+            message,
+        });
+
+        await newContactMessage.save();
+        res.json({ status: 'success', message: 'Your message has been sent successfully!' });
     } catch (error) {
-      console.log(error);
-      res.json({ status: 'error', message: 'An error occurred while sending your message. Please try again.' });
+        console.log(error);
+        res.json({ status: 'error', message: 'An error occurred while sending your message. Please try again.' });
     }
-  });
-  
+});
+
+//Search employer 
+router.get('/employerPage', checkAdminNotLoggedIn, checkEmployerNotLoggedIn, async (req, res) => {
+    try {
+        const employers = await employerModel.find({}, 'employerName registrationNumber logo');
+
+        employers.forEach(employer => {
+            employer.registrationNumber = employer.registrationNumber.toUpperCase();
+        });
+
+        const user = req.session.user;
+
+        res.render('employerPage', { employers, user });
+    } catch (error) {
+        console.error(error);
+        req.flash('error', 'Internal Server Error');
+        res.redirect('/employerPage');
+    }
+});
+
+router.post('/viewProfile', (req, res) => {
+    const { employerId } = req.body;
+    req.session.employerId = employerId;
+    res.redirect('/employerProfile');
+});
+
+
+
+router.get('/employerProfile', checkAdminNotLoggedIn, checkEmployerNotLoggedIn, async (req, res) => {
+    try {
+        const employerId = req.session.employerId;
+        if (!employerId) {
+            req.flash('error', 'Employer ID not found in session.');
+            return res.redirect('/employerPage');
+        }
+
+        const user = req.session.user;
+
+        const employer = await employerModel.findById(employerId);
+
+        const jobs = await jobModel.find({ employerId: employerId });
+
+        res.render('employerProfile', { employer, jobs,user });
+    } catch (error) {
+        console.error(error);
+        req.flash('error', 'Error fetching employer profile.');
+        res.redirect('/employerPage');
+    }
+});
+
+
+
+
+
 
 module.exports = router;
