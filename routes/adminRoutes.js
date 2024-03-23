@@ -73,50 +73,42 @@ router.post("/admin_post", checkEmployerNotLoggedIn, checkUserNotLoggedIn, async
 });
 
 // admin dashboard
-router.get("/adminDashboard", checkUserNotLoggedIn, checkEmployerNotLoggedIn, checkNotLoggedIn,  async (req, res) => {
+router.get("/adminDashboard", checkUserNotLoggedIn, checkEmployerNotLoggedIn, checkNotLoggedIn, async (req, res) => {
     const user = req.session.user;
     const employer = req.session.employer;
     const admin = req.session.admin;
 
-    const perPage = 10;
-    let userPage = req.query.userPage || 1;
-    let employerPage = req.query.employerPage || 1;
-    let jobPage = req.query.jobPage || 1;
-    let messagePage = req.query.messagePage || 1;
+    try {
+        let employers = await employerModel.aggregate([{ $sample: { size: 3 } }]);
+        let users = await userModel.aggregate([{ $sample: { size: 3 } }]);
+        let jobIds = await jobModel.aggregate([{ $sample: { size: 3 } }, { $project: { _id: 1 } }]);
+        let jobs = await jobModel.find({ _id: { $in: jobIds.map(j => j._id) } }).populate('employerId', 'employerName');
+        let messages = await contactMessageModel.aggregate([{ $sample: { size: 3 } }]);
+        
+        const jobsPromises = employers.map(employer =>
+            jobModel.find({ employerId: employer._id }).lean()
+        );
+        const jobsForEmployers = await Promise.all(jobsPromises);
 
-    const users = await userModel.find({})
-        .skip((perPage * userPage) - perPage)
-        .limit(perPage);
-    const userCount = await userModel.countDocuments();
+        employers = employers.map((employer, index) => ({
+            ...employer,
+            jobs: jobsForEmployers[index]
+        }));
 
-    const employers = await employerModel.find({})
-        .skip((perPage * employerPage) - perPage)
-        .limit(perPage);
-    const employerCount = await employerModel.countDocuments();
-
-    const jobs = await jobModel.find({})
-        .skip((perPage * jobPage) - perPage)
-        .limit(perPage);
-    const jobCount = await jobModel.countDocuments();
-
-    const messages = await contactMessageModel.find({})
-        .skip((perPage * messagePage) - perPage)
-        .limit(perPage);
-    const messageCount = await contactMessageModel.countDocuments();
-
-    res.render("adminDashboard", {
-        user, admin, employer, users, employers, jobs, messages,
-        userCurrent: userPage,
-        usersPages: Math.ceil(userCount / perPage),
-        employerCurrent: employerPage,
-        employersPages: Math.ceil(employerCount / perPage),
-        jobCurrent: jobPage,
-        jobsPages: Math.ceil(jobCount / perPage),
-        messageCurrent: messagePage,
-        messagesPages: Math.ceil(messageCount / perPage)
-    });
+        res.render("adminDashboard", {
+            user,
+            admin,
+            employer,
+            users,
+            employers,
+            jobs,
+            messages, 
+        });
+    } catch (error) {
+        console.error('Error fetching data for admin dashboard:', error);
+        res.status(500).send('Error loading the admin dashboard');
+    }
 });
-
 
 
 //Logout
@@ -135,14 +127,21 @@ router.get("/adminLogout", checkEmployerNotLoggedIn, checkUserNotLoggedIn, (req,
 router.post('/deleteEmployer', async (req, res) => {
     const { email } = req.body;
     try {
-        await employerModel.deleteOne({ email });
-        console.log('Employer deleted successfully.');
+        const employer = await employerModel.findOne({ email });
+        if (employer) {
+            await jobModel.deleteMany({ employerId: employer._id });
+            await employerModel.deleteOne({ _id: employer._id });
+            console.log('Employer and related jobs deleted successfully.');
+        } else {
+            console.log('Employer not found.');
+        }
         res.redirect('/adminDashboard');
     } catch (error) {
-        console.error('Error deleting employer:', error);
-        res.status(500).send('Error deleting employer');
+        console.error('Error deleting employer and related jobs:', error);
+        res.status(500).send('Error deleting employer and related jobs');
     }
 });
+
 
 router.post('/deleteUser', async (req, res) => {
     const { email } = req.body;
@@ -183,22 +182,136 @@ router.post('/deleteMessage', async (req, res) => {
 
 
 router.post('/admin/updateJobStatus', async (req, res) => {
-    const { jobId, action } = req.body;
+    const { jobId, action, redirectPath } = req.body;
     console.log(jobId, action);
 
-    // Validate input
     if (!jobId || !action || (action !== 'approved' && action !== 'rejected')) {
         return res.status(400).send('Invalid request');
     }
 
     try {
         await jobModel.findByIdAndUpdate(jobId, { status: action });
-        res.redirect('/adminDashboard');
+        // Redirect to the path provided in the form, defaulting to '/allJobs' if not provided
+        res.redirect(redirectPath || '/allJobs');
     } catch (error) {
         console.error('Failed to update job status:', error);
         res.status(500).send('Server error');
     }
 });
 
+
+
+router.get('/allEmployers', checkUserNotLoggedIn, checkEmployerNotLoggedIn, checkNotLoggedIn, async (req, res) => {
+    const perPage = 10;
+    let page = req.query.page || 1;
+
+    try {
+        const employersCount = await employerModel.countDocuments();
+        let employers = await employerModel.find({})
+                                           .skip((perPage * page) - perPage)
+                                           .limit(perPage)
+                                           .lean(); // Using .lean() to get plain JavaScript objects
+
+        // Fetch jobs for each employer in parallel
+        const jobsPromises = employers.map(employer =>
+            jobModel.find({ employerId: employer._id }).lean()
+        );
+        const jobsForEmployers = await Promise.all(jobsPromises);
+
+        // Attach the jobs to their respective employers
+        employers = employers.map((employer, index) => ({
+            ...employer,
+            jobs: jobsForEmployers[index]
+        }));
+
+        res.render('allEmployers', {
+            employers,
+            current: parseInt(page),
+            pages: Math.ceil(employersCount / perPage),
+            user: req.session.user,
+            employer: req.session.employer,
+            admin: req.session.admin
+        });
+    } catch (error) {
+        console.error('Error fetching all employers:', error);
+        res.status(500).send('Error loading all employers');
+    }
+});
+
+
+router.get('/allUsers', checkUserNotLoggedIn, checkEmployerNotLoggedIn, checkNotLoggedIn, async (req, res) => {
+    const perPage = 10;
+    let page = req.query.page || 1;
+
+    try {
+        const usersCount = await userModel.countDocuments();
+        const users = await userModel.find({})
+                                     .skip((perPage * page) - perPage)
+                                     .limit(perPage);
+
+        res.render('allUsers', {
+            users,
+            current: parseInt(page),
+            pages: Math.ceil(usersCount / perPage),
+            user: req.session.user,
+            employer: req.session.employer,
+            admin: req.session.admin
+        });
+    } catch (error) {
+        console.error('Error fetching all users:', error);
+        res.status(500).send('Error loading all users');
+    }
+});
+
+router.get('/allJobs', async (req, res) => {
+    const perPage = 10; // Example pagination setup
+    let page = req.query.page || 1;
+
+    try {
+        const jobsCount = await jobModel.countDocuments();
+        const jobs = await jobModel.find({})
+            .populate('employerId', 'employerName')
+            .skip((perPage * page) - perPage)
+            .limit(perPage);
+
+        res.render('allJobs', {
+            jobs,
+            current: parseInt(page),
+            pages: Math.ceil(jobsCount / perPage),
+            user: req.session.user,
+            employer: req.session.employer,
+            admin: req.session.admin
+            // pass other necessary variables as needed
+        });
+    } catch (error) {
+        console.error('Error fetching all jobs:', error);
+        res.status(500).send('Error loading all jobs');
+    }
+});
+
+
+router.get('/allMessages', checkUserNotLoggedIn, checkEmployerNotLoggedIn, checkNotLoggedIn, async (req, res) => {
+    const perPage = 10;
+    let page = req.query.page || 1;
+
+    try {
+        const messagesCount = await contactMessageModel.countDocuments();
+        const messages = await contactMessageModel.find({})
+                                                  .skip((perPage * page) - perPage)
+                                                  .limit(perPage);
+
+        res.render('allMessages', {
+            messages, 
+            current: parseInt(page),
+            pages: Math.ceil(messagesCount / perPage),
+            user: req.session.user,
+            employer: req.session.employer,
+            admin: req.session.admin
+        });
+    } catch (error) {
+        console.error('Error fetching all messages:', error);
+        res.status(500).send('Error loading all messages');
+    }
+});
 
 module.exports = router;

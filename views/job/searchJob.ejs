@@ -103,7 +103,7 @@
                                 </div>
                                 <p class="mb-1">
                                     <strong>Company:</strong>
-                                    <%= job.employerId.employerName %> %>
+                                    <%= job.employerId ? job.employerId.employerName : 'Unknown Employer' %>
                                 </p>
 
                                 <p class="mb-1">
