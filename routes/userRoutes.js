@@ -74,21 +74,33 @@ const checkExperienceSession = (req, res, next) => {
 // User Dashboard
 router.get("/userDashboard", checkEmployerNotLoggedIn, checkAdminNotLoggedIn, async (req, res) => {
     try {
-        const userData = await userModel.findById(req.session.user._id);
-        const employer = req.session.employer;
-        const admin = req.session.admin;
+        const user = await userModel.findById(req.session.user._id);
 
-        const user = {
-            name: userData.name,
-            username: userData.username,
-            email: userData.email,
-            education: userData.education,
-            experience: userData.experience,
-        };
+        if (!user) {
+            req.flash("error", "User not found");
+            return res.redirect("/login");
+        }
 
-        res.render("userDashboard", { user, admin, employer });
+        let sortedExperiences = [];
+        let sortedEducations = [];
+
+        if (user.experience && user.experience.length > 0) {
+            sortedExperiences = user.experience.sort((a, b) => b.expStartDate.getTime() - a.expStartDate.getTime()).slice(0, 3);
+        }
+
+        if (user.education && user.education.length > 0) {
+            sortedEducations = user.education.sort((a, b) => b.startDate.getTime() - a.startDate.getTime()).slice(0, 3);
+        }
+
+        res.render("userDashboard", {
+            user: req.session.user,
+            sortedExperiences,
+            sortedEducations,
+            admin: req.session.admin,
+            employer: req.session.employer
+        });
     } catch (error) {
-        console.error(error);
+        console.error("Error fetching user dashboard:", error);
         req.flash("error", "Internal Server Error");
         res.redirect("/userDashboard");
     }
