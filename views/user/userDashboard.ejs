@@ -60,7 +60,7 @@
                         New Messages
                     </h3>
                     <!-- Add content here for new messages -->
-                    <a href="/viewAllMessages" class="btn btn-info" style="margin-top: 5px">View More</a>
+                    <a href="/userAllMessages" class="btn btn-info" style="margin-top: 5px">View More</a>
                 </div>
             </div>
         </div>
@@ -92,9 +92,7 @@
                                         <%= exp.description %>
                                     </p>
                                     <div style="margin-top: 0.5em">
-                                        <button type="submit" class="btn btn-warning btn-sm" name="experienceId" value="<%= exp._id %>">
-                                            Edit
-                                        </button>
+                                        <a href="/editExperience?experienceId=<%= exp._id %>" class="btn btn-primary btn-sm">Edit</a>
                                         <a href="/setDeleteExpId/<%= exp._id %>" class="btn btn-danger btn-sm">
                                             Delete
                                         </a>
@@ -104,7 +102,7 @@
                         </div>
                     <% } %>
                     <a href="/experience-form" style="margin-top: 20px" class="btn btn-success">Add</a>
-                    <a href="/viewMoreExperience" class="btn btn-info" style="margin-top: 20px">View More</a>
+                    <a href="/moreExperience" class="btn btn-info" style="margin-top: 20px">View More</a>
                     </form>
                 </div>
             </div>
@@ -138,9 +136,7 @@
                                         <% } else { %> Present <% } %>
                                     </small>
                                     <div style="margin-top: 0.5em">
-                                        <button type="submit" class="btn btn-warning btn-sm" name="educationId" value="<%= edu._id %>">
-                                            Edit
-                                        </button>
+                                        <a href="/editEducation?educationId=<%= edu._id %>" class="btn btn-primary btn-sm">Edit</a>
                                         <a href="/setDeleteEduId/<%= edu._id %>" class="btn btn-danger btn-sm">
                                             Delete
                                         </a>
@@ -150,7 +146,7 @@
                         </div>
                     <% } %>
                     <a href="/add-education-form" style="margin-top: 20px" class="btn btn-success">Add</a>
-                    <a href="/viewMoreEducation" class="btn btn-info" style="margin-top: 20px">View More</a>
+                    <a href="/moreEducation" class="btn btn-info" style="margin-top: 20px">View More</a>
                     </form>
                 </div>
             </div>
@@ -165,7 +161,7 @@
                         Applied Jobs
                     </h3>
                     <!-- Add content here for applied jobs -->
-                    <a href="/viewMoreAppliedJobs" class="btn btn-info" style="margin-top: 20px">View More</a>
+                    <a href="/appliedJobs" class="btn btn-info" style="margin-top: 20px">View More</a>
                 </div>
             </div>
 
@@ -175,7 +171,7 @@
                         Liked Jobs
                     </h3>
                     <!-- Add content here for liked jobs -->
-                    <a href="/viewMoreLikedJobs" class="btn btn-info" style="margin-top: 20px">View More</a>
+                    <a href="/likedJobs" class="btn btn-info" style="margin-top: 20px">View More</a>
                 </div>
             </div>
         </div>

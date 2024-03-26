@@ -435,40 +435,32 @@ router.get('/add-education-form', checkEmployerNotLoggedIn, checkAdminNotLoggedI
 });
 
 router.post('/add-education', checkEmployerNotLoggedIn, checkAdminNotLoggedIn, async (req, res) => {
-    const user = req.session.user;
-    const employer = req.session.employer;
-    const admin = req.session.admin;
+    const { educationTitle, major, institutionName, startDate, endDate } = req.body;
+
+    if (!educationTitle || !major || !institutionName || !startDate) {
+        return res.render('addEducation', {
+            user: req.session.user,
+            employer: req.session.employer,
+            admin: req.session.admin,
+            success: null,
+            error: 'Please fill in all required fields.'
+        });
+    }
+
+    if (endDate && new Date(startDate) > new Date(endDate)) {
+        return res.render("addEducation", {
+            user: req.session.user,
+            employer: req.session.employer,
+            admin: req.session.admin,
+            success: null,
+            error: "End date should be equal to or after the start date.",
+        });
+    }
 
     try {
-        const { educationTitle, major, institutionName, startDate, endDate } = req.body;
+        const currentUser = await userModel.findById(req.session.user._id);
 
-        if (!educationTitle || !major || !institutionName || !startDate) {
-            return res.render('addEducation', {
-                user,
-                employer,
-                admin,
-                success: null,
-                error: 'Please fill in all required fields.'
-            });
-        }
-
-
-
-
-        if (endDate && startDate > endDate) {
-            return res.render("addEducation", {
-                user,
-                employer,
-                admin,
-                success: null,
-                error: "End date should be equal to or after the start date.",
-            });
-        }
-
-
-        const user = await userModel.findById(req.session.user._id);
-
-        user.education.push({
+        currentUser.education.push({
             educationTitle,
             major,
             institutionName,
@@ -476,22 +468,28 @@ router.post('/add-education', checkEmployerNotLoggedIn, checkAdminNotLoggedIn, a
             endDate,
         });
 
-        await user.save();
+        await currentUser.save();
+
+        const updatedUser = await userModel.findById(req.session.user._id);
+
+        req.session.user = updatedUser;
+
+        const lastEducationId = updatedUser.education[updatedUser.education.length - 1]._id;
+        req.session.editEducationId = lastEducationId;
 
         return res.render('addEducation', {
-            user,
-            employer,
-            admin,
-            success: 'Education added successfully!',
+            user: req.session.user,
+            employer: req.session.employer,
+            admin: req.session.admin,
+            success: 'Education added successfully! Ready to edit.',
             error: null
         });
     } catch (error) {
         console.error(error);
-
         return res.render('addEducation', {
-            user,
-            employer,
-            admin,
+            user: req.session.user,
+            employer: req.session.employer,
+            admin: req.session.admin,
             success: null,
             error: 'Internal Server Error'
         });
@@ -512,10 +510,6 @@ router.get('/experience-form', checkEmployerNotLoggedIn, checkAdminNotLoggedIn, 
 });
 
 router.post("/add-experience", checkEmployerNotLoggedIn, checkAdminNotLoggedIn, async (req, res) => {
-    const user = req.session.user;
-    const employer = req.session.employer;
-    const admin = req.session.admin;
-
     const { jobTitle, company, expStartDate, expEndDate, description } = req.body;
 
     const startDate = new Date(expStartDate);
@@ -523,9 +517,9 @@ router.post("/add-experience", checkEmployerNotLoggedIn, checkAdminNotLoggedIn, 
 
     if (!jobTitle || !company || !expStartDate || !description) {
         return res.render("addExperience", {
-            user,
-            employer,
-            admin,
+            user: req.session.user,
+            employer: req.session.employer,
+            admin: req.session.admin,
             success: null,
             error: "All fields are required.",
         });
@@ -533,9 +527,9 @@ router.post("/add-experience", checkEmployerNotLoggedIn, checkAdminNotLoggedIn, 
 
     if (endDate && startDate > endDate) {
         return res.render("addExperience", {
-            user,
-            employer,
-            admin,
+            user: req.session.user,
+            employer: req.session.employer,
+            admin: req.session.admin,
             success: null,
             error: "End date should be equal to or after the start date.",
         });
@@ -543,7 +537,6 @@ router.post("/add-experience", checkEmployerNotLoggedIn, checkAdminNotLoggedIn, 
 
     try {
         const currentUser = await userModel.findById(req.session.user._id);
-
         currentUser.experience.push({
             jobTitle,
             company,
@@ -551,52 +544,60 @@ router.post("/add-experience", checkEmployerNotLoggedIn, checkAdminNotLoggedIn, 
             expEndDate: endDate,
             description,
         });
-
         await currentUser.save();
 
+        const updatedUser = await userModel.findById(req.session.user._id);
+
+        req.session.user = updatedUser;
+
+        const lastExperienceId = updatedUser.experience[updatedUser.experience.length - 1]._id;
+        req.session.editExperienceId = lastExperienceId;
+
         return res.render("addExperience", {
-            user,
-            employer,
-            admin,
-            success: "Experience added successfully!",
+            user: req.session.user,
+            employer: req.session.employer,
+            admin: req.session.admin,
+            success: "Experience added successfully! Ready to edit.",
             error: null,
         });
     } catch (error) {
         console.error(error);
-
         return res.render("addExperience", {
-            user,
-            employer,
-            admin,
+            user: req.session.user,
+            employer: req.session.employer,
+            admin: req.session.admin,
             success: null,
             error: "Internal Server Error",
         });
     }
 });
 
+
 //------------------------------------------------------//
 
 //Edit Education
 
 router.get('/editEducation', checkEmployerNotLoggedIn, checkAdminNotLoggedIn, checkEducationSession, async (req, res) => {
-    try {
-        const educationId = req.session.editEducationId;
-        const user = req.session.user;
-        const employer = req.session.employer;
-        const admin = req.session.admin;
+   try {
+        const educationId = req.query.educationId;
+        if (!educationId) {
+            req.flash("error", "Education ID is required.");
+            return res.redirect("/userDashboard");
+        }
 
+        const user = req.session.user;
         const education = user.education.find(edu => edu._id.toString() === educationId);
 
         if (!education) {
             req.flash("error", "Education not found.");
-            return res.redirect("/editEducation");
+            return res.redirect("/userDashboard");
         }
 
-        res.render("editEducation", { educationId, user, admin, employer, education, success: req.flash("success"), error: req.flash("error") });
+        res.render("editEducation", { user, educationId, education, success: req.flash("success"), error: req.flash("error") });
     } catch (error) {
         console.error(error);
         req.flash("error", "Internal Server Error");
-        res.redirect("/editEducation");
+        return res.redirect("/userDashboard");
     }
 });
 
@@ -751,13 +752,17 @@ router.get('/clearEduSession', (req, res) => {
 
 //Edit Experienece
 
-router.get('/editExperience', checkEmployerNotLoggedIn, checkAdminNotLoggedIn, checkExperienceSession, async (req, res) => {
+router.get('/editExperience', checkEmployerNotLoggedIn, checkAdminNotLoggedIn, async (req, res) => {
     try {
-        const experienceId = req.session.editExperienceId;
-        const user = req.session.user;
-        const employer = req.session.employer;
-        const admin = req.session.admin;
+        const experienceId = req.query.experienceId;
+        if (!experienceId) {
+            req.flash("error", "Experience ID is required.");
+            return res.redirect("/userDashboard");
+        }
 
+        const user = req.session.user;
+
+        // Find the specific experience by ID
         const experience = user.experience.find(exp => exp._id.toString() === experienceId);
 
         if (!experience) {
@@ -765,13 +770,15 @@ router.get('/editExperience', checkEmployerNotLoggedIn, checkAdminNotLoggedIn, c
             return res.redirect("/userDashboard");
         }
 
-        res.render("editExperience", { experienceId, user, admin, employer, experience, success: req.flash("success"), error: req.flash("error") });
+        // No need to pass employer and admin in this context unless they are used for other purposes in editExperience view
+        res.render("editExperience", { user, experienceId, experience, success: req.flash("success"), error: req.flash("error") });
     } catch (error) {
         console.error(error);
         req.flash("error", "Internal Server Error");
-        res.redirect("/userDashboard");
+        return res.redirect("/userDashboard");
     }
 });
+
 
 //Update experience
 const updateExperienceById = async (userId, experienceId, updatedFields) => {
@@ -928,5 +935,100 @@ router.post('/contact', async (req, res) => {
     }
   });
   
+
+  router.get("/userAllMessages", async (req, res) => {
+    try {
+        const messages = [];
+        if (messages.length === 0) {
+            req.flash("info", "No messages available.");
+        }
+        res.render("userAllMessages", { messages,
+            user: req.session.user,
+            employer: req.session.employer,
+            admin: req.session.admin
+         });
+    } catch (error) {
+        console.error("Error fetching messages:", error);
+        req.flash("error", "Internal Server Error");
+        res.redirect("/userDashboard");
+    }
+});
+
+router.get("/moreExperience", async (req, res) => {
+    try {
+        const user = await userModel.findById(req.session.user._id);
+        if (!user || !user.experience) {
+            req.flash("info", "No experience records available.");
+            return res.redirect("/userDashboard");
+        }
+        res.render("moreExperience", { experiences: user.experience,
+            user: req.session.user,
+            employer: req.session.employer,
+            admin: req.session.admin
+         });
+    } catch (error) {
+        console.error("Error fetching experiences:", error);
+        req.flash("error", "Internal Server Error");
+        res.redirect("/userDashboard");
+    }
+});
+
+router.get("/moreEducation", async (req, res) => {
+    try {
+        const user = await userModel.findById(req.session.user._id);
+        if (!user || !user.education) {
+            req.flash("info", "No education records available.");
+            return res.redirect("/userDashboard");
+        }
+        res.render("moreEducation", { educations: user.education,
+            user: req.session.user,
+            employer: req.session.employer,
+            admin: req.session.admin
+         });
+    } catch (error) {
+        console.error("Error fetching educations:", error);
+        req.flash("error", "Internal Server Error");
+        res.redirect("/userDashboard");
+    }
+});
+
+
+router.get("/appliedJobs", async (req, res) => {
+    try {
+        const appliedJobs = [];
+        if (appliedJobs.length === 0) {
+            req.flash("info", "No applied jobs available.");
+        }
+        res.render("appliedJobs", { appliedJobs,
+            user: req.session.user,
+            employer: req.session.employer,
+            admin: req.session.admin 
+        });
+    } catch (error) {
+        console.error("Error fetching applied jobs:", error);
+        req.flash("error", "Internal Server Error");
+        res.redirect("/userDashboard");
+    }
+});
+
+router.get("/likedJobs", async (req, res) => {
+    try {
+        const likedJobs = []; 
+        if (likedJobs.length === 0) {
+            req.flash("info", "No liked jobs available.");
+        }
+        res.render("likedJobs", { likedJobs,
+            user: req.session.user,
+            employer: req.session.employer,
+            admin: req.session.admin
+         });
+    } catch (error) {
+        console.error("Error fetching liked jobs:", error);
+        req.flash("error", "Internal Server Error");
+        res.redirect("/userDashboard");
+    }
+});
+
+
 
 module.exports = router;

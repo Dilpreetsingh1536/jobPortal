@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+    <title>More Experience</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" />
+    <link rel="stylesheet" type="text/css" href="/css/nav.css" />
+    <link rel="stylesheet" type="text/css" href="/css/footer.css" />
+</head>
+<body>
+<%- include('./partials/nav.ejs') %>
+
+<div class="container mt-5">
+    <div class="row mb-3">
+        <div class="col-6">
+            <h1 class="mb-4">More Experience</h1>
+        </div>
+        <div class="col-6 d-flex justify-content-end align-items-center">
+            <a href="/experience-form" class="btn btn-success">More Experience</a>
+        </div>
+    </div>
+    <ul class="list-group">
+        <% experiences.sort((a, b) => new Date(b.expStartDate) - new Date(a.expStartDate)).forEach(function(exp) { %>
+            <li class="list-group-item d-flex justify-content-between align-items-center">
+                <div>
+                    <h5 class="mb-1"><%= exp.jobTitle %> at <%= exp.company %></h5>
+                    <p class="mb-1">
+                        <%= new Date(exp.expStartDate).toISOString().slice(0, 10) %> - 
+                        <%= exp.expEndDate ? new Date(exp.expEndDate).toISOString().slice(0, 10) : 'Present' %>
+                    </p>
+                    <p class="mb-2"><%= exp.description %></p>
+                </div>
+                <div>
+                    <a href="/editExperience?experienceId=<%= exp._id %>" class="btn btn-primary btn-sm">Edit</a>
+                    <a href="/deleteExperience?experienceId=<%= exp._id %>" class="btn btn-danger btn-sm">Delete</a>
+                </div>
+            </li>
+        <% }); %>
+    </ul>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+
+<%- include('./partials/footer.ejs') %>
+</body>
+</html>
