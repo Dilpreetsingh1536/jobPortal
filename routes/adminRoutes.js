@@ -4,6 +4,7 @@ const adminModel = require("../models/adminModel");
 const userModel = require("../models/userModel");
 const employerModel = require("../models/employerModel");
 const jobModel = require("../models/jobModel");
+const contactMessageModel = require("../models/contactMessageModel");
 
 // Admin Routes Restricted
 
@@ -21,6 +22,14 @@ const checkUserNotLoggedIn = (req, res, next) => {
         next();
     } else {
         res.redirect('/home');
+    }
+};
+
+const checkNotLoggedIn = (req, res, next) => {
+    if (!req.session.user && !req.session.employer && !req.session.admin) {
+        res.redirect('/home');
+    } else {
+        next();
     }
 };
 
@@ -64,7 +73,7 @@ router.post("/admin_post", checkEmployerNotLoggedIn, checkUserNotLoggedIn, async
 });
 
 // admin dashboard
-router.get("/adminDashboard", checkUserNotLoggedIn, checkEmployerNotLoggedIn, async (req, res) => {
+router.get("/adminDashboard", checkUserNotLoggedIn, checkEmployerNotLoggedIn, checkNotLoggedIn,  async (req, res) => {
     const user = req.session.user;
     const employer = req.session.employer;
     const admin = req.session.admin;
@@ -73,6 +82,7 @@ router.get("/adminDashboard", checkUserNotLoggedIn, checkEmployerNotLoggedIn, as
     let userPage = req.query.userPage || 1;
     let employerPage = req.query.employerPage || 1;
     let jobPage = req.query.jobPage || 1;
+    let messagePage = req.query.messagePage || 1;
 
     const users = await userModel.find({})
         .skip((perPage * userPage) - perPage)
@@ -89,14 +99,21 @@ router.get("/adminDashboard", checkUserNotLoggedIn, checkEmployerNotLoggedIn, as
         .limit(perPage);
     const jobCount = await jobModel.countDocuments();
 
+    const messages = await contactMessageModel.find({})
+        .skip((perPage * messagePage) - perPage)
+        .limit(perPage);
+    const messageCount = await contactMessageModel.countDocuments();
+
     res.render("adminDashboard", {
-        user, admin, employer, users, employers, jobs,
+        user, admin, employer, users, employers, jobs, messages,
         userCurrent: userPage,
         usersPages: Math.ceil(userCount / perPage),
         employerCurrent: employerPage,
         employersPages: Math.ceil(employerCount / perPage),
         jobCurrent: jobPage,
-        jobsPages: Math.ceil(jobCount / perPage)
+        jobsPages: Math.ceil(jobCount / perPage),
+        messageCurrent: messagePage,
+        messagesPages: Math.ceil(messageCount / perPage)
     });
 });
 
@@ -150,6 +167,20 @@ router.post('/deleteJob', async (req, res) => {
         res.status(500).send('Error deleting job');
     }
 });
+
+router.post('/deleteMessage', async (req, res) => {
+    const { messageId } = req.body;
+    try {
+        await contactMessageModel.findByIdAndDelete(messageId);
+        console.log('Message deleted successfully.');
+        res.redirect('/adminDashboard');
+    } catch (error) {
+        console.error('Error deleting message:', error);
+        res.status(500).send('Error deleting message');
+    }
+});
+
+
 
 router.post('/admin/updateJobStatus', async (req, res) => {
     const { jobId, action } = req.body;

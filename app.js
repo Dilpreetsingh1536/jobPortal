@@ -26,12 +26,13 @@ app.listen(3001, () => {
 });
 
 app.set("views", [
-    path.join(__dirname, "views"),
-    path.join(__dirname, "views", "user"),
-    path.join(__dirname, "views", "employer"),
-    path.join(__dirname, "views", "job"),
-    path.join(__dirname, "views", "admin"),
-    path.join(__dirname, "views", "partials")
+  path.join(__dirname, "views"),
+  path.join(__dirname, "views", "user"),
+  path.join(__dirname, "views", "employer"),
+  path.join(__dirname, "views", "job"),
+  path.join(__dirname, "views", "admin"),
+  path.join(__dirname, "views", "partials"),
+  path.join(__dirname, "views", "contact")
 ]);
 
 /* SESSION */
@@ -74,6 +75,13 @@ app.get('/empSearch', (req, res) => {
     res.render("empSearch", { user, employer, admin });
 })
 
+/* contactUs */
+app.get("/contactUs", (req, res) => {
+  const user = req.session.user;
+  const employer = req.session.employer;
+  const admin = req.session.admin;
+  res.render("contactUs", { user, employer, admin });
+});
 /*Abous us*/
 app.get('/aboutUs', (req, res) => {
     const user = req.session.user;

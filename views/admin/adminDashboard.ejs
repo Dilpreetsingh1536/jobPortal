@@ -17,18 +17,30 @@
             <div class="row">
 
                 <div class="col-md-6">
-                    <div class="card" style="
-                            border: 1px solid #ccc;
-                            border-radius: 8px;
-                            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-                            padding: 20px;
-                            margin-bottom: 20px;
-                        ">
+                    <div class="card" style="border: 1px solid #ccc; border-radius: 8px; box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); padding: 20px; margin-bottom: 20px;">
                         <div class="card-body">
-                            <h3 class="card-title" style="font-size: 24px; font-weight: bold">
-                                New Messages
-                            </h3>
-                            <!-- Add content here for applied jobs -->
+                            <h3 class="card-title" style="font-size: 24px; font-weight: bold">New Messages</h3>
+                            <ul>
+                                <% messages.forEach(function(message, index) { %>
+                                    <li style="margin-bottom: 7px;">
+                                        <strong>From:</strong> <%= message.name %> (<%= message.email %>)
+                                        <p><strong>Message:</strong> <%= message.message %></p>
+                                        <form action="/deleteMessage" method="POST" style="display: inline;">
+                                            <input type="hidden" name="messageId" value="<%= message._id %>">
+                                            <button type="submit" class="btn btn-danger btn-sm">Delete</button>
+                                        </form>
+                                    </li>
+                                <% }); %>
+                            </ul>
+                            <nav aria-label="Message Page Navigation" style="background-color: #f8f9fa;">
+                                <ul class="pagination">
+                                    <% for(let i = 1; i <= messagesPages; i++) { %>
+                                        <li class="page-item <%= i == messageCurrent ? 'active' : '' %>">
+                                            <a class="page-link" href="/adminDashboard?messagesPages=<%= i %>&userPage=<%= userCurrent %>&employerPage=<%= employerCurrent %>&jobPage=<%= jobCurrent %>"><%= i %></a>
+                                        </li>
+                                    <% } %>
+                                </ul>
+                            </nav>
                         </div>
                     </div>
                 </div>
@@ -86,15 +98,15 @@
                                     </li>
                                     <% }); %>
                             </ul>
-                            <!-- <nav aria-label="User Page Navigation" style="background-color: #f8f9fa;">
+                            <nav aria-label="User Page Navigation" style="background-color: #f8f9fa;">
                                 <ul class="pagination">
                                     <% for(let i = 1; i <= usersPages; i++) { %>
                                         <li class="page-item <%= i == userCurrent ? 'active' : '' %>">
-                                            <a class="page-link" href="/adminDashboard?userPage=<%= i %>&employerPage=<%= employerCurrent %>&jobPage=<%= jobCurrent %>"> <%= i %> </a>
+                                            <a class="page-link" href="/adminDashboard?usersPages=<%= i %>&employerPage=<%= employerCurrent %>&jobPage=<%= jobCurrent %>"> <%= i %> </a>
                                         </li>
                                     <% } %>
                                 </ul>
-                            </nav> -->
+                            </nav>
                         </div>
                     </div>
                 </div>
@@ -183,7 +195,7 @@
                                     <% for(let i=1; i <=jobsPages; i++) { %>
                                         <li class="page-item <%= i == jobCurrent ? 'active' : '' %>">
                                             <a class="page-link"
-                                                href="/adminDashboard?jobsPages=<%= i %>&employerPage=<%= employerCurrent %>&jobPage=<%= jobCurrent %>">
+                                                href="/adminDashboard?jobsPages=<%= i %>&employerPage=<%= employerCurrent %>&userPage=<%= userCurrent %>">
                                                 <%= i %>
                                             </a>
                                         </li>
@@ -249,15 +261,15 @@
                                     <% }); %>
 
                             </ul>
-                            <!-- <nav aria-label="Employers Page Navigation" style="background-color: #f8f9fa;">
+                            <nav aria-label="Employers Page Navigation" style="background-color: #f8f9fa;">
                                 <ul class="pagination">
                                     <% for(let i = 1; i <= employersPages; i++) { %>
                                         <li class="page-item <%= i == employerCurrent ? 'active' : '' %>">
-                                            <a class="page-link" href="/adminDashboard?employersPages=<%= i %>&employerPage=<%= employerCurrent %>&jobPage=<%= jobCurrent %>"> <%= i %> </a>
+                                            <a class="page-link" href="/adminDashboard?employersPages=<%= i %>&userPage=<%= userCurrent %>&jobPage=<%= jobCurrent %>"> <%= i %> </a>
                                         </li>
                                     <% } %>
                                 </ul>
-                            </nav> -->
+                            </nav>
                         </div>
                     </div>
                 </div>
