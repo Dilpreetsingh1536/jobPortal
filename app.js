@@ -9,6 +9,8 @@ const userRoutes = require("./routes/userRoutes");
 const empRoutes = require("./routes/empRoutes");
 const adminRoutes = require("./routes/adminRoutes");
 const jobRoutes = require("./routes/jobRoutes");
+const job = require('./models/jobModel');
+
 
 const cookieParser = require('cookie-parser');
 
@@ -79,6 +81,27 @@ app.get('/aboutUs', (req, res) => {
     const admin = req.session.admin;
     res.render('aboutUs', { user, employer, admin });
 });
+
+app.get('/applyJob/:jobId', function(req, res) {
+
+    const user = req.session.user;
+    const employer = req.session.employer;
+    const admin = req.session.admin;
+    job.findById(req.params.jobId).exec()
+        .then(job => {
+            if (!job) {
+                res.status(404).send('Job not found');
+                return;
+            }
+
+            res.render('job/applyJob', { job: job, user, employer, admin });
+        })
+        .catch(err => {
+            console.error(err);
+            res.status(500).send('Internal Server Error');
+        });
+});
+
 
 
 
