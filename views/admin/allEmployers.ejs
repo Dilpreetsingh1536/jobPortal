@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+    <title>All Employers</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" />
+    <link rel="stylesheet" type="text/css" href="/css/nav.css" />
+    <link rel="stylesheet" type="text/css" href="/css/footer.css" />
+</head>
+<body>
+<%- include('./partials/nav.ejs') %>
+
+<div class="container mt-5">
+    <h1 class="mb-4">All Employers</h1>
+    <ul class="list-group">
+        <% employers.forEach(function(employee, index) { %>
+            <li class="list-group-item d-flex justify-content-between align-items-center">
+                <span><strong><%= employee.employerName %></strong></span>
+                <div>
+                    <!-- View Button -->
+                    <button type="button" class="btn btn-primary btn-sm" data-toggle="modal" data-target="#employerModal<%= index %>">View</button>
+            
+                    <!-- Delete Button -->
+                    <form action="/deleteEmployer" method="POST" style="display: inline;">
+                        <input type="hidden" name="email" value="<%= employee.email %>">
+                        <button type="submit" class="btn btn-danger btn-sm">Delete</button>
+                    </form>
+                </div>
+                <!-- Employer Detail Modal -->
+                <div class="modal fade" id="employerModal<%= index %>" tabindex="-1" role="dialog" aria-labelledby="employerModalLabel<%= index %>" aria-hidden="true">
+                    <div class="modal-dialog" role="document">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="employerModalLabel<%= index %>">Employer Details</h5>
+                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                    <span aria-hidden="true">&times;</span>
+                                </button>
+                            </div>
+                            <div class="modal-body">
+                                <p><strong>Employer Name:</strong>  <%= employee.employerName %></p>
+                                <p><strong>Email:</strong> <%= employee.email %></p>
+                                <h5>Posted Jobs:</h5>
+                                <ul>
+                                    <% if (employee.jobs && employee.jobs.length > 0) { %>
+                                        <% employee.jobs.forEach(function(job) { %>
+                                            <li>
+                                                <%= job.jobTitle %> - 
+                                                <% if (job.status === 'approved') { %>
+                                                    <span class="text-success">Approved</span>
+                                                <% } else if (job.status === 'rejected') { %>
+                                                    <span class="text-danger">Rejected</span>
+                                                <% } else { %>
+                                                    <span class="text-warning">Pending</span>
+                                                <% } %>
+                                            </li>
+                                        <% }); %>
+                                    <% } else { %>
+                                        <li>No jobs posted yet.</li>
+                                    <% } %>
+                                </ul>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </li>
+        <% }); %>
+        
+    </ul>
+    <nav aria-label="Page navigation"  style="background-color: white;">
+        <ul class="pagination justify-content-center">
+            <% for(let i = 1; i <= pages; i++) { %>
+                <li class="page-item <%= i === current ? 'active' : '' %>">
+                    <a class="page-link" href="/allEmployers?page=<%= i %>"><%= i %></a>
+                </li>
+            <% } %>
+        </ul>
+    </nav>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+
+<%- include('./partials/footer.ejs') %>
+
+</html>

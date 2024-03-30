@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+    <title>More Education</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" />
+    <link rel="stylesheet" type="text/css" href="/css/nav.css" />
+    <link rel="stylesheet" type="text/css" href="/css/footer.css" />
+</head>
+<body>
+<%- include('./partials/nav.ejs') %>
+
+<div class="container mt-5">
+    <div class="row mb-3">
+        <div class="col-6">
+            <h1 class="mb-4">More Education</h1>
+        </div>
+        <div class="col-6 d-flex justify-content-end align-items-center">
+            <a href="/add-education-form" class="btn btn-success">Add Education</a>
+        </div>
+    </div>
+    <ul class="list-group">
+        <% educations.sort((a, b) => new Date(b.startDate) - new Date(a.startDate)).forEach(function(education) { %>
+            <li class="list-group-item d-flex justify-content-between align-items-center">
+                <div>
+                    <h5 class="mb-1"><%= education.educationTitle %></h5>
+                    <p class="mb-1"><%= education.major %> - <%= education.institutionName %></p>
+                    <p><%= new Date(education.startDate).toISOString().slice(0, 10) %> to <%= education.endDate ? new Date(education.endDate).toISOString().slice(0, 10) : 'Present' %></p>
+                </div>
+                <div>
+                    <a href="/editEducation?educationId=<%= education._id %>" class="btn btn-primary btn-sm">Edit</a>
+                    <a href="/deleteEducation?educationId=<%= education._id %>" class="btn btn-danger btn-sm">Delete</a>
+                </div>
+            </li>
+        <% }); %>
+    </ul>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+
+<%- include('./partials/footer.ejs') %>
+</body>
+</html>

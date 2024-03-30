@@ -60,6 +60,7 @@
                         New Messages
                     </h3>
                     <!-- Add content here for new messages -->
+                    <a href="/userAllMessages" class="btn btn-info" style="margin-top: 5px">View More</a>
                 </div>
             </div>
         </div>
@@ -72,82 +73,85 @@
                         Experience
                     </h3>
                     <form action="/setEditExperienceId" method="post">
-                        <% if (user.experience.length===0) { %>
-                            <h2>No experience posted.</h2>
-                        <% } else { %>
-                            <div class="list-group">
-                                <% user.experience.forEach(exp=> { %>
-                                    <div class="list-group-item" style="margin-top: 0.5em">
-                                        <h5 class="mb-1">
-                                            <%= exp.jobTitle %>
-                                        </h5>
-                                        <p class="mb-1">
-                                            <%= exp.company %>
-                                        </p>
-                                        <small>
-                                            <%= exp.expStartDate.toLocaleDateString('en-CA') %> - <%= exp.expEndDate ? exp.expEndDate.toLocaleDateString('en-CA') : 'Present' %>
-                                        </small>
-                                        <p class="mb-1">
-                                            <%= exp.description %>
-                                        </p>
-                                        <div style="margin-top: 0.5em">
-                                            <button type="submit" class="btn btn-warning btn-sm" name="experienceId" value="<%= exp._id %>">
-                                                Edit
-                                            </button>
-                                            <a href="/setDeleteExpId/<%= exp._id %>" class="btn btn-danger btn-sm">Delete</a>
-                                        </div>
+                    <% if (sortedExperiences.length === 0) { %>
+                        <h2>No experience posted.</h2>
+                    <% } else { %>
+                        <div class="list-group">
+                            <% sortedExperiences.slice(0, 3).forEach(exp => { %>
+                                <div class="list-group-item" style="margin-top: 0.5em">
+                                    <h5 class="mb-1">
+                                        <%= exp.jobTitle %>
+                                    </h5>
+                                    <p class="mb-1">
+                                        <%= exp.company %>
+                                    </p>
+                                    <small>
+                                        <%= exp.expStartDate.toLocaleDateString('en-CA') %> - <%= exp.expEndDate ? exp.expEndDate.toLocaleDateString('en-CA') : 'Present' %>
+                                    </small>
+                                    <p class="mb-1">
+                                        <%= exp.description %>
+                                    </p>
+                                    <div style="margin-top: 0.5em">
+                                        <a href="/editExperience?experienceId=<%= exp._id %>" class="btn btn-primary btn-sm">Edit</a>
+                                        <a href="/setDeleteExpId/<%= exp._id %>" class="btn btn-danger btn-sm">
+                                            Delete
+                                        </a>
                                     </div>
-                                <% }); %>
-                            </div>
-                        <% } %>
-                        <a href="/experience-form" style="margin-top: 2em" class="btn btn-info">Add</a>
+                                </div>
+                            <% }); %>
+                        </div>
+                    <% } %>
+                    <a href="/experience-form" style="margin-top: 20px" class="btn btn-success">Add</a>
+                    <a href="/moreExperience" class="btn btn-info" style="margin-top: 20px">View More</a>
                     </form>
                 </div>
             </div>
-
+        
             <div class="card">
                 <div class="card-body">
                     <h3 class="card-title" style="font-size: 24px; font-weight: bold">
                         Education
                     </h3>
                     <form action="/setEditEducationId" method="post">
-                        <% if (user.education.length===0) { %>
-                            <h2>No education posted.</h2>
-                        <% } else { %>
-                            <div class="list-group">
-                                <% user.education.forEach((edu, index)=> { %>
-                                    <div class="list-group-item" style="margin-top: 0.5em">
-                                        <h5 class="mb-1">
-                                            <%= edu.educationTitle %>
-                                        </h5>
-                                        <p class="mb-1">
-                                            <%= edu.major %>
-                                        </p>
-                                        <p class="mb-1">
-                                            <%= edu.institutionName %>
-                                        </p>
-                                        <small>
-                                            <% if (edu.startDate) { %>
-                                                <%= edu.startDate.toLocaleDateString('en-CA') %>
-                                            <% } %> - <% if (edu.endDate) { %>
-                                                <%= edu.endDate.toLocaleDateString('en-CA') %>
-                                            <% } else { %> Present <% } %>
-                                        </small>
-                                        <div style="margin-top: 0.5em">
-                                            <button type="submit" class="btn btn-warning btn-sm" name="educationId" value="<%= edu._id %>">
-                                                Edit
-                                            </button>
-                                            <a href="/setDeleteEduId/<%= edu._id %>" class="btn btn-danger btn-sm">Delete</a>
-                                        </div>
+                    <% if (sortedEducations.length === 0) { %>
+                        <h2>No education posted.</h2>
+                    <% } else { %>
+                        <div class="list-group">
+                            <% sortedEducations .slice(0, 3).forEach(edu => { %>
+                                <div class="list-group-item" style="margin-top: 0.5em">
+                                    <h5 class="mb-1">
+                                        <%= edu.educationTitle %>
+                                    </h5>
+                                    <p class="mb-1">
+                                        <%= edu.major %>
+                                    </p>
+                                    <p class="mb-1">
+                                        <%= edu.institutionName %>
+                                    </p>
+                                    <small>
+                                        <% if (edu.startDate) { %>
+                                            <%= edu.startDate.toLocaleDateString('en-CA') %>
+                                        <% } %> - <% if (edu.endDate) { %>
+                                            <%= edu.endDate.toLocaleDateString('en-CA') %>
+                                        <% } else { %> Present <% } %>
+                                    </small>
+                                    <div style="margin-top: 0.5em">
+                                        <a href="/editEducation?educationId=<%= edu._id %>" class="btn btn-primary btn-sm">Edit</a>
+                                        <a href="/setDeleteEduId/<%= edu._id %>" class="btn btn-danger btn-sm">
+                                            Delete
+                                        </a>
                                     </div>
-                                <% }); %>
-                            </div>
-                        <% } %>
-                        <a href="/add-education-form" style="margin-top: 2em" class="btn btn-info">Add</a>
+                                </div>
+                            <% }); %>
+                        </div>
+                    <% } %>
+                    <a href="/add-education-form" style="margin-top: 20px" class="btn btn-success">Add</a>
+                    <a href="/moreEducation" class="btn btn-info" style="margin-top: 20px">View More</a>
                     </form>
                 </div>
             </div>
         </div>
+        
 
         <!-- Applied Jobs and Liked Jobs -->
         <div class="card-container">
@@ -157,6 +161,7 @@
                         Applied Jobs
                     </h3>
                     <!-- Add content here for applied jobs -->
+                    <a href="/appliedJobs" class="btn btn-info" style="margin-top: 20px">View More</a>
                 </div>
             </div>
 
@@ -166,6 +171,7 @@
                         Liked Jobs
                     </h3>
                     <!-- Add content here for liked jobs -->
+                    <a href="/likedJobs" class="btn btn-info" style="margin-top: 20px">View More</a>
                 </div>
             </div>
         </div>
