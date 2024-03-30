@@ -1,6 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const userModel = require("../models/userModel");
+const jobModel = require( "../models/jobModel" );
 const bcrypt = require("bcrypt");
 const nodemailer = require('nodemailer');
 const ContactMessageModel = require('../models/contactMessageModel');
@@ -75,6 +76,18 @@ const checkExperienceSession = (req, res, next) => {
 router.get("/userDashboard", checkEmployerNotLoggedIn, checkAdminNotLoggedIn, async (req, res) => {
     try {
         const user = await userModel.findById(req.session.user._id);
+        console.log("Liked Jobs:", user.likedJobs);
+
+        const likedJobs = [];
+        for (const jobId of user.likedJobs) {
+            const job = await jobModel.findById(jobId).populate('employerId', 'employerName');
+            if (job) {
+                likedJobs.push({
+                    jobTitle: job.jobTitle,
+                    employerName: job.employerId.employerName
+                });
+            }
+        }
 
         if (!user) {
             req.flash("error", "User not found");
@@ -96,6 +109,7 @@ router.get("/userDashboard", checkEmployerNotLoggedIn, checkAdminNotLoggedIn, as
             user: req.session.user,
             sortedExperiences,
             sortedEducations,
+            likedJobs,
             admin: req.session.admin,
             employer: req.session.employer
         });
@@ -1010,16 +1024,28 @@ router.get("/appliedJobs", async (req, res) => {
 });
 
 router.get("/likedJobs", async (req, res) => {
+    if (!req.session.user) {
+        req.flash("error", "Please log in to view liked jobs.");
+        return res.redirect("/login"); // Redirect to login if not logged in
+    }
+
     try {
-        const likedJobs = []; 
-        if (likedJobs.length === 0) {
+        const userWithLikedJobs = await userModel.findById(req.session.user._id)
+          .populate({
+            path: 'likedJobs',
+            model: 'jobModel'
+          }).exec();
+
+        if (userWithLikedJobs.likedJobs.length === 0) {
             req.flash("info", "No liked jobs available.");
         }
-        res.render("likedJobs", { likedJobs,
+
+        res.render("likedJobs", { 
+            likedJobs: userWithLikedJobs.likedJobs,
             user: req.session.user,
             employer: req.session.employer,
             admin: req.session.admin
-         });
+        });
     } catch (error) {
         console.error("Error fetching liked jobs:", error);
         req.flash("error", "Internal Server Error");

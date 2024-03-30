@@ -2,6 +2,7 @@ const express = require("express");
 const router = express.Router();
 const jobModel = require("../models/jobModel");
 const employerModel = require("../models/employerModel");
+const userModel = require( "../models/userModel" );
 
 // Update job function
 async function updateJobById(jobId, updatedFields) {
@@ -356,6 +357,33 @@ router.get('/applyJob/:jobId', async (req, res) => {
         res.status(500).send('Internal Server Error');
     }
 });
+
+router.post('/likeJob/:jobId', async (req, res) => {
+    if (!req.session.user) {
+      return res.status(401).send('User not logged in');
+    }
+  
+    try {
+      const userId = req.session.user._id;
+      const { jobId } = req.params;
+  
+      const user = await userModel.findById(userId);
+  
+      if (!user.likedJobs.includes(jobId)) {
+        user.likedJobs.push(jobId);
+        await user.save();
+        console.log(`User ${userId} liked job ${jobId} successfully`);
+      } else {
+        console.log(`User ${userId} has already liked job ${jobId}.`);
+      }
+  
+      res.redirect('back'); 
+    } catch (error) {
+      console.error(error);
+      res.status(500).send('Internal Server Error');
+    }
+});
+  
 
 module.exports = router;
 
