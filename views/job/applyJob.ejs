@@ -1,65 +1,62 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
-    <title>Apply job</title>
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" />
-    <link rel="stylesheet" type="text/css" href="css/nav.css" />
-    <link rel="stylesheet" type="text/css" href="css/footer.css" />
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title>Apply for <%= job.jobTitle %></title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+    <link rel="stylesheet" type="text/css" href="/css/nav.css">
+    <link rel="stylesheet" type="text/css" href="/css/footer.css">
 </head>
-<%- include('./partials/nav.ejs') %>
-
-
-    <body style="background-color: #f8f9fa;">
-        <div class="container mt-5">
-            <div class="card">
-                <div class="card-header">
-                    <h3 class="mb-0">Apply for Job:
-                        <%= job.jobTitle %>
-                    </h3>
-                </div>
-                <div class="card-body">
-                    <h5 class="card-title">
-                        <%= job.jobTitle %>
-                    </h5>
-                    <p class="card-text"><strong>Company:</strong>
-                        <%= job.employerId.employerName %>
-                    </p>
-                    <p class="card-text"><strong>Sector:</strong>
-                        <%= job.sector %>
-                    </p>
-                    <p class="card-text"><strong>Salary:</strong>
-                        <%= job.salary %>
-                    </p>
-                    <p class="card-text"><strong>Location:</strong>
-                        <%= job.street %>,
-                            <%= job.city %>,
-                                <%= job.province %>,
-                                    <%= job.postalCode %>
-                    </p>
-                    <p class="card-text"><strong>Description:</strong>
-                        <%= job.description %>
-                    </p>
-                    <form method="post" action="/submitApplication" enctype="multipart/form-data">
-                        <div class="form-group">
-                            <label for="resume">Upload Resume:</label>
-                            <input type="file" class="form-control-file" id="resume" name="resume" required>
-                        </div>
-                        <div class="form-group">
-                            <label for="coverLetter">Upload Cover Letter:</label>
-                            <input type="file" class="form-control-file" id="coverLetter" name="coverLetter" required>
-                        </div>
-                        <input type="hidden" name="jobId" value="<%= job._id %>">
-                        <button type="submit" class="btn btn-primary">Apply</button>
-                    </form>
-                </div>
+<body style="background-color: #f8f9fa;">
+    <%- include('./partials/nav.ejs') %>
+    <div class="container mt-5">
+        <div class="card">
+            <div class="card-header">
+                <h3 class="mb-0">Apply for Job:
+                    <%= job.jobTitle %>
+                </h3>
+            </div>
+            <div class="card-body">
+                <h5 class="card-title">
+                    <%= job.jobTitle %>
+                </h5>
+                <p class="card-text"><strong>Company:</strong>
+                    <%= job.employerId.employerName %>
+                </p>
+                <p class="card-text"><strong>Sector:</strong>
+                    <%= job.sector %>
+                </p>
+                <p class="card-text"><strong>Salary:</strong>
+                    <%= job.salary %>
+                </p>
+                <p class="card-text"><strong>Location:</strong>
+                    <%= job.street %>,
+                        <%= job.city %>,
+                            <%= job.province %>,
+                                <%= job.postalCode %>
+                </p>
+                <p class="card-text"><strong>Description:</strong>
+                    <%= job.description %>
+                </p>
+                <form method="post" action="/submitApplication" enctype="multipart/form-data">
+                    <div class="form-group">
+                        <label for="resume">Upload Resume:</label>
+                        <input type="file" class="form-control-file" id="resume" name="resume" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="coverLetter">Upload Cover Letter:</label>
+                        <input type="file" class="form-control-file" id="coverLetter" name="coverLetter" required>
+                    </div>
+                    <input type="hidden" name="jobId" value="<%= job._id %>">
+                    <button type="submit" class="btn btn-primary">Apply</button>
+                </form>
             </div>
         </div>
-    </body>
+    </div>
     <%- include('./partials/footer.ejs') %>
-
-
-
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+</body>
 </html>

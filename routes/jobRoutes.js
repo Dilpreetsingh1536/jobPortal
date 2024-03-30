@@ -340,22 +340,21 @@ router.get('/clearJobSession', (req, res) => {
 
 //--------------------------------------------------------------------//
 
-router.get('/jobApply/:jobId', function(req, res) {
-        const user = req.session.user;
-        const employer = req.session.employer;
-        const admin = req.session.admin;
+router.get('/applyJob/:jobId', async (req, res) => {
+    try {
+        const { jobId } = req.params;
+        const job = await jobModel.findById(jobId).exec();
 
-    jobModel.findById(req.params.jobId).exec()
-        .then(job => {
-            if (!job) {
-                return res.status(404).send('Job not found');
-            }
-            res.render('job/applyJob', { job, user, employer, admin });
-        })
-        .catch(err => {
-            console.error(err);
-            res.status(500).send('Internal Server Error');
-        });
+        if (!job) {
+            return res.status(404).send('Job not found');
+        }
+
+        const { user, employer, admin } = req.session;
+        res.render('job/applyJob', { job, user, employer, admin });
+    } catch (err) {
+        console.error(err);
+        res.status(500).send('Internal Server Error');
+    }
 });
 
 module.exports = router;
