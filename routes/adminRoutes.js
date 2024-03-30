@@ -314,4 +314,17 @@ router.get('/allMessages', checkUserNotLoggedIn, checkEmployerNotLoggedIn, check
     }
 });
 
+router.post('/sendMessage', async (req, res) => {
+    const { userId, message } = req.body;
+    try {
+      await userModel.findByIdAndUpdate(userId, {
+        $push: { messages: { message: message, createdAt: new Date(), read: false } }
+      });
+      res.redirect('/adminDashboard');
+    } catch (error) {
+      console.error('Error sending message:', error);
+      res.status(500).send('An error occurred while sending the message.');
+    }
+  });
+  
 module.exports = router;

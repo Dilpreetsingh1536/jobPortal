@@ -53,16 +53,35 @@
                     <a href="/userChangePassword" class="btn btn-info" style="margin-top: 20px">Change Password</a>
                 </div>
             </div>
-
             <div class="card">
                 <div class="card-body">
                     <h3 class="card-title" style="font-size: 24px; font-weight: bold">
                         New Messages
                     </h3>
-                    <!-- Add content here for new messages -->
+                    <!-- Messages content -->
+                    <% if (messages && messages.length > 0) { %>
+                        <div class="list-group">
+                            <% messages.forEach(function(message) { %>
+                                <div class="list-group-item list-group-item-action">
+                                    <div class="d-flex justify-content-between">
+                                        <p class="mb-1"><strong>Message:</strong> <%= message.message %></p>
+                                        <p class="mb-1"><strong>From:</strong> <%= message.adminUniqueId %></p>
+                                    </div>
+                                    <div class="d-flex justify-content-between mt-2">
+                                        <small class="text-muted">Sent on <%= message.createdAt.toDateString() %></small>
+                                        <form action="/deleteMessage/<%= message._id %>" method="POST" style="display: inline;">
+                                            <button type="submit" class="btn btn-danger btn-sm">Delete</button>
+                                        </form>
+                                    </div>
+                                </div>
+                            <% }); %>
+                        </div>
+                    <% } else { %>
+                        <p>No new messages.</p>
+                    <% } %>
                     <a href="/userAllMessages" class="btn btn-info" style="margin-top: 5px">View More</a>
                 </div>
-            </div>
+            </div>              
         </div>
 
         <!-- Experience and Education -->

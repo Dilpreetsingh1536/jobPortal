@@ -65,6 +65,29 @@ mongoose
     },
   });
   
+  const messageSchema = new mongoose.Schema({
+    message: {
+      type: String,
+      required: true,
+      trim: true,
+    },
+    createdAt: {
+      type: Date,
+      required: true,
+      default: Date.now,
+    },
+    read: {
+      type: Boolean,
+      required: true,
+      default: false,
+    },
+    adminId: {
+      type: mongoose.Schema.Types.ObjectId,
+      required: true,
+      ref: 'adminModel'
+    },
+  });
+
   const userSchema = new mongoose.Schema({
     name: {
       type: String,
@@ -97,6 +120,7 @@ mongoose
     },
     education: [educationSchema],
     experience: [experienceSchema],
+    messages: [messageSchema],
     likedJobs: [{
       type: mongoose.Schema.Types.ObjectId,
       ref: 'jobModel'

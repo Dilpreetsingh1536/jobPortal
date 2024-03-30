@@ -2,6 +2,7 @@ const express = require("express");
 const router = express.Router();
 const userModel = require("../models/userModel");
 const jobModel = require( "../models/jobModel" );
+const adminModel = require("../models/adminModel");
 const bcrypt = require("bcrypt");
 const nodemailer = require('nodemailer');
 const ContactMessageModel = require('../models/contactMessageModel');
@@ -76,7 +77,6 @@ const checkExperienceSession = (req, res, next) => {
 router.get("/userDashboard", checkEmployerNotLoggedIn, checkAdminNotLoggedIn, async (req, res) => {
     try {
         const user = await userModel.findById(req.session.user._id);
-        console.log("Liked Jobs:", user.likedJobs);
 
         const likedJobs = [];
         for (const jobId of user.likedJobs) {
@@ -88,6 +88,16 @@ router.get("/userDashboard", checkEmployerNotLoggedIn, checkAdminNotLoggedIn, as
                 });
             }
         }
+
+        let adminDetails = await adminModel.findOne();
+
+        const sortedMessages = user.messages && Array.isArray(user.messages) ? user.messages
+        .sort((a, b) => b.createdAt - a.createdAt)
+        .slice(0, 3)
+        .map(message => ({
+            ...message.toObject(),
+            adminUniqueId: adminDetails ? adminDetails.adminId : 'Admin not found',
+        })) : [];
 
         if (!user) {
             req.flash("error", "User not found");
@@ -110,6 +120,7 @@ router.get("/userDashboard", checkEmployerNotLoggedIn, checkAdminNotLoggedIn, as
             sortedExperiences,
             sortedEducations,
             likedJobs,
+            messages: sortedMessages,
             admin: req.session.admin,
             employer: req.session.employer
         });
@@ -120,6 +131,24 @@ router.get("/userDashboard", checkEmployerNotLoggedIn, checkAdminNotLoggedIn, as
     }
 });
 
+router.post('/deleteMessage/:messageId', async (req, res) => {
+    const messageId = req.params.messageId;
+    const userId = req.session.user._id;
+
+    try {
+        await userModel.updateOne(
+            { _id: userId },
+            { $pull: { messages: { _id: messageId } } }
+        );
+
+        req.flash('success', 'Message deleted successfully.');
+        res.redirect('/userDashboard');
+    } catch (error) {
+        console.error('Failed to delete message:', error);
+        req.flash('error', 'Failed to delete message.');
+        res.redirect('/userDashboard');
+    }
+});
 
 // Edit User Details On Dashboard
 router.get("/edit-user-details", checkEmployerNotLoggedIn, checkAdminNotLoggedIn, async (req, res) => {
