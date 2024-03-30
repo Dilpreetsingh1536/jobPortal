@@ -97,6 +97,10 @@ mongoose
     },
     education: [educationSchema],
     experience: [experienceSchema],
+    likedJobs: [{
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'jobModel'
+  }],
   });
 
 userSchema.statics.findById = async function (userId) {

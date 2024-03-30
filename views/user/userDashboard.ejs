@@ -167,13 +167,24 @@
 
             <div class="card">
                 <div class="card-body">
-                    <h3 class="card-title" style="font-size: 24px; font-weight: bold">
-                        Liked Jobs
-                    </h3>
-                    <!-- Add content here for liked jobs -->
-                    <a href="/likedJobs" class="btn btn-info" style="margin-top: 20px">View More</a>
+                  <h3 class="card-title" style="font-size: 24px; font-weight: bold">
+                    Liked Jobs
+                  </h3>
+                  <% if (likedJobs && likedJobs.length > 0) { %>
+                    <ul class="list-group">
+                      <% likedJobs.forEach(job => { %>
+                        <li class="list-group-item">
+                          <h5 class="mb-1"><%= job.jobTitle %></h5>
+                          <h5 class="mb-1"><%= job.employerName %></h5>
+                        </li>
+                      <% }) %>
+                    </ul>
+                  <% } else { %>
+                    <p>You have not liked any jobs yet.</p>
+                  <% } %>
+                  <a href="/likedJobs" class="btn btn-info" style="margin-top: 20px">View More</a>
                 </div>
-            </div>
+              </div>          
         </div>
     </div>
 
