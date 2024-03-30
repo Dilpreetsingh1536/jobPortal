@@ -80,12 +80,7 @@ mongoose
       type: Boolean,
       required: true,
       default: false,
-    },
-    adminId: {
-      type: mongoose.Schema.Types.ObjectId,
-      required: true,
-      ref: 'adminModel'
-    },
+    }
   });
 
   const userSchema = new mongoose.Schema({
