@@ -2,6 +2,7 @@ const express = require("express");
 const router = express.Router();
 const employerModel = require("../models/employerModel");
 const jobModel = require("../models/jobModel");
+const adminModel = require( "../models/adminModel" );
 
 const bcrypt = require("bcrypt");
 const nodemailer = require('nodemailer');
@@ -68,15 +69,48 @@ router.get("/empDashboard", checkUserNotLoggedIn, checkAdminNotLoggedIn, async (
             email: employerData.email,
         };
 
+
+        let adminDetails = await adminModel.findOne();
+
+        const sortedMessages = employerData.messages ? employerData.messages
+        .sort((a, b) => b.createdAt - a.createdAt)
+        .slice(0, 3)
+        .map(message => ({
+            ...message.toObject(),
+            adminUniqueId: adminDetails ? adminDetails.adminId : 'Admin not found',
+        })) : [];
+
+        console.log(sortedMessages);
+
         const jobs = await jobModel.find({ employerId: employerData._id });
 
-        res.render("empDashboard", { user, admin, employer, jobs, error: error, success: success });
+        res.render("empDashboard", { user, admin, employer, jobs, error: error, success: success, messages: sortedMessages  });
     } catch (error) {
         console.error(error);
         req.flash("error", "Internal Server Error");
         res.redirect("/empDashboard");
     }
 });
+
+router.post('/deleteMessageForEmployer/:messageId', async (req, res) => {
+    const messageId = req.params.messageId;
+    const employerId = req.session.employer._id;
+
+    try {
+        await employerModel.updateOne(
+            { _id: employerId },
+            { $pull: { messages: { _id: messageId } } }
+        );
+
+        req.flash('success', 'Message deleted successfully.');
+        res.redirect('/empDashboard');
+    } catch (error) {
+        console.error('Failed to delete message for employer:', error);
+        req.flash('error', 'Failed to delete message.');
+        res.redirect('/empDashboard');
+    }
+});
+
 
 // Edit Emp Details On Dashboard
 router.get("/edit-emp-details", checkUserNotLoggedIn, checkAdminNotLoggedIn, async (req, res) => {

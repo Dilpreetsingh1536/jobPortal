@@ -84,7 +84,12 @@ router.get("/userDashboard", checkEmployerNotLoggedIn, checkAdminNotLoggedIn, as
             if (job) {
                 likedJobs.push({
                     jobTitle: job.jobTitle,
-                    employerName: job.employerId.employerName
+                    employerName: job.employerId.employerName,
+                    sector: job.sector,
+                    city: job.city,
+                    province: job.province,
+                    salary: job.salary,
+                    street: job.street
                 });
             }
         }
@@ -977,17 +982,40 @@ router.post('/contact', async (req, res) => {
   });
   
 
-  router.get("/userAllMessages", async (req, res) => {
+  router.get("/userAllMessages",checkEmployerNotLoggedIn, checkAdminNotLoggedIn, async (req, res) => {
     try {
-        const messages = [];
-        if (messages.length === 0) {
+        const page = parseInt(req.query.page) || 1;
+        const pageSize = 10;
+        const userId = req.session.user._id;
+        
+        const user = await userModel.findById(userId);
+        if (!user || !user.messages) {
             req.flash("info", "No messages available.");
+            return res.redirect("/userDashboard");
         }
-        res.render("userAllMessages", { messages,
+        let adminDetails = await adminModel.findOne();
+        const skip = (page - 1) * pageSize; 
+
+        const totalMessages = user.messages.length;
+        const totalPages = Math.ceil(totalMessages / pageSize);
+
+        const messages = user.messages
+            .sort((a, b) => b.createdAt - a.createdAt)
+            .slice(skip, skip + pageSize)
+            .map(message => ({
+                ...message.toObject(),
+                adminUniqueId: adminDetails ? adminDetails.adminId : 'Admin not found',
+                createdAtFormatted: message.createdAt.toDateString(),
+            }));
+
+        res.render("userAllMessages", {
+            messages,
+            currentPage: page,
+            totalPages,
             user: req.session.user,
             employer: req.session.employer,
             admin: req.session.admin
-         });
+        });
     } catch (error) {
         console.error("Error fetching messages:", error);
         req.flash("error", "Internal Server Error");
@@ -995,7 +1023,7 @@ router.post('/contact', async (req, res) => {
     }
 });
 
-router.get("/moreExperience", async (req, res) => {
+router.get("/moreExperience",checkEmployerNotLoggedIn, checkAdminNotLoggedIn, async (req, res) => {
     try {
         const user = await userModel.findById(req.session.user._id);
         if (!user || !user.experience) {
@@ -1014,7 +1042,7 @@ router.get("/moreExperience", async (req, res) => {
     }
 });
 
-router.get("/moreEducation", async (req, res) => {
+router.get("/moreEducation",checkEmployerNotLoggedIn, checkAdminNotLoggedIn, async (req, res) => {
     try {
         const user = await userModel.findById(req.session.user._id);
         if (!user || !user.education) {
@@ -1034,7 +1062,7 @@ router.get("/moreEducation", async (req, res) => {
 });
 
 
-router.get("/appliedJobs", async (req, res) => {
+router.get("/appliedJobs", checkEmployerNotLoggedIn, checkAdminNotLoggedIn, async (req, res) => {
     try {
         const appliedJobs = [];
         if (appliedJobs.length === 0) {
@@ -1052,36 +1080,51 @@ router.get("/appliedJobs", async (req, res) => {
     }
 });
 
-router.get("/likedJobs", async (req, res) => {
-    if (!req.session.user) {
-        req.flash("error", "Please log in to view liked jobs.");
-        return res.redirect("/login"); // Redirect to login if not logged in
-    }
-
+router.get("/likedJobs",  checkEmployerNotLoggedIn, checkAdminNotLoggedIn, async (req, res) => {
     try {
-        const userWithLikedJobs = await userModel.findById(req.session.user._id)
-          .populate({
-            path: 'likedJobs',
-            model: 'jobModel'
-          }).exec();
+        const page = parseInt(req.query.page) || 1;
+        const limit = 10; // Number of liked jobs per page
+        const skip = (page - 1) * limit;
 
-        if (userWithLikedJobs.likedJobs.length === 0) {
-            req.flash("info", "No liked jobs available.");
+        const user = await userModel.findById(req.session.user._id);
+
+        if (!user) {
+            req.flash("error", "User not found");
+            return res.redirect("/login");
         }
 
-        res.render("likedJobs", { 
-            likedJobs: userWithLikedJobs.likedJobs,
-            user: req.session.user,
-            employer: req.session.employer,
-            admin: req.session.admin
+        const likedJobsIds = user.likedJobs.slice(skip, skip + limit); // Get slice of likedJobs for current page
+
+        // Fetch detailed job information for the slice
+        const likedJobs = await Promise.all(
+            likedJobsIds.map(async (jobId) => {
+                const job = await jobModel.findById(jobId).populate('employerId', 'employerName').exec();
+                return job ? {
+                    jobTitle: job.jobTitle,
+                    employerName: job.employerId.employerName,
+                    sector: job.sector,
+                    city: job.city,
+                    province: job.province,
+                    salary: job.salary,
+                    street: job.street
+                } : null;
+            })
+        );
+
+        const totalLikedJobs = user.likedJobs.length;
+        const totalPages = Math.ceil(totalLikedJobs / limit);
+
+        res.render("likedJobs", { // Make sure you have a likedJobs.ejs file in your views
+            likedJobs: likedJobs.filter(job => job !== null), // Filter out any nulls in case a job wasn't found
+            currentPage: page,
+            totalPages: totalPages,
+            user: req.session.user
         });
     } catch (error) {
         console.error("Error fetching liked jobs:", error);
         req.flash("error", "Internal Server Error");
-        res.redirect("/userDashboard");
+        return res.redirect("/userDashboard");
     }
 });
-
-
 
 module.exports = router;

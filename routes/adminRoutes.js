@@ -191,7 +191,6 @@ router.post('/admin/updateJobStatus', async (req, res) => {
 
     try {
         await jobModel.findByIdAndUpdate(jobId, { status: action });
-        // Redirect to the path provided in the form, defaulting to '/allJobs' if not provided
         res.redirect(redirectPath || '/allJobs');
     } catch (error) {
         console.error('Failed to update job status:', error);
@@ -210,15 +209,13 @@ router.get('/allEmployers', checkUserNotLoggedIn, checkEmployerNotLoggedIn, chec
         let employers = await employerModel.find({})
                                            .skip((perPage * page) - perPage)
                                            .limit(perPage)
-                                           .lean(); // Using .lean() to get plain JavaScript objects
+                                           .lean();
 
-        // Fetch jobs for each employer in parallel
         const jobsPromises = employers.map(employer =>
             jobModel.find({ employerId: employer._id }).lean()
         );
         const jobsForEmployers = await Promise.all(jobsPromises);
 
-        // Attach the jobs to their respective employers
         employers = employers.map((employer, index) => ({
             ...employer,
             jobs: jobsForEmployers[index]
@@ -264,7 +261,7 @@ router.get('/allUsers', checkUserNotLoggedIn, checkEmployerNotLoggedIn, checkNot
 });
 
 router.get('/allJobs', async (req, res) => {
-    const perPage = 10; // Example pagination setup
+    const perPage = 10;
     let page = req.query.page || 1;
 
     try {
@@ -281,7 +278,6 @@ router.get('/allJobs', async (req, res) => {
             user: req.session.user,
             employer: req.session.employer,
             admin: req.session.admin
-            // pass other necessary variables as needed
         });
     } catch (error) {
         console.error('Error fetching all jobs:', error);
@@ -326,5 +322,19 @@ router.post('/sendMessage', async (req, res) => {
       res.status(500).send('An error occurred while sending the message.');
     }
   });
+
+  router.post('/sendMessageToEmployer', async (req, res) => {
+    const { employerId, message } = req.body;
+    try {
+        await employerModel.findByIdAndUpdate(employerId, {
+            $push: { messages: { message: message, createdAt: new Date(), read: false } }
+        });
+        res.redirect('/adminDashboard');
+    } catch (error) {
+        console.error('Error sending message to employer:', error);
+        res.status(500).send('An error occurred while sending the message to the employer.');
+    }
+});
+
   
 module.exports = router;
