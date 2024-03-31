@@ -3,6 +3,8 @@ const router = express.Router();
 const userModel = require("../models/userModel");
 const employerModel = require("../models/employerModel");
 const jobModel = require("../models/jobModel");
+const messageModel = require("../models/messageModel");
+
 
 
 const bcrypt = require("bcrypt");
@@ -82,7 +84,13 @@ router.get("/userDashboard", checkEmployerNotLoggedIn, checkAdminNotLoggedIn, as
         const employer = req.session.employer;
         const admin = req.session.admin;
 
+        const userId = req.session.user;
+
+        const messageCount = await messageModel.countDocuments({ recipientId: userId });
+
+
         const user = {
+            logo: userData.logo,
             name: userData.name,
             username: userData.username,
             email: userData.email,
@@ -90,7 +98,7 @@ router.get("/userDashboard", checkEmployerNotLoggedIn, checkAdminNotLoggedIn, as
             experience: userData.experience,
         };
 
-        res.render("userDashboard", { user, admin, employer });
+        res.render("userDashboard", { user, admin, employer, messageCount });
     } catch (error) {
         console.error(error);
         req.flash("error", "Internal Server Error");
@@ -957,12 +965,14 @@ router.get('/employerProfile', checkAdminNotLoggedIn, checkEmployerNotLoggedIn, 
         }
 
         const user = req.session.user;
+        const employer = req.session.employer;
+        const admin = req.session.admin;
 
-        const employer = await employerModel.findById(employerId);
+        const emp = await employerModel.findById(employerId);
 
         const jobs = await jobModel.find({ employerId: employerId });
 
-        res.render('employerProfile', { employer, jobs,user });
+        res.render('employerProfile', { employer, jobs, user, emp, admin });
     } catch (error) {
         console.error(error);
         req.flash('error', 'Error fetching employer profile.');
@@ -971,7 +981,146 @@ router.get('/employerProfile', checkAdminNotLoggedIn, checkEmployerNotLoggedIn, 
 });
 
 
+// Message send to employer
+router.get('/empMessage', checkAdminNotLoggedIn, checkEmployerNotLoggedIn, async (req, res) => {
+    try {
+        const employerId = req.session.employerId;
+        const { success, error } = req.query;
 
+        const user = req.session.user;
+        const employer = req.session.employer;
+        const admin = req.session.admin;
+
+        const emp = await employerModel.findById(employerId);
+
+        res.render('empMessage', { employer, user, admin, emp, success, error });
+    } catch (error) {
+        console.error(error);
+        req.flash('error', 'Internal Server Error');
+        res.redirect('/employerProfile');
+    }
+});
+
+// Message Post route
+router.post('/sendMessage', async (req, res) => {
+    try {
+        const { message } = req.body;
+        const senderId = req.session.user;
+        const recipientId = req.session.employerId;
+
+        const newMessage = new messageModel({
+            senderId: senderId,
+            senderModel: 'userModel',
+            recipientId: recipientId,
+            recipientModel: 'employerModel',
+            message: message
+        });
+
+        await newMessage.save();
+
+        res.redirect('/empMessage?success=Message sent successfully');
+    } catch (error) {
+        console.error(error);
+        res.redirect('/empMessage?error=Error sending message');
+    }
+});
+
+//View Message
+router.get('/viewMessage', checkAdminNotLoggedIn, checkEmployerNotLoggedIn, async (req, res) => {
+    try {
+        const userId = req.session.user;
+
+        const user = req.session.user;
+        const admin = req.session.admin;
+        const employer = req.session.employer;
+       
+        const messages = await messageModel.find({
+            recipientId: userId,
+            senderModel: 'employerModel',
+        }).populate({
+            path: 'senderId',
+            model: 'employerModel',
+            select: 'employerName' 
+        });
+
+        res.render('viewMessage', { messages, user, admin, employer });
+    } catch (error) {
+        console.error(error);
+        req.flash('error', 'Internal Server Error');
+        res.redirect('/userDashboard');
+    }
+});
+
+//Reply Message
+
+router.post('/rplyMessage', async (req, res) => {
+    try {
+        const { messageId, reply } = req.body;
+
+        const message = await messageModel.findById(messageId);
+
+        message.reply = reply;
+        await message.save();
+
+        res.redirect('/viewMessage');
+    } catch (error) {
+        console.error(error);
+        res.redirect('/viewMessage');
+    }
+});
+
+
+//Sent Messages
+router.get('/sentMessage', checkAdminNotLoggedIn, checkEmployerNotLoggedIn, async (req, res) => {
+    try {
+        const userId = req.session.user;
+
+        const user = req.session.user;
+        const admin = req.session.admin;
+        const employer = req.session.employer;
+
+        const messages = await messageModel.find({
+            senderId: userId,
+            senderModel: 'userModel'
+        }).populate({
+            path: 'recipientId',
+            model: 'employerModel',
+            select: 'employerName'
+        });
+
+        res.render('sentMessage', { messages, user, admin, employer });
+    } catch (error) {
+        console.error(error);
+        req.flash('error', 'Internal Server Error');
+        res.redirect('/userDashboard');
+    }
+});
+
+router.post('/deleteMessage/:id', async (req, res) => {
+    try {
+        const messageId = req.params.id;
+        
+        await messageModel.findByIdAndDelete(messageId);
+
+        res.redirect('/viewMessage');
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+});
+
+router.post('/deleteSentMessage/:id', async (req, res) => {
+    try {
+        const messageId = req.params.id;
+        
+        await messageModel.findByIdAndDelete(messageId);
+
+        res.redirect('/sentMessage');
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+});
 
 
 

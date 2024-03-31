@@ -3,6 +3,7 @@ const router = express.Router();
 const jobModel = require("../models/jobModel");
 const employerModel = require("../models/employerModel");
 
+
 // Update job function
 async function updateJobById(jobId, updatedFields) {
     try {
@@ -339,6 +340,10 @@ router.get('/clearJobSession', (req, res) => {
 });
 
 //--------------------------------------------------------------------//
+
+
+
+
 
 module.exports = router;
 

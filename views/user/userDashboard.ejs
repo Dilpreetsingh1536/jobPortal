@@ -1,180 +1,340 @@
 <!DOCTYPE html>
 <html lang="en">
-
-<head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
-    <title>User Account</title>
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" />
-    <link rel="stylesheet" type="text/css" href="css/nav.css" />
-    <link rel="stylesheet" type="text/css" href="css/footer.css" />
-    <style>
-        .card-container {
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: space-between;
-            margin-bottom: 20px;
-        }
-
-        .card {
-            width: calc(50% - 10px);
-        }
-
-        @media (max-width: 768px) {
-            .card {
-                width: 100%;
+    <head>
+        <meta charset="UTF-8" />
+        <meta
+            name="viewport"
+            content="width=device-width, initial-scale=1, shrink-to-fit=no"
+        />
+        <title>User Account</title>
+        <link
+            rel="stylesheet"
+            href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+        />
+        <link rel="stylesheet" type="text/css" href="css/nav.css" />
+        <link rel="stylesheet" type="text/css" href="css/footer.css" />
+        <link rel="stylesheet" type="text/css" href="css/main.css" />
+        <style>
+            .card-container {
+                display: flex;
+                flex-wrap: wrap;
+                justify-content: space-between;
+                margin-bottom: 20px;
             }
-        }
-    </style>
-</head>
 
-<body style="background-color: #f8f9fa">
-    <%- include('./partials/nav.ejs') %>
-    <div class="container mt-5">
-        <h1 class="mb-4">User Account</h1>
+            .card {
+                width: calc(50% - 10px);
+            }
 
-        <!-- User Account and New Messages -->
-        <div class="card-container">
-            <div class="card">
-                <div class="card-body">
-                    <h3 class="card-title" style="font-size: 24px; font-weight: bold">
-                        User Account
-                    </h3>
-                    <h5 class="card-subtitle mb-3 text-muted" style="font-size: 18px">
-                        Name: <%= user.name %>
-                    </h5>
-                    <h5 class="card-subtitle mb-3 text-muted" style="font-size: 18px">
-                        Username: <%= user.username %>
-                    </h5>
-                    <p class="card-text" style="font-size: 16px; margin-top: 10px">
-                        Email: <%= user.email %>
-                    </p>
-                    <a href="/edit-user-details" class="btn btn-success" style="margin-top: 20px">Edit Details</a>
-                    <a href="/userChangePassword" class="btn btn-info" style="margin-top: 20px">Change Password</a>
+            @media (max-width: 768px) {
+                .card {
+                    width: 100%;
+                }
+            }
+        </style>
+    </head>
+
+    <body style="background-color: #f8f9fa">
+        <%- include('./partials/nav.ejs') %>
+        <div class="container mt-5">
+            <h1 class="mb-4">User Account</h1>
+
+            <!-- User Account and New Messages -->
+            <div class="card-container">
+                <div
+                    class="card"
+                    style="
+                        border: 1px solid #ccc;
+                        border-radius: 8px;
+                        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+                        padding: 20px;
+                        margin-bottom: 20px;
+                    "
+                >
+                    <div class="card-body">
+                        <h3
+                            class="card-title"
+                            style="font-size: 24px; font-weight: bold"
+                        >
+                            User Account
+                        </h3>
+                        <div class="logoContainer">
+                            <img
+                                src="<%= user.logo %>"
+                                alt="User Logo"
+                                class="logo"
+                                id="user-logo"
+                            />
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-4 mb-3">
+                                <button class="btn btn-primary btn-block">
+                                    Upload
+                                </button>
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <button class="btn btn-danger btn-block">
+                                    Delete
+                                </button>
+                            </div>
+                        </div>
+
+                        <h5
+                            class="card-subtitle mb-3 text-muted"
+                            style="font-size: 18px"
+                        >
+                            Name: <%= user.name %>
+                        </h5>
+                        <h5
+                            class="card-subtitle mb-3 text-muted"
+                            style="font-size: 18px"
+                        >
+                            Username: <%= user.username %>
+                        </h5>
+                        <p
+                            class="card-text"
+                            style="font-size: 16px; margin-top: 10px"
+                        >
+                            Email: <%= user.email %>
+                        </p>
+                        <a
+                            href="/edit-user-details"
+                            class="btn btn-success"
+                            style="margin-top: 20px"
+                            >Edit Details</a
+                        >
+                        <a
+                            href="/userChangePassword"
+                            class="btn btn-info"
+                            style="margin-top: 20px"
+                            >Change Password</a
+                        >
+                    </div>
+                </div>
+
+                <div
+                    class="card"
+                    style="
+                        border: 1px solid #ccc;
+                        border-radius: 8px;
+                        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+                        padding: 20px;
+                        margin-bottom: 20px;
+                    "
+                >
+                    <div class="card-body">
+                        <h3
+                            class="card-title"
+                            style="font-size: 24px; font-weight: bold"
+                        >
+                            Messages
+                        </h3>
+                        <p class="card-text">
+                            Total Messages:
+                            <span class="badge badge-primary"
+                                ><%= messageCount %></span
+                            >
+                        </p>
+                        <a href="/viewMessage" class="btn btn-primary"
+                            >View Messages</a
+                        >
+                        <a href="/sentMessage" class="btn btn-primary"
+                            >Sent Messages</a
+                        >
+                    </div>
                 </div>
             </div>
 
-            <div class="card">
-                <div class="card-body">
-                    <h3 class="card-title" style="font-size: 24px; font-weight: bold">
-                        New Messages
-                    </h3>
-                    <!-- Add content here for new messages -->
-                </div>
-            </div>
-        </div>
-
-        <!-- Experience and Education -->
-        <div class="card-container">
-            <div class="card">
-                <div class="card-body">
-                    <h3 class="card-title" style="font-size: 24px; font-weight: bold">
-                        Experience
-                    </h3>
-                    <form action="/setEditExperienceId" method="post">
-                        <% if (user.experience.length===0) { %>
+            <!-- Experience and Education -->
+            <div class="card-container">
+                <div
+                    class="card"
+                    style="
+                        border: 1px solid #ccc;
+                        border-radius: 8px;
+                        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+                        padding: 20px;
+                        margin-bottom: 20px;
+                    "
+                >
+                    <div class="card-body">
+                        <h3
+                            class="card-title"
+                            style="font-size: 24px; font-weight: bold"
+                        >
+                            Experience
+                        </h3>
+                        <form action="/setEditExperienceId" method="post">
+                            <% if (user.experience.length===0) { %>
                             <h2>No experience posted.</h2>
-                        <% } else { %>
+                            <% } else { %>
                             <div class="list-group">
                                 <% user.experience.forEach(exp=> { %>
-                                    <div class="list-group-item" style="margin-top: 0.5em">
-                                        <h5 class="mb-1">
-                                            <%= exp.jobTitle %>
-                                        </h5>
-                                        <p class="mb-1">
-                                            <%= exp.company %>
-                                        </p>
-                                        <small>
-                                            <%= exp.expStartDate.toLocaleDateString('en-CA') %> - <%= exp.expEndDate ? exp.expEndDate.toLocaleDateString('en-CA') : 'Present' %>
-                                        </small>
-                                        <p class="mb-1">
-                                            <%= exp.description %>
-                                        </p>
-                                        <div style="margin-top: 0.5em">
-                                            <button type="submit" class="btn btn-warning btn-sm" name="experienceId" value="<%= exp._id %>">
-                                                Edit
-                                            </button>
-                                            <a href="/setDeleteExpId/<%= exp._id %>" class="btn btn-danger btn-sm">Delete</a>
-                                        </div>
+                                <div
+                                    class="list-group-item"
+                                    style="margin-top: 0.5em"
+                                >
+                                    <h5 class="mb-1"><%= exp.jobTitle %></h5>
+                                    <p class="mb-1"><%= exp.company %></p>
+                                    <small>
+                                        <%=
+                                        exp.expStartDate.toLocaleDateString('en-CA')
+                                        %> - <%= exp.expEndDate ?
+                                        exp.expEndDate.toLocaleDateString('en-CA')
+                                        : 'Present' %>
+                                    </small>
+                                    <p class="mb-1"><%= exp.description %></p>
+                                    <div style="margin-top: 0.5em">
+                                        <button
+                                            type="submit"
+                                            class="btn btn-warning btn-sm"
+                                            name="experienceId"
+                                            value="<%= exp._id %>"
+                                        >
+                                            Edit
+                                        </button>
+                                        <a
+                                            href="/setDeleteExpId/<%= exp._id %>"
+                                            class="btn btn-danger btn-sm"
+                                            >Delete</a
+                                        >
                                     </div>
+                                </div>
                                 <% }); %>
                             </div>
-                        <% } %>
-                        <a href="/experience-form" style="margin-top: 2em" class="btn btn-info">Add</a>
-                    </form>
+                            <% } %>
+                            <a
+                                href="/experience-form"
+                                style="margin-top: 2em"
+                                class="btn btn-info"
+                                >Add</a
+                            >
+                        </form>
+                    </div>
                 </div>
-            </div>
 
-            <div class="card">
-                <div class="card-body">
-                    <h3 class="card-title" style="font-size: 24px; font-weight: bold">
-                        Education
-                    </h3>
-                    <form action="/setEditEducationId" method="post">
-                        <% if (user.education.length===0) { %>
+                <div
+                    class="card"
+                    style="
+                        border: 1px solid #ccc;
+                        border-radius: 8px;
+                        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+                        padding: 20px;
+                        margin-bottom: 20px;
+                    "
+                >
+                    <div class="card-body">
+                        <h3
+                            class="card-title"
+                            style="font-size: 24px; font-weight: bold"
+                        >
+                            Education
+                        </h3>
+                        <form action="/setEditEducationId" method="post">
+                            <% if (user.education.length===0) { %>
                             <h2>No education posted.</h2>
-                        <% } else { %>
+                            <% } else { %>
                             <div class="list-group">
                                 <% user.education.forEach((edu, index)=> { %>
-                                    <div class="list-group-item" style="margin-top: 0.5em">
-                                        <h5 class="mb-1">
-                                            <%= edu.educationTitle %>
-                                        </h5>
-                                        <p class="mb-1">
-                                            <%= edu.major %>
-                                        </p>
-                                        <p class="mb-1">
-                                            <%= edu.institutionName %>
-                                        </p>
-                                        <small>
-                                            <% if (edu.startDate) { %>
-                                                <%= edu.startDate.toLocaleDateString('en-CA') %>
-                                            <% } %> - <% if (edu.endDate) { %>
-                                                <%= edu.endDate.toLocaleDateString('en-CA') %>
-                                            <% } else { %> Present <% } %>
-                                        </small>
-                                        <div style="margin-top: 0.5em">
-                                            <button type="submit" class="btn btn-warning btn-sm" name="educationId" value="<%= edu._id %>">
-                                                Edit
-                                            </button>
-                                            <a href="/setDeleteEduId/<%= edu._id %>" class="btn btn-danger btn-sm">Delete</a>
-                                        </div>
+                                <div
+                                    class="list-group-item"
+                                    style="margin-top: 0.5em"
+                                >
+                                    <h5 class="mb-1">
+                                        <%= edu.educationTitle %>
+                                    </h5>
+                                    <p class="mb-1"><%= edu.major %></p>
+                                    <p class="mb-1">
+                                        <%= edu.institutionName %>
+                                    </p>
+                                    <small>
+                                        <% if (edu.startDate) { %> <%=
+                                        edu.startDate.toLocaleDateString('en-CA')
+                                        %> <% } %> - <% if (edu.endDate) { %>
+                                        <%=
+                                        edu.endDate.toLocaleDateString('en-CA')
+                                        %> <% } else { %> Present <% } %>
+                                    </small>
+                                    <div style="margin-top: 0.5em">
+                                        <button
+                                            type="submit"
+                                            class="btn btn-warning btn-sm"
+                                            name="educationId"
+                                            value="<%= edu._id %>"
+                                        >
+                                            Edit
+                                        </button>
+                                        <a
+                                            href="/setDeleteEduId/<%= edu._id %>"
+                                            class="btn btn-danger btn-sm"
+                                            >Delete</a
+                                        >
                                     </div>
+                                </div>
                                 <% }); %>
                             </div>
-                        <% } %>
-                        <a href="/add-education-form" style="margin-top: 2em" class="btn btn-info">Add</a>
-                    </form>
+                            <% } %>
+                            <a
+                                href="/add-education-form"
+                                style="margin-top: 2em"
+                                class="btn btn-info"
+                                >Add</a
+                            >
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Applied Jobs and Liked Jobs -->
+            <div class="card-container">
+                <div
+                    class="card"
+                    style="
+                        border: 1px solid #ccc;
+                        border-radius: 8px;
+                        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+                        padding: 20px;
+                        margin-bottom: 20px;
+                    "
+                >
+                    <div class="card-body">
+                        <h3
+                            class="card-title"
+                            style="font-size: 24px; font-weight: bold"
+                        >
+                            Applied Jobs
+                        </h3>
+                        <!-- Add content here for applied jobs -->
+                    </div>
+                </div>
+
+                <div
+                    class="card"
+                    style="
+                        border: 1px solid #ccc;
+                        border-radius: 8px;
+                        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+                        padding: 20px;
+                        margin-bottom: 20px;
+                    "
+                >
+                    <div class="card-body">
+                        <h3
+                            class="card-title"
+                            style="font-size: 24px; font-weight: bold"
+                        >
+                            Liked Jobs
+                        </h3>
+                        <!-- Add content here for liked jobs -->
+                    </div>
                 </div>
             </div>
         </div>
 
-        <!-- Applied Jobs and Liked Jobs -->
-        <div class="card-container">
-            <div class="card">
-                <div class="card-body">
-                    <h3 class="card-title" style="font-size: 24px; font-weight: bold">
-                        Applied Jobs
-                    </h3>
-                    <!-- Add content here for applied jobs -->
-                </div>
-            </div>
-
-            <div class="card">
-                <div class="card-body">
-                    <h3 class="card-title" style="font-size: 24px; font-weight: bold">
-                        Liked Jobs
-                    </h3>
-                    <!-- Add content here for liked jobs -->
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
-    <%- include('./partials/footer.ejs') %>
-</body>
-
+        <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
+        <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+        <%- include('./partials/footer.ejs') %>
+    </body>
 </html>

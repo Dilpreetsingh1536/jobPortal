@@ -23,19 +23,21 @@
                 <div class="col-md-6">
                     <div class="card">
                         <div class="card-body">
+                            <h5 class="card-title">Employer Profile</h5>
+
                             <img
-                                src="<%= employer.logo %>"
+                                src="<%= emp.logo %>"
                                 class="card-img-top logo"
                                 alt="Employer Logo"
                             />
                             <h5 class="card-title">
-                                <%= employer.employerName %>
+                                <%= emp.employerName %>
                             </h5>
                             <p class="card-text">
                                 Registration Number: <%=
-                                employer.registrationNumber.toUpperCase() %>
+                                emp.registrationNumber.toUpperCase() %>
                             </p>
-                            <a href="#" class="btn btn-primary mt-3">Message</a>
+                            <a href="/empMessage" class="btn btn-primary mt-3">Message</a>
                         </div>
                     </div>
                 </div>

@@ -2,9 +2,12 @@ const express = require("express");
 const router = express.Router();
 const employerModel = require("../models/employerModel");
 const jobModel = require("../models/jobModel");
+const messageModel = require("../models/messageModel");
+
 
 const bcrypt = require("bcrypt");
 const nodemailer = require('nodemailer');
+const userModel = require("../models/userModel");
 
 // Code Send
 const sixDigitCode = Math.floor(100000 + Math.random() * 900000);
@@ -56,6 +59,11 @@ const checkAdminNotLoggedIn = (req, res, next) => {
 router.get("/empDashboard", checkUserNotLoggedIn, checkAdminNotLoggedIn, async (req, res) => {
     try {
         const employerData = await employerModel.findById(req.session.employer._id);
+        const employerId = req.session.employer;
+
+        const messageCount = await messageModel.countDocuments({ recipientId: employerId });
+
+
         const user = req.session.user;
         const admin = req.session.admin;
         const error = req.flash("error");
@@ -63,6 +71,7 @@ router.get("/empDashboard", checkUserNotLoggedIn, checkAdminNotLoggedIn, async (
 
 
         const employer = {
+            logo: employerData.logo,
             employerName: employerData.employerName,
             employerId: employerData.employerId,
             email: employerData.email,
@@ -70,7 +79,7 @@ router.get("/empDashboard", checkUserNotLoggedIn, checkAdminNotLoggedIn, async (
 
         const jobs = await jobModel.find({ employerId: employerData._id });
 
-        res.render("empDashboard", { user, admin, employer, jobs, error: error, success: success });
+        res.render("empDashboard", { user, admin, employer, jobs, error: error, success: success, messageCount });
     } catch (error) {
         console.error(error);
         req.flash("error", "Internal Server Error");
@@ -439,7 +448,219 @@ router.post("/emp-update-password", checkUserNotLoggedIn, checkAdminNotLoggedIn,
 
 //------------------------------------------------------------//
 
+//Search Job Seekers 
+router.get('/jobSeekersPage', checkAdminNotLoggedIn, checkUserNotLoggedIn, async (req, res) => {
+    try {
+        const users = await userModel.find({}, 'name email logo');
 
+        const user = req.session.user;
+        const employer = req.session.employer;
+        const admin = req.session.admin;
+
+
+        res.render('jobSeekersPage', { users, user, employer, admin });
+    } catch (error) {
+        console.error(error);
+        req.flash('error', 'Internal Server Error');
+        res.redirect('/jobSeekersPage');
+    }
+});
+
+// Set user profile session
+router.post('/viewUsrProfile', (req, res) => {
+    const { userId } = req.body;
+    req.session.userProfileId = userId;
+    res.redirect('/jobSeekersProfile');
+});
+
+// Render user profile page
+router.get('/jobSeekersProfile', checkAdminNotLoggedIn, checkUserNotLoggedIn, async (req, res) => {
+    try {
+        const userId = req.session.userProfileId;
+        const usr = await userModel.findById(userId);
+
+        if (!usr) {
+            req.flash('error', 'Job Seeker not found.');
+            return res.redirect('/jobSeekersPage');
+        }
+
+        const user = req.session.user;
+        const employer = req.session.employer;
+        const admin = req.session.admin;
+
+        res.render('jobSeekersProfile', { usr, user, employer, admin });
+    } catch (error) {
+        console.error(error);
+        req.flash('error', 'Internal Server Error');
+        res.redirect('/jobSeekersPage');
+    }
+});
+
+
+// Message send to job seeker
+
+router.get('/jobSeekerMsg', checkAdminNotLoggedIn, checkUserNotLoggedIn, async (req, res) => {
+    try {
+        const userId = req.session.userProfileId;
+        const { success, error } = req.query;
+
+
+        const user = req.session.user;
+        const employer = req.session.employer;
+        const admin = req.session.admin;
+
+        const usr = await userModel.findById(userId);
+
+        res.render('jobSeekerMsg', { usr, user, employer, admin, success, error });
+    } catch (error) {
+        console.error(error);
+        req.flash('error', 'Internal Server Error');
+        res.redirect('/jobSeekersProfile');
+    }
+});
+
+// Message Post route
+router.post('/sendEmpMessage', async (req, res) => {
+    try {
+
+        const { message } = req.body;
+        const senderId = req.session.employer;
+        const recipientId = req.session.userProfileId;
+
+        const newMessage = new messageModel({
+            senderId: senderId,
+            senderModel: 'employerModel',
+            recipientId: recipientId,
+            recipientModel: 'userModel',
+            message: message
+        });
+
+        await newMessage.save();
+
+        res.redirect('/jobSeekerMsg?success=Message sent successfully');
+    } catch (error) {
+        console.error(error);
+        res.redirect('/jobSeekerMsg?error=Error sending message');
+    }
+});
+
+//View Message
+router.get('/viewMsg', checkAdminNotLoggedIn, checkUserNotLoggedIn, async (req, res) => {
+    try {
+        const senderName = req.params.senderName;
+        const employerId = req.session.employer;
+
+        const user = req.session.user;
+        const admin = req.session.admin;
+        const employer = req.session.employer;
+
+
+
+        const messages = await messageModel.find({
+            recipientId: employerId,
+            senderModel: 'userModel',
+            'senderId.name': senderName
+        }).populate('senderId');
+
+
+
+        res.render('viewMsg', { messages, senderName, user, admin, employer });
+    } catch (error) {
+        console.error(error);
+        req.flash('error', 'Internal Server Error');
+        res.redirect('/empDashboard');
+    }
+});
+
+
+//Reply Message
+
+router.post('/replyMessage', async (req, res) => {
+    try {
+        const { messageId, reply } = req.body;
+
+        const message = await messageModel.findById(messageId);
+
+        message.reply = reply;
+        await message.save();
+
+        res.redirect('/viewMsg');
+    } catch (error) {
+        console.error(error);
+        res.redirect('/viewMsg');
+    }
+});
+
+
+//Sent Messages
+router.get('/sentMsg', checkAdminNotLoggedIn, checkUserNotLoggedIn, async (req, res) => {
+    try {
+        const employerId = req.session.employer;
+
+        const user = req.session.user;
+        const admin = req.session.admin;
+        const employer = req.session.employer;
+
+        const messages = await messageModel.find({
+            senderId: employerId,
+            senderModel: 'employerModel'
+        }).populate({
+            path: 'recipientId',
+            model: 'userModel',
+            select: 'name'
+        });
+
+        res.render('sentMsg', { messages, user, admin, employer });
+    } catch (error) {
+        console.error(error);
+        req.flash('error', 'Internal Server Error');
+        res.redirect('/empDashboard');
+    }
+});
+
+
+//Delete Message
+
+router.post('/deleteMessage/:id', async (req, res) => {
+    try {
+        const messageId = req.params.id;
+
+        await messageModel.findByIdAndDelete(messageId);
+
+        res.redirect('/sentMsg');
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+});
+
+//Delete Message
+
+router.post('/deleteMsg/:id', async (req, res) => {
+    try {
+        const messageId = req.params.id;
+
+        await messageModel.findByIdAndDelete(messageId);
+
+        res.redirect('/viewMsg');
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+});
+
+router.post('/deleteSentMsg/:id', async (req, res) => {
+    try {
+        const messageId = req.params.id;
+
+        await messageModel.findByIdAndDelete(messageId);
+
+        res.redirect('/sentMsg');
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+});
 
 
 module.exports = router;

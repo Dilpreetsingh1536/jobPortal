@@ -13,6 +13,7 @@
         />
         <link rel="stylesheet" type="text/css" href="css/nav.css" />
         <link rel="stylesheet" type="text/css" href="css/footer.css" />
+        <link rel="stylesheet" type="text/css" href="css/main.css" />
     </head>
     <%- include('./partials/nav.ejs') %>
 
@@ -32,6 +33,14 @@
                         "
                     >
                         <div class="card-body">
+                            <div class="logoContainer">
+                                <img
+                                    src="<%= employer.logo %>"
+                                    alt="User Logo"
+                                    class="logo"
+                                    id="user-logo"
+                                />
+                            </div>
                             <h3
                                 class="card-title"
                                 style="font-size: 24px; font-weight: bold"
@@ -192,9 +201,20 @@
                                 class="card-title"
                                 style="font-size: 24px; font-weight: bold"
                             >
-                                New Messages
+                                Messages
                             </h3>
-                            <!-- Add content here for new messages -->
+                            <p class="card-text">
+                                Total Messages:
+                                <span class="badge badge-primary"
+                                    ><%= messageCount %></span
+                                >
+                            </p>
+                            <a href="/viewMsg" class="btn btn-primary"
+                                >View Messages</a
+                            >
+                            <a href="/sentMsg" class="btn btn-primary"
+                                >Sent Messages</a
+                            >
                         </div>
                     </div>
                 </div>
