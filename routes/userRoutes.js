@@ -4,6 +4,8 @@ const userModel = require("../models/userModel");
 const bcrypt = require("bcrypt");
 const nodemailer = require('nodemailer');
 const ContactMessageModel = require('../models/contactMessageModel');
+const Application = require('../models/applicationModel');
+
 
 // Code Send
 const sixDigitCode = Math.floor(100000 + Math.random() * 900000);
@@ -72,7 +74,7 @@ const checkExperienceSession = (req, res, next) => {
 };
 
 // User Dashboard
-router.get("/userDashboard", checkEmployerNotLoggedIn, checkAdminNotLoggedIn, async (req, res) => {
+router.get("/userDashboard", checkEmployerNotLoggedIn, checkAdminNotLoggedIn, async(req, res) => {
     try {
         const user = await userModel.findById(req.session.user._id);
 
@@ -108,7 +110,7 @@ router.get("/userDashboard", checkEmployerNotLoggedIn, checkAdminNotLoggedIn, as
 
 
 // Edit User Details On Dashboard
-router.get("/edit-user-details", checkEmployerNotLoggedIn, checkAdminNotLoggedIn, async (req, res) => {
+router.get("/edit-user-details", checkEmployerNotLoggedIn, checkAdminNotLoggedIn, async(req, res) => {
     try {
         const userData = await userModel.findById(req.session.user._id);
         const user = {
@@ -124,7 +126,7 @@ router.get("/edit-user-details", checkEmployerNotLoggedIn, checkAdminNotLoggedIn
 });
 
 // Update Password On Dashboard
-router.post("/update-user-details", checkEmployerNotLoggedIn, checkAdminNotLoggedIn, async (req, res) => {
+router.post("/update-user-details", checkEmployerNotLoggedIn, checkAdminNotLoggedIn, async(req, res) => {
     try {
         const { name, username, email } = req.body;
         const userIdToUpdate = req.session.user._id ? req.session.user._id : null;
@@ -157,7 +159,7 @@ router.get("/userchangepassword", (req, res) => {
     res.render("userChangePassword", { user, admin, employer });
 });
 
-router.post("/userchangepassword", async (req, res) => {
+router.post("/userchangepassword", async(req, res) => {
     const { currentPassword, newPassword, confirmPassword } = req.body;
     const userId = req.session.user._id;
 
@@ -202,7 +204,7 @@ router.get("/signup", checkEmployerNotLoggedIn, checkAdminNotLoggedIn, (req, res
 });
 
 
-router.post("/signup_post", checkEmployerNotLoggedIn, checkAdminNotLoggedIn, async (req, res) => {
+router.post("/signup_post", checkEmployerNotLoggedIn, checkAdminNotLoggedIn, async(req, res) => {
     const { name, username, email, password, confirmPassword } = req.body;
 
     const nameRegex = /[A-Za-z\s]{2,}/;
@@ -262,7 +264,7 @@ router.get("/login", checkEmployerNotLoggedIn, checkAdminNotLoggedIn, (req, res)
     res.render("user/login", { error: errorMessage, user, admin, employer });
 });
 
-router.post("/login_post", checkEmployerNotLoggedIn, async (req, res) => {
+router.post("/login_post", checkEmployerNotLoggedIn, async(req, res) => {
     const { username, password } = req.body;
 
     const usernameRegex = /^[A-Za-z0-9_]{4,}$/;
@@ -325,7 +327,7 @@ router.get("/forgot-password", checkEmployerNotLoggedIn, checkAdminNotLoggedIn, 
     res.render("forgotPassword", { error: errorMessage, user, admin, savedEmail, employer });
 });
 
-router.post("/send-code", checkEmployerNotLoggedIn, checkAdminNotLoggedIn, async (req, res) => {
+router.post("/send-code", checkEmployerNotLoggedIn, checkAdminNotLoggedIn, async(req, res) => {
     const { email } = req.body;
 
     res.cookie('user_forgot_email', email, { maxAge: 900000, httpOnly: true });
@@ -365,7 +367,7 @@ router.get("/enter-code", checkEmployerNotLoggedIn, checkAdminNotLoggedIn, (req,
     res.render("enterCode", { error: errorMessage, email: savedEmail, user, admin, employer });
 });
 
-router.post("/verify-code", checkEmployerNotLoggedIn, checkAdminNotLoggedIn, async (req, res) => {
+router.post("/verify-code", checkEmployerNotLoggedIn, checkAdminNotLoggedIn, async(req, res) => {
     const { email, sixDigitCode } = req.body;
     if (!sixDigitCode) {
         req.flash("error", "Please enter six-digit code");
@@ -398,7 +400,7 @@ router.get("/reset-password", checkEmployerNotLoggedIn, checkAdminNotLoggedIn, (
     res.render("resetPassword", { error: errorMessage, email: savedEmail, user, admin, employer });
 });
 
-router.post("/update-password", checkEmployerNotLoggedIn, checkAdminNotLoggedIn, async (req, res) => {
+router.post("/update-password", checkEmployerNotLoggedIn, checkAdminNotLoggedIn, async(req, res) => {
     const { email, newPassword, confirmPassword } = req.body;
     if (!newPassword || !confirmPassword) {
         req.flash("error", "Password fields are required.");
@@ -409,10 +411,7 @@ router.post("/update-password", checkEmployerNotLoggedIn, checkAdminNotLoggedIn,
     } else {
         try {
             const hashedPassword = await bcrypt.hash(newPassword, 10);
-            await userModel.findOneAndUpdate(
-                { email },
-                { $set: { password: hashedPassword, sixDigitCode: null, sixDigitCodeExpires: null } }
-            );
+            await userModel.findOneAndUpdate({ email }, { $set: { password: hashedPassword, sixDigitCode: null, sixDigitCodeExpires: null } });
             res.clearCookie('user_forgot_email');
             res.redirect("/login");
         } catch (error) {
@@ -434,7 +433,7 @@ router.get('/add-education-form', checkEmployerNotLoggedIn, checkAdminNotLoggedI
     res.render("addEducation", { user, employer, admin, success, error });
 });
 
-router.post('/add-education', checkEmployerNotLoggedIn, checkAdminNotLoggedIn, async (req, res) => {
+router.post('/add-education', checkEmployerNotLoggedIn, checkAdminNotLoggedIn, async(req, res) => {
     const { educationTitle, major, institutionName, startDate, endDate } = req.body;
 
     if (!educationTitle || !major || !institutionName || !startDate) {
@@ -509,7 +508,7 @@ router.get('/experience-form', checkEmployerNotLoggedIn, checkAdminNotLoggedIn, 
     res.render("addExperience", { user, employer, admin, success, error });
 });
 
-router.post("/add-experience", checkEmployerNotLoggedIn, checkAdminNotLoggedIn, async (req, res) => {
+router.post("/add-experience", checkEmployerNotLoggedIn, checkAdminNotLoggedIn, async(req, res) => {
     const { jobTitle, company, expStartDate, expEndDate, description } = req.body;
 
     const startDate = new Date(expStartDate);
@@ -577,7 +576,7 @@ router.post("/add-experience", checkEmployerNotLoggedIn, checkAdminNotLoggedIn, 
 
 //Edit Education
 
-router.get('/editEducation', checkEmployerNotLoggedIn, checkAdminNotLoggedIn, async (req, res) => {
+router.get('/editEducation', checkEmployerNotLoggedIn, checkAdminNotLoggedIn, async(req, res) => {
     try {
         const educationId = req.query.educationId;
         req.session.editEducationId = educationId;
@@ -603,7 +602,7 @@ router.get('/editEducation', checkEmployerNotLoggedIn, checkAdminNotLoggedIn, as
 });
 
 //Update education
-const updateEducationById = async (userId, educationId, updatedFields) => {
+const updateEducationById = async(userId, educationId, updatedFields) => {
     try {
         const user = await userModel.findById(userId);
         const educationToUpdate = user.education.id(educationId);
@@ -623,7 +622,7 @@ const updateEducationById = async (userId, educationId, updatedFields) => {
 };
 
 
-router.post('/edit-education', checkEmployerNotLoggedIn, checkAdminNotLoggedIn, async (req, res) => {
+router.post('/edit-education', checkEmployerNotLoggedIn, checkAdminNotLoggedIn, async(req, res) => {
     try {
         const userId = req.session.user._id;
         const educationId = req.session.editEducationId;
@@ -660,7 +659,7 @@ router.post('/edit-education', checkEmployerNotLoggedIn, checkAdminNotLoggedIn, 
 
 
 //Delete Education
-router.get('/deleteEducation', checkEducationSession, async (req, res) => {
+router.get('/deleteEducation', checkEducationSession, async(req, res) => {
     try {
         const educationId = req.session.editEducationId;
         const user = req.session.user;
@@ -688,11 +687,11 @@ router.get('/deleteEducation', checkEducationSession, async (req, res) => {
 });
 
 
-const getUserById = async (userId) => {
+const getUserById = async(userId) => {
     return await userModel.findById(userId);
 };
 
-const deleteEducationById = async (userId, educationId) => {
+const deleteEducationById = async(userId, educationId) => {
     try {
         const user = await getUserById(userId);
 
@@ -707,7 +706,7 @@ const deleteEducationById = async (userId, educationId) => {
 };
 
 
-router.post('/delete-education', checkAdminNotLoggedIn, checkEducationSession, async (req, res) => {
+router.post('/delete-education', checkAdminNotLoggedIn, checkEducationSession, async(req, res) => {
     try {
         const userId = req.session.user._id;
         const educationId = req.session.editEducationId;
@@ -753,7 +752,7 @@ router.get('/clearEduSession', (req, res) => {
 
 //Edit Experienece
 
-router.get('/editExperience', checkEmployerNotLoggedIn, checkAdminNotLoggedIn, async (req, res) => {
+router.get('/editExperience', checkEmployerNotLoggedIn, checkAdminNotLoggedIn, async(req, res) => {
     try {
         const experienceId = req.query.experienceId;
         req.session.editExperienceId = experienceId;
@@ -779,7 +778,7 @@ router.get('/editExperience', checkEmployerNotLoggedIn, checkAdminNotLoggedIn, a
 });
 
 //Update experience
-const updateExperienceById = async (userId, experienceId, updatedFields) => {
+const updateExperienceById = async(userId, experienceId, updatedFields) => {
     try {
         const user = await userModel.findById(userId);
         const experienceToUpdate = user.experience.id(experienceId);
@@ -798,7 +797,7 @@ const updateExperienceById = async (userId, experienceId, updatedFields) => {
     }
 };
 
-router.post('/edit-experience', checkEmployerNotLoggedIn, checkAdminNotLoggedIn, async (req, res) => {
+router.post('/edit-experience', checkEmployerNotLoggedIn, checkAdminNotLoggedIn, async(req, res) => {
     try {
         const userId = req.session.user._id;
         const experienceId = req.session.editExperienceId;
@@ -834,7 +833,7 @@ router.post('/edit-experience', checkEmployerNotLoggedIn, checkAdminNotLoggedIn,
 });
 
 // Delete Experience
-router.get('/deleteExperience', checkExperienceSession, async (req, res) => {
+router.get('/deleteExperience', checkExperienceSession, async(req, res) => {
     try {
         const experienceId = req.session.editExperienceId;
         const user = req.session.user;
@@ -861,7 +860,7 @@ router.get('/deleteExperience', checkExperienceSession, async (req, res) => {
     }
 });
 
-const deleteExperienceById = async (userId, experienceId) => {
+const deleteExperienceById = async(userId, experienceId) => {
     try {
         const user = await getUserById(userId);
 
@@ -875,7 +874,7 @@ const deleteExperienceById = async (userId, experienceId) => {
     }
 };
 
-router.post('/delete-experience', checkAdminNotLoggedIn, checkExperienceSession, async (req, res) => {
+router.post('/delete-experience', checkAdminNotLoggedIn, checkExperienceSession, async(req, res) => {
     try {
         const userId = req.session.user._id;
         const experienceId = req.session.editExperienceId;
@@ -916,35 +915,36 @@ router.get('/clearExpSession', (req, res) => {
     res.redirect('/userDashboard');
 });
 
-router.post('/contact', async (req, res) => {
+router.post('/contact', async(req, res) => {
     try {
-      const { name, email, message } = req.body;
-      const newContactMessage = new ContactMessageModel({
-        name,
-        email,
-        message,
-      });
-  
-      await newContactMessage.save();
-      res.json({ status: 'success', message: 'Your message has been sent successfully!' });
-    } catch (error) {
-      console.log(error);
-      res.json({ status: 'error', message: 'An error occurred while sending your message. Please try again.' });
-    }
-  });
-  
+        const { name, email, message } = req.body;
+        const newContactMessage = new ContactMessageModel({
+            name,
+            email,
+            message,
+        });
 
-  router.get("/userAllMessages", async (req, res) => {
+        await newContactMessage.save();
+        res.json({ status: 'success', message: 'Your message has been sent successfully!' });
+    } catch (error) {
+        console.log(error);
+        res.json({ status: 'error', message: 'An error occurred while sending your message. Please try again.' });
+    }
+});
+
+
+router.get("/userAllMessages", async(req, res) => {
     try {
         const messages = [];
         if (messages.length === 0) {
             req.flash("info", "No messages available.");
         }
-        res.render("userAllMessages", { messages,
+        res.render("userAllMessages", {
+            messages,
             user: req.session.user,
             employer: req.session.employer,
             admin: req.session.admin
-         });
+        });
     } catch (error) {
         console.error("Error fetching messages:", error);
         req.flash("error", "Internal Server Error");
@@ -952,18 +952,19 @@ router.post('/contact', async (req, res) => {
     }
 });
 
-router.get("/moreExperience", async (req, res) => {
+router.get("/moreExperience", async(req, res) => {
     try {
         const user = await userModel.findById(req.session.user._id);
         if (!user || !user.experience) {
             req.flash("info", "No experience records available.");
             return res.redirect("/userDashboard");
         }
-        res.render("moreExperience", { experiences: user.experience,
+        res.render("moreExperience", {
+            experiences: user.experience,
             user: req.session.user,
             employer: req.session.employer,
             admin: req.session.admin
-         });
+        });
     } catch (error) {
         console.error("Error fetching experiences:", error);
         req.flash("error", "Internal Server Error");
@@ -971,18 +972,19 @@ router.get("/moreExperience", async (req, res) => {
     }
 });
 
-router.get("/moreEducation", async (req, res) => {
+router.get("/moreEducation", async(req, res) => {
     try {
         const user = await userModel.findById(req.session.user._id);
         if (!user || !user.education) {
             req.flash("info", "No education records available.");
             return res.redirect("/userDashboard");
         }
-        res.render("moreEducation", { educations: user.education,
+        res.render("moreEducation", {
+            educations: user.education,
             user: req.session.user,
             employer: req.session.employer,
             admin: req.session.admin
-         });
+        });
     } catch (error) {
         console.error("Error fetching educations:", error);
         req.flash("error", "Internal Server Error");
@@ -991,16 +993,17 @@ router.get("/moreEducation", async (req, res) => {
 });
 
 
-router.get("/appliedJobs", async (req, res) => {
+router.get("/appliedJobs", async(req, res) => {
     try {
         const appliedJobs = [];
         if (appliedJobs.length === 0) {
             req.flash("info", "No applied jobs available.");
         }
-        res.render("appliedJobs", { appliedJobs,
+        res.render("appliedJobs", {
+            appliedJobs,
             user: req.session.user,
             employer: req.session.employer,
-            admin: req.session.admin 
+            admin: req.session.admin
         });
     } catch (error) {
         console.error("Error fetching applied jobs:", error);
@@ -1009,17 +1012,18 @@ router.get("/appliedJobs", async (req, res) => {
     }
 });
 
-router.get("/likedJobs", async (req, res) => {
+router.get("/likedJobs", async(req, res) => {
     try {
-        const likedJobs = []; 
+        const likedJobs = [];
         if (likedJobs.length === 0) {
             req.flash("info", "No liked jobs available.");
         }
-        res.render("likedJobs", { likedJobs,
+        res.render("likedJobs", {
+            likedJobs,
             user: req.session.user,
             employer: req.session.employer,
             admin: req.session.admin
-         });
+        });
     } catch (error) {
         console.error("Error fetching liked jobs:", error);
         req.flash("error", "Internal Server Error");
@@ -1027,6 +1031,17 @@ router.get("/likedJobs", async (req, res) => {
     }
 });
 
+//------------------------//
+
+// Route handler for rendering user dashboard
+router.get('/dashboard', async(req, res) => {
+    try {
+        const appliedJobs = await Application.find({ userId: req.user.id });
+        res.render('userDashboard', { appliedModel: appliedModel });
+    } catch (error) {
+        res.status(500).send('Error fetching dashboard data.');
+    }
+});
 
 
 module.exports = router;
