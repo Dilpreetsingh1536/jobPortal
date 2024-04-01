@@ -4,6 +4,7 @@ const userModel = require("../models/userModel");
 const jobModel = require( "../models/jobModel" );
 const adminModel = require("../models/adminModel");
 const messageModel = require("../models/messageModel");
+const employerModel = require("../models/employerModel");
 
 
 const bcrypt = require("bcrypt");
@@ -105,7 +106,7 @@ router.get("/userDashboard", checkEmployerNotLoggedIn, checkAdminNotLoggedIn, as
 
         const messageCount = await messageModel.countDocuments({ recipientId: userId });
 
-        const sortedMessages = user.messages && Array.isArray(user.messages) ? user.messages
+        const sortedMessages = userData.messages && Array.isArray(userData.messages) ? userData.messages
         .sort((a, b) => b.createdAt - a.createdAt)
         .slice(0, 3)
         .map(message => ({
@@ -113,7 +114,7 @@ router.get("/userDashboard", checkEmployerNotLoggedIn, checkAdminNotLoggedIn, as
             adminUniqueId: adminDetails ? adminDetails.adminId : 'Admin not found',
         })) : [];
 
-        if (!user) {
+        if (!userData) {
             req.flash("error", "User not found");
             return res.redirect("/login");
         }
@@ -121,12 +122,12 @@ router.get("/userDashboard", checkEmployerNotLoggedIn, checkAdminNotLoggedIn, as
         let sortedExperiences = [];
         let sortedEducations = [];
 
-        if (user.experience && user.experience.length > 0) {
-            sortedExperiences = user.experience.sort((a, b) => b.expStartDate.getTime() - a.expStartDate.getTime()).slice(0, 3);
+        if (userData.experience && userData.experience.length > 0) {
+            sortedExperiences = userData.experience.sort((a, b) => b.expStartDate.getTime() - a.expStartDate.getTime()).slice(0, 3);
         }
 
-        if (user.education && user.education.length > 0) {
-            sortedEducations = user.education.sort((a, b) => b.startDate.getTime() - a.startDate.getTime()).slice(0, 3);
+        if (userData.education && userData.education.length > 0) {
+            sortedEducations = userData.education.sort((a, b) => b.startDate.getTime() - a.startDate.getTime()).slice(0, 3);
         }
         const user = {
             logo: userData.logo,
