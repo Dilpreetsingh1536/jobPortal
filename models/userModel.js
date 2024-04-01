@@ -65,6 +65,24 @@ const educationSchema = new mongoose.Schema({
   },
 });
 
+  const messageSchema = new mongoose.Schema({
+    message: {
+      type: String,
+      required: true,
+      trim: true,
+    },
+    createdAt: {
+      type: Date,
+      required: true,
+      default: Date.now,
+    },
+    read: {
+      type: Boolean,
+      required: true,
+      default: false,
+    }
+  });
+
 const userSchema = new mongoose.Schema({
   name: {
     type: String,
@@ -101,6 +119,11 @@ const userSchema = new mongoose.Schema({
   },
   education: [educationSchema],
   experience: [experienceSchema],
+    messages: [messageSchema],
+    likedJobs: [{
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'jobModel'
+  }],
 });
 
 userSchema.statics.findById = async function (userId) {

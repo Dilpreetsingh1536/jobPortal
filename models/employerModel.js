@@ -19,6 +19,24 @@ mongoose
         console.log(`Not Connected To MONGODB Due To Error Below \n ${err}`);
     });
 
+const messageSchema = new mongoose.Schema({
+    message: {
+        type: String,
+        required: true,
+        trim: true,
+    },
+        createdAt: {
+          type: Date,
+          required: true,
+          default: Date.now,
+    },
+        read: {
+          type: Boolean,
+          required: true,
+          default: false,
+    }
+});
+
 const employerSchema = new mongoose.Schema({
     employerName: {
         type: String,
@@ -61,6 +79,7 @@ const employerSchema = new mongoose.Schema({
         type: String,
         default: '/images/profile_logo.png', 
     },
+    messages: [messageSchema],
 });
 
 const employerModel = mongoose.model("employerModel", employerSchema);

@@ -1,10 +1,9 @@
 const express = require("express");
 const router = express.Router();
 const userModel = require("../models/userModel");
-const employerModel = require("../models/employerModel");
-const jobModel = require("../models/jobModel");
+const jobModel = require( "../models/jobModel" );
+const adminModel = require("../models/adminModel");
 const messageModel = require("../models/messageModel");
-
 
 
 const bcrypt = require("bcrypt");
@@ -81,6 +80,24 @@ const checkExperienceSession = (req, res, next) => {
 router.get("/userDashboard", checkEmployerNotLoggedIn, checkAdminNotLoggedIn, async (req, res) => {
     try {
         const userData = await userModel.findById(req.session.user._id);
+
+        const likedJobs = [];
+        for (const jobId of userData.likedJobs) {
+            const job = await jobModel.findById(jobId).populate('employerId', 'employerName');
+            if (job) {
+                likedJobs.push({
+                    jobTitle: job.jobTitle,
+                    employerName: job.employerId.employerName,
+                    sector: job.sector,
+                    city: job.city,
+                    province: job.province,
+                    salary: job.salary,
+                    street: job.street
+                });
+            }
+        }
+
+        let adminDetails = await adminModel.findOne();
         const employer = req.session.employer;
         const admin = req.session.admin;
 
@@ -88,7 +105,29 @@ router.get("/userDashboard", checkEmployerNotLoggedIn, checkAdminNotLoggedIn, as
 
         const messageCount = await messageModel.countDocuments({ recipientId: userId });
 
+        const sortedMessages = user.messages && Array.isArray(user.messages) ? user.messages
+        .sort((a, b) => b.createdAt - a.createdAt)
+        .slice(0, 3)
+        .map(message => ({
+            ...message.toObject(),
+            adminUniqueId: adminDetails ? adminDetails.adminId : 'Admin not found',
+        })) : [];
 
+        if (!user) {
+            req.flash("error", "User not found");
+            return res.redirect("/login");
+        }
+
+        let sortedExperiences = [];
+        let sortedEducations = [];
+
+        if (user.experience && user.experience.length > 0) {
+            sortedExperiences = user.experience.sort((a, b) => b.expStartDate.getTime() - a.expStartDate.getTime()).slice(0, 3);
+        }
+
+        if (user.education && user.education.length > 0) {
+            sortedEducations = user.education.sort((a, b) => b.startDate.getTime() - a.startDate.getTime()).slice(0, 3);
+        }
         const user = {
             logo: userData.logo,
             name: userData.name,
@@ -98,14 +137,41 @@ router.get("/userDashboard", checkEmployerNotLoggedIn, checkAdminNotLoggedIn, as
             experience: userData.experience,
         };
 
-        res.render("userDashboard", { user, admin, employer, messageCount });
+        res.render("userDashboard", {
+            user: req.session.user,
+            sortedExperiences,
+            sortedEducations,
+            likedJobs,
+            messages: sortedMessages,
+            admin: req.session.admin,
+            employer: req.session.employer,
+            messageCount
+        });
     } catch (error) {
-        console.error(error);
+        console.error("Error fetching user dashboard:", error);
         req.flash("error", "Internal Server Error");
         res.redirect("/userDashboard");
     }
 });
 
+router.post('/deleteMessage/:messageId', async (req, res) => {
+    const messageId = req.params.messageId;
+    const userId = req.session.user._id;
+
+    try {
+        await userModel.updateOne(
+            { _id: userId },
+            { $pull: { messages: { _id: messageId } } }
+        );
+
+        req.flash('success', 'Message deleted successfully.');
+        res.redirect('/userDashboard');
+    } catch (error) {
+        console.error('Failed to delete message:', error);
+        req.flash('error', 'Failed to delete message.');
+        res.redirect('/userDashboard');
+    }
+});
 
 // Edit User Details On Dashboard
 router.get("/edit-user-details", checkEmployerNotLoggedIn, checkAdminNotLoggedIn, async (req, res) => {
@@ -435,40 +501,32 @@ router.get('/add-education-form', checkEmployerNotLoggedIn, checkAdminNotLoggedI
 });
 
 router.post('/add-education', checkEmployerNotLoggedIn, checkAdminNotLoggedIn, async (req, res) => {
-    const user = req.session.user;
-    const employer = req.session.employer;
-    const admin = req.session.admin;
+    const { educationTitle, major, institutionName, startDate, endDate } = req.body;
+
+    if (!educationTitle || !major || !institutionName || !startDate) {
+        return res.render('addEducation', {
+            user: req.session.user,
+            employer: req.session.employer,
+            admin: req.session.admin,
+            success: null,
+            error: 'Please fill in all required fields.'
+        });
+    }
+
+    if (endDate && new Date(startDate) > new Date(endDate)) {
+        return res.render("addEducation", {
+            user: req.session.user,
+            employer: req.session.employer,
+            admin: req.session.admin,
+            success: null,
+            error: "End date should be equal to or after the start date.",
+        });
+    }
 
     try {
-        const { educationTitle, major, institutionName, startDate, endDate } = req.body;
+        const currentUser = await userModel.findById(req.session.user._id);
 
-        if (!educationTitle || !major || !institutionName || !startDate) {
-            return res.render('addEducation', {
-                user,
-                employer,
-                admin,
-                success: null,
-                error: 'Please fill in all required fields.'
-            });
-        }
-
-
-
-
-        if (endDate && startDate > endDate) {
-            return res.render("addEducation", {
-                user,
-                employer,
-                admin,
-                success: null,
-                error: "End date should be equal to or after the start date.",
-            });
-        }
-
-
-        const user = await userModel.findById(req.session.user._id);
-
-        user.education.push({
+        currentUser.education.push({
             educationTitle,
             major,
             institutionName,
@@ -476,22 +534,28 @@ router.post('/add-education', checkEmployerNotLoggedIn, checkAdminNotLoggedIn, a
             endDate,
         });
 
-        await user.save();
+        await currentUser.save();
+
+        const updatedUser = await userModel.findById(req.session.user._id);
+
+        req.session.user = updatedUser;
+
+        const lastEducationId = updatedUser.education[updatedUser.education.length - 1]._id;
+        req.session.editEducationId = lastEducationId;
 
         return res.render('addEducation', {
-            user,
-            employer,
-            admin,
+            user: req.session.user,
+            employer: req.session.employer,
+            admin: req.session.admin,
             success: 'Education added successfully!',
             error: null
         });
     } catch (error) {
         console.error(error);
-
         return res.render('addEducation', {
-            user,
-            employer,
-            admin,
+            user: req.session.user,
+            employer: req.session.employer,
+            admin: req.session.admin,
             success: null,
             error: 'Internal Server Error'
         });
@@ -512,10 +576,6 @@ router.get('/experience-form', checkEmployerNotLoggedIn, checkAdminNotLoggedIn, 
 });
 
 router.post("/add-experience", checkEmployerNotLoggedIn, checkAdminNotLoggedIn, async (req, res) => {
-    const user = req.session.user;
-    const employer = req.session.employer;
-    const admin = req.session.admin;
-
     const { jobTitle, company, expStartDate, expEndDate, description } = req.body;
 
     const startDate = new Date(expStartDate);
@@ -523,9 +583,9 @@ router.post("/add-experience", checkEmployerNotLoggedIn, checkAdminNotLoggedIn, 
 
     if (!jobTitle || !company || !expStartDate || !description) {
         return res.render("addExperience", {
-            user,
-            employer,
-            admin,
+            user: req.session.user,
+            employer: req.session.employer,
+            admin: req.session.admin,
             success: null,
             error: "All fields are required.",
         });
@@ -533,9 +593,9 @@ router.post("/add-experience", checkEmployerNotLoggedIn, checkAdminNotLoggedIn, 
 
     if (endDate && startDate > endDate) {
         return res.render("addExperience", {
-            user,
-            employer,
-            admin,
+            user: req.session.user,
+            employer: req.session.employer,
+            admin: req.session.admin,
             success: null,
             error: "End date should be equal to or after the start date.",
         });
@@ -543,7 +603,6 @@ router.post("/add-experience", checkEmployerNotLoggedIn, checkAdminNotLoggedIn, 
 
     try {
         const currentUser = await userModel.findById(req.session.user._id);
-
         currentUser.experience.push({
             jobTitle,
             company,
@@ -551,52 +610,61 @@ router.post("/add-experience", checkEmployerNotLoggedIn, checkAdminNotLoggedIn, 
             expEndDate: endDate,
             description,
         });
-
         await currentUser.save();
 
+        const updatedUser = await userModel.findById(req.session.user._id);
+
+        req.session.user = updatedUser;
+
+        const lastExperienceId = updatedUser.experience[updatedUser.experience.length - 1]._id;
+        req.session.editExperienceId = lastExperienceId;
+
         return res.render("addExperience", {
-            user,
-            employer,
-            admin,
+            user: req.session.user,
+            employer: req.session.employer,
+            admin: req.session.admin,
             success: "Experience added successfully!",
             error: null,
         });
     } catch (error) {
         console.error(error);
-
         return res.render("addExperience", {
-            user,
-            employer,
-            admin,
+            user: req.session.user,
+            employer: req.session.employer,
+            admin: req.session.admin,
             success: null,
             error: "Internal Server Error",
         });
     }
 });
 
+
 //------------------------------------------------------//
 
 //Edit Education
 
-router.get('/editEducation', checkEmployerNotLoggedIn, checkAdminNotLoggedIn, checkEducationSession, async (req, res) => {
+router.get('/editEducation', checkEmployerNotLoggedIn, checkAdminNotLoggedIn, async (req, res) => {
     try {
-        const educationId = req.session.editEducationId;
-        const user = req.session.user;
-        const employer = req.session.employer;
-        const admin = req.session.admin;
+        const educationId = req.query.educationId;
+        req.session.editEducationId = educationId;
 
+        if (!educationId) {
+            return res.redirect("/userDashboard");
+        }
+
+        const user = req.session.user;
         const education = user.education.find(edu => edu._id.toString() === educationId);
 
         if (!education) {
             req.flash("error", "Education not found.");
-            return res.redirect("/editEducation");
+            return res.redirect("/userDashboard");
         }
 
-        res.render("editEducation", { educationId, user, admin, employer, education, success: req.flash("success"), error: req.flash("error") });
+        res.render("editEducation", { user, educationId, education, success: req.flash("success"), error: req.flash("error") });
     } catch (error) {
         console.error(error);
         req.flash("error", "Internal Server Error");
-        res.redirect("/editEducation");
+        return res.redirect("/userDashboard");
     }
 });
 
@@ -629,12 +697,12 @@ router.post('/edit-education', checkEmployerNotLoggedIn, checkAdminNotLoggedIn, 
 
         if (!educationTitle || !major || !institutionName || !startDate) {
             req.flash('error', 'Please fill in all required fields.');
-            return res.redirect('/editEducation');
+            return res.redirect(`/editEducation?educationId=${educationId}`);
         }
 
         if (endDate && startDate > endDate) {
             req.flash('error', 'End date should be equal to or after the start date.');
-            return res.redirect('/editEducation');
+            return res.redirect(`/editEducation?educationId=${educationId}`);
         }
 
         const updatedUser = await updateEducationById(userId, educationId, {
@@ -648,11 +716,11 @@ router.post('/edit-education', checkEmployerNotLoggedIn, checkAdminNotLoggedIn, 
         req.session.user = updatedUser;
 
         req.flash('success', 'Education updated successfully!');
-        res.redirect('/editEducation');
+        res.redirect(`/editEducation?educationId=${educationId}`);
     } catch (error) {
         console.error(error);
         req.flash('error', 'Internal Server Error');
-        res.redirect('/editEducation');
+        res.redirect(`/editEducation?educationId=${educationId}`);
     }
 });
 
@@ -738,7 +806,7 @@ router.post('/setEditEducationId', (req, res) => {
     const { educationId } = req.body;
     req.session.editEducationId = educationId;
 
-    res.redirect('/editEducation');
+    res.redirect(`/editEducation?educationId=${educationId}`);
 });
 
 // Destroy Education session
@@ -751,13 +819,16 @@ router.get('/clearEduSession', (req, res) => {
 
 //Edit Experienece
 
-router.get('/editExperience', checkEmployerNotLoggedIn, checkAdminNotLoggedIn, checkExperienceSession, async (req, res) => {
+router.get('/editExperience', checkEmployerNotLoggedIn, checkAdminNotLoggedIn, async (req, res) => {
     try {
-        const experienceId = req.session.editExperienceId;
-        const user = req.session.user;
-        const employer = req.session.employer;
-        const admin = req.session.admin;
+        const experienceId = req.query.experienceId;
+        req.session.editExperienceId = experienceId;
 
+        if (!experienceId) {
+            return res.redirect("/userDashboard");
+        }
+
+        const user = req.session.user;
         const experience = user.experience.find(exp => exp._id.toString() === experienceId);
 
         if (!experience) {
@@ -765,11 +836,11 @@ router.get('/editExperience', checkEmployerNotLoggedIn, checkAdminNotLoggedIn, c
             return res.redirect("/userDashboard");
         }
 
-        res.render("editExperience", { experienceId, user, admin, employer, experience, success: req.flash("success"), error: req.flash("error") });
+        res.render("editExperience", { user, experienceId, experience, success: req.flash("success"), error: req.flash("error") });
     } catch (error) {
         console.error(error);
         req.flash("error", "Internal Server Error");
-        res.redirect("/userDashboard");
+        return res.redirect("/userDashboard");
     }
 });
 
@@ -780,7 +851,7 @@ const updateExperienceById = async (userId, experienceId, updatedFields) => {
         const experienceToUpdate = user.experience.id(experienceId);
 
         if (!experienceToUpdate) {
-            throw new Error("Education not found");
+            throw new Error("Experience not found");
         }
 
         experienceToUpdate.set(updatedFields);
@@ -806,7 +877,7 @@ router.post('/edit-experience', checkEmployerNotLoggedIn, checkAdminNotLoggedIn,
 
         if (expEndDate && expStartDate > expEndDate) {
             req.flash('error', 'End date should be equal to or after the start date.');
-            return res.redirect('/editExperience');
+            return res.redirect('/editExperience?experienceId=${experienceId}');
         }
 
         const updatedUser = await updateExperienceById(userId, experienceId, {
@@ -820,11 +891,11 @@ router.post('/edit-experience', checkEmployerNotLoggedIn, checkAdminNotLoggedIn,
         req.session.user = updatedUser;
 
         req.flash('success', 'Experience updated successfully!');
-        res.redirect('/editExperience');
+        res.redirect('/editExperience?experienceId=${experienceId}');
     } catch (error) {
         console.error(error);
         req.flash('error', 'Internal Server Error');
-        res.redirect('/editExperience');
+        res.redirect('/editExperience?experienceId=${experienceId}');
     }
 });
 
@@ -1122,6 +1193,152 @@ router.post('/deleteSentMessage/:id', async (req, res) => {
     }
 });
 
+
+
+  router.get("/userAllMessages",checkEmployerNotLoggedIn, checkAdminNotLoggedIn, async (req, res) => {
+    try {
+        const page = parseInt(req.query.page) || 1;
+        const pageSize = 10;
+        const userId = req.session.user._id;
+        
+        const user = await userModel.findById(userId);
+        if (!user || !user.messages) {
+            req.flash("info", "No messages available.");
+            return res.redirect("/userDashboard");
+        }
+        let adminDetails = await adminModel.findOne();
+        const skip = (page - 1) * pageSize; 
+
+        const totalMessages = user.messages.length;
+        const totalPages = Math.ceil(totalMessages / pageSize);
+
+        const messages = user.messages
+            .sort((a, b) => b.createdAt - a.createdAt)
+            .slice(skip, skip + pageSize)
+            .map(message => ({
+                ...message.toObject(),
+                adminUniqueId: adminDetails ? adminDetails.adminId : 'Admin not found',
+                createdAtFormatted: message.createdAt.toDateString(),
+            }));
+
+        res.render("userAllMessages", {
+            messages,
+            currentPage: page,
+            totalPages,
+            user: req.session.user,
+            employer: req.session.employer,
+            admin: req.session.admin
+        });
+    } catch (error) {
+        console.error("Error fetching messages:", error);
+        req.flash("error", "Internal Server Error");
+        res.redirect("/userDashboard");
+    }
+});
+
+router.get("/moreExperience",checkEmployerNotLoggedIn, checkAdminNotLoggedIn, async (req, res) => {
+    try {
+        const user = await userModel.findById(req.session.user._id);
+        if (!user || !user.experience) {
+            req.flash("info", "No experience records available.");
+            return res.redirect("/userDashboard");
+        }
+        res.render("moreExperience", { experiences: user.experience,
+            user: req.session.user,
+            employer: req.session.employer,
+            admin: req.session.admin
+         });
+    } catch (error) {
+        console.error("Error fetching experiences:", error);
+        req.flash("error", "Internal Server Error");
+        res.redirect("/userDashboard");
+    }
+});
+
+router.get("/moreEducation",checkEmployerNotLoggedIn, checkAdminNotLoggedIn, async (req, res) => {
+    try {
+        const user = await userModel.findById(req.session.user._id);
+        if (!user || !user.education) {
+            req.flash("info", "No education records available.");
+            return res.redirect("/userDashboard");
+        }
+        res.render("moreEducation", { educations: user.education,
+            user: req.session.user,
+            employer: req.session.employer,
+            admin: req.session.admin
+         });
+    } catch (error) {
+        console.error("Error fetching educations:", error);
+        req.flash("error", "Internal Server Error");
+        res.redirect("/userDashboard");
+    }
+});
+
+
+router.get("/appliedJobs", checkEmployerNotLoggedIn, checkAdminNotLoggedIn, async (req, res) => {
+    try {
+        const appliedJobs = [];
+        if (appliedJobs.length === 0) {
+            req.flash("info", "No applied jobs available.");
+        }
+        res.render("appliedJobs", { appliedJobs,
+            user: req.session.user,
+            employer: req.session.employer,
+            admin: req.session.admin 
+        });
+    } catch (error) {
+        console.error("Error fetching applied jobs:", error);
+        req.flash("error", "Internal Server Error");
+        res.redirect("/userDashboard");
+    }
+});
+
+router.get("/likedJobs",  checkEmployerNotLoggedIn, checkAdminNotLoggedIn, async (req, res) => {
+    try {
+        const page = parseInt(req.query.page) || 1;
+        const limit = 10; // Number of liked jobs per page
+        const skip = (page - 1) * limit;
+
+        const user = await userModel.findById(req.session.user._id);
+
+        if (!user) {
+            req.flash("error", "User not found");
+            return res.redirect("/login");
+        }
+
+        const likedJobsIds = user.likedJobs.slice(skip, skip + limit); // Get slice of likedJobs for current page
+
+        // Fetch detailed job information for the slice
+        const likedJobs = await Promise.all(
+            likedJobsIds.map(async (jobId) => {
+                const job = await jobModel.findById(jobId).populate('employerId', 'employerName').exec();
+                return job ? {
+                    jobTitle: job.jobTitle,
+                    employerName: job.employerId.employerName,
+                    sector: job.sector,
+                    city: job.city,
+                    province: job.province,
+                    salary: job.salary,
+                    street: job.street
+                } : null;
+            })
+        );
+
+        const totalLikedJobs = user.likedJobs.length;
+        const totalPages = Math.ceil(totalLikedJobs / limit);
+
+        res.render("likedJobs", { // Make sure you have a likedJobs.ejs file in your views
+            likedJobs: likedJobs.filter(job => job !== null), // Filter out any nulls in case a job wasn't found
+            currentPage: page,
+            totalPages: totalPages,
+            user: req.session.user
+        });
+    } catch (error) {
+        console.error("Error fetching liked jobs:", error);
+        req.flash("error", "Internal Server Error");
+        return res.redirect("/userDashboard");
+    }
+});
 
 
 module.exports = router;

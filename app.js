@@ -9,6 +9,8 @@ const userRoutes = require("./routes/userRoutes");
 const empRoutes = require("./routes/empRoutes");
 const adminRoutes = require("./routes/adminRoutes");
 const jobRoutes = require("./routes/jobRoutes");
+const job = require('./models/jobModel');
+
 
 const cookieParser = require('cookie-parser');
 
@@ -87,8 +89,6 @@ app.get('/aboutUs', (req, res) => {
     const admin = req.session.admin;
     res.render('aboutUs', { user, employer, admin });
 });
-
-
 
 app.use("/", userRoutes);
 app.use("/", empRoutes);

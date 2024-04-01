@@ -103,7 +103,7 @@
                                 </div>
                                 <p class="mb-1">
                                     <strong>Company:</strong>
-                                    <%= job.employerId.employerName %> %>
+                                    <%= job.employerId ? job.employerId.employerName : 'Unknown Employer' %>
                                 </p>
 
                                 <p class="mb-1">
@@ -124,6 +124,11 @@
                                     <%= job.description %>
                                 </p>
                                 <a href="/applyJob/<%= job._id %>" class="btn btn-success">Apply</a>
+                                <% if (user) { %>
+                                    <form action="/likeJob/<%= job._id %>" method="post" style="display: inline;">
+                                      <button type="submit" class="btn btn-primary">Like</button>
+                                    </form>
+                                  <% } %>
                             </li>
                             <% }); %>
                     </ul>
