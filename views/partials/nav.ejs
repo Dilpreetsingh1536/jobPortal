@@ -8,7 +8,7 @@
         <li><a href="/home">Home</a></li>
         <li><a href="/searchJob">Job Search</a></li>
         <% if (user) { %>
-            <li class="dropdown">
+        <li class="dropdown">
                 <a href="/userDashboard" class="account-link">Dashboard & Insights</a>
                 <div class="dropdown-content">
                     <a href="/userDashboard">Dashboard</a>
@@ -19,19 +19,21 @@
                     <a href="/userAllMessages">Messages</a>
                 </div>
             </li>
-            <li class="dropdown">
-                <a href="#" class="account-link">Company Info</a>
-                <div class="dropdown-content">
-                    <a href="contactUs">Contact</a>
-                    <a href="/aboutUs">About Us</a>
-                </div>
-            </li>
-            <li><a href="/logout">Logout</a></li>
+        <li><a href="/employerPage">Employers</a></li>
+        <li class="dropdown">
+            <a href="#" class="account-link">Company Info</a>
+            <div class="dropdown-content">
+                <a href="contactUs">Contact</a>
+                <a href="/aboutUs">About Us</a>
+            </div>
+        </li>
+        <li><a href="/logout">Logout</a></li>
         <% } else if (admin) { %>
         <li><a href="/adminDashboard">Dashboard</a></li>
         <li><a href="/adminLogout">Logout</a></li>
         <% } else if (employer) { %>
         <li><a href="/empDashboard">Dashboard</a></li>
+        <li><a href="/jobSeekersPage">Job Seekers</a></li>
         <li class="dropdown">
             <a href="#" class="account-link">Company Info</a>
             <div class="dropdown-content">

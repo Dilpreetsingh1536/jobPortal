@@ -25,13 +25,20 @@
                                     <li class="list-group-item d-flex justify-content-between align-items-center">
                                         <span><strong><%= employee.employerName %></strong></span>
                                         <div>
-                                            <button type="button" class="btn btn-primary btn-sm" data-toggle="modal" data-target="#employerModalDashboard<%= index %>">View</button>
+                                            <button type="button" class="btn btn-primary btn-sm" data-toggle="modal" data-target="#employerModalDashboard<%= index %>">
+                                                <i class="fas fa-eye"></i>
+                                            </button>
+                                            <button type="button" class="btn btn-secondary btn-sm" data-toggle="modal" data-target="#sendMessageModal<%= index %>">
+                                                <i class="fas fa-envelope"></i>
+                                            </button>
                                             <form action="/deleteEmployer" method="POST" style="display: inline;">
                                                 <input type="hidden" name="email" value="<%= employee.email %>">
-                                                <button type="submit" class="btn btn-danger btn-sm">Delete</button>
+                                                <button type="submit" class="btn btn-danger btn-sm">
+                                                    <i class="fas fa-trash-alt"></i>
+                                                </button>
                                             </form>
                                         </div>
-                
+                                    </li>
                                         <!-- Employer Detail Modal -->
                                         <div class="modal fade" id="employerModalDashboard<%= index %>" tabindex="-1" role="dialog" aria-labelledby="employerModalLabelDashboard<%= index %>" aria-hidden="true">
                                             <div class="modal-dialog" role="document">
@@ -71,21 +78,47 @@
                                                 </div>
                                             </div>
                                         </div>
-                                    </li>
+                                    <div class="modal fade" id="sendMessageModal<%= index %>" tabindex="-1" role="dialog" aria-labelledby="sendMessageModalLabel<%= index %>" aria-hidden="true">
+                                        <div class="modal-dialog" role="document">
+                                            <div class="modal-content">
+                                                <div class="modal-header">
+                                                    <h5 class="modal-title" id="sendMessageModalLabel<%= index %>">Send Message to <%= employee.employerName %></h5>
+                                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                                        <span aria-hidden="true">&times;</span>
+                                                    </button>
+                                                </div>
+                                                <div class="modal-body">
+                                                    <form action="/sendMessageToEmployer" method="POST">
+                                                        <input type="hidden" name="employerId" value="<%= employee._id %>">
+                                                        <div class="form-group">
+                                                            <label for="messageText<%= index %>">Message:</label>
+                                                            <textarea class="form-control" id="messageText<%= index %>" name="message" rows="3" required></textarea>
+                                                        </div>
+                                                        <button type="submit" class="btn btn-primary">Send</button>
+                                                    </div>
+                                                    <div class="modal-footer">
+                                                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                                                    </div>
+                                                </form>
+                                            </div>
+                                        </div>
+                                    </div>
                                 <% }); %>
                             </ul>
-                            <a href="/allEmployers" class="btn btn-info" style="margin-top: 5px;">All Employers</a>
+                            <div class="d-flex justify-content-between align-items-center mt-3">
+                                <a href="/allEmployers" class="btn btn-info">All Employers</a>
+                                <div>
+                                    <span class="ml-2"><i class="fas fa-eye"></i> View</span>
+                                    <span class="ml-2"><i class="fas fa-envelope"></i> Message</span>
+                                    <span class="ml-2"><i class="fas fa-trash-alt"></i> Delete</span>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
                 
                 <div class="col-md-6">
-                    <div class="card" style="
-                            border: 1px solid #ccc;
-                            border-radius: 8px;
-                            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-                            padding: 20px;
-                            margin-bottom: 20px;">
+                    <div class="card" style="border: 1px solid #ccc; border-radius: 8px; box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); padding: 20px; margin-bottom: 20px;">
                         <div class="card-body">
                             <h3 class="card-title" style="font-size: 24px; font-weight: bold">List of Users</h3>
                             <ul class="list-group">
@@ -96,12 +129,20 @@
                                             <strong>Email:</strong> <%= user.email %>
                                         </div>
                                         <div>
-                                            <button type="button" class="btn btn-primary btn-sm" data-toggle="modal" data-target="#userModal<%= index %>">View</button>
-                                            <form action="/deleteUser" method="POST" class="d-inline">
-                                                <input type="hidden" name="email" value="<%= user.email %>">
-                                                <button type="submit" class="btn btn-danger btn-sm">Delete</button>
+                                            <button type="button" class="btn btn-primary btn-sm" data-toggle="modal" data-target="#userModal<%= index %>">
+                                                <i class="fas fa-eye"></i>
+                                            </button>
+                                            <button type="button" class="btn btn-secondary btn-sm" data-toggle="modal" data-target="#sendMessageModal<%= index %>">
+                                                <i class="fas fa-envelope"></i>
+                                            </button>
+                                            <form action="/deleteUser" method="POST" style="display: inline;">
+                                                <input type="hidden" name="userId" value="<%= user._id %>">
+                                                <button type="submit" class="btn btn-danger btn-sm">
+                                                    <i class="fas fa-trash-alt"></i>
+                                                </button>
                                             </form>
                                         </div>
+                                    </li>
                 
                                         <!-- User Detail Modal -->
                                         <div class="modal fade" id="userModal<%= index %>" tabindex="-1" role="dialog" aria-labelledby="userModalLabel<%= index %>" aria-hidden="true">
@@ -144,10 +185,45 @@
                                                 </div>
                                             </div>
                                         </div>
+
+                                        <div class="modal fade" id="sendMessageModal<%= index %>" tabindex="-1" role="dialog" aria-labelledby="sendMessageModalLabel<%= index %>" aria-hidden="true">
+                                            <div class="modal-dialog" role="document">
+                                                <div class="modal-content">
+                                                    <div class="modal-header">
+                                                        <h5 class="modal-title" id="sendMessageModalLabel<%= index %>">Send Message to <%= user.username %></h5>
+                                                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                                            <span aria-hidden="true">&times;</span>
+                                                        </button>
+                                                    </div>
+                                                    <div class="modal-body">
+                                                        <form action="/sendMessage" method="POST">
+                                                            <input type="hidden" name="userId" value="<%= user._id %>">
+                                                            <div class="form-group">
+                                                                <label for="messageTextModal<%= index %>">Message:</label>
+                                                                <textarea class="form-control" id="messageTextModal<%= index %>" name="message" rows="3" required></textarea>
+                                                            </div>
+                                                            <button type="submit" class="btn btn-primary">Send Message</button>
+                                                        </form>
+                                                    </div>
+                                                    <div class="modal-footer">
+                                                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        
+                                        
                                     </li>
                                 <% }); %>                                
                             </ul>
-                            <a href="/allUsers" class="btn btn-info" style="margin-top: 5px;">All Users</a>
+                            <div class="d-flex justify-content-between align-items-center mt-3">
+                                <a href="/allUsers" class="btn btn-info">All Users</a>
+                                <div>
+                                    <span class="ml-2"><i class="fas fa-eye"></i> View</span>
+                                    <span class="ml-2"><i class="fas fa-envelope"></i> Message</span>
+                                    <span class="ml-2"><i class="fas fa-trash-alt"></i> Delete</span>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -168,9 +244,14 @@
                                             </span>
                                         </div>
                                         <div>
-                                            <button type="button" class="btn btn-primary btn-sm" data-toggle="modal" data-target="#jobModalDashboard<%= index %>">View</button>
-                                            <button type="button" class="btn btn-danger btn-sm" onclick="location.href='/deleteJob?jobId=<%= job._id %>'">Delete</button>
+                                            <button type="button" class="btn btn-primary btn-sm" data-toggle="modal" data-target="#jobModalDashboard<%= index %>">
+                                                <i class="fas fa-eye"></i>
+                                            </button>
+                                            <button type="button" class="btn btn-danger btn-sm" onclick="location.href='/deleteJob?jobId=<%= job._id %>'">
+                                                <i class="fas fa-trash-alt"></i>
+                                            </button>
                                         </div>
+                                    </li>
                 
                                         <!-- Job Detail Modal -->
                                         <div class="modal fade" id="jobModalDashboard<%= index %>" tabindex="-1" role="dialog" aria-labelledby="jobModalLabelDashboard<%= index %>" aria-hidden="true">
@@ -211,11 +292,16 @@
                                     </li>
                                 <% }); %>
                             </ul>
-                            <a href="/allJobs" class="btn btn-info" style="margin-top: 5px;">All Jobs</a>
+                            <div class="d-flex justify-content-between align-items-center mt-3">
+                                <a href="/allJobs" class="btn btn-info">All Jobs</a>
+                                <div>
+                                    <span class="ml-2"><i class="fas fa-eye"></i> View</span>
+                                    <span class="ml-2"><i class="fas fa-trash-alt"></i> Delete</span>
+                                </div>
+                            </div>
                         </div>
                     </div>
-                </div>  
-
+                </div>
                 <div class="col-md-6">
                     <div class="card" style="border: 1px solid #ccc; border-radius: 8px; box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); padding: 20px; margin-bottom: 20px;">
                         <div class="card-body">
@@ -227,41 +313,27 @@
                                             <strong>From:</strong> <%= message.name %> (<%= message.email %>)
                                             <p><strong>Message:</strong> <%= message.message %></p>
                                         </div>
-                                        <div>
-                                            <button type="button" class="btn btn-primary btn-sm" data-toggle="modal" data-target="#messageModalDashboard<%= index %>">View</button>
+                                        <div>    
                                             <form action="/deleteMessage" method="POST" style="display: inline;">
                                                 <input type="hidden" name="messageId" value="<%= message._id %>">
-                                                <button type="submit" class="btn btn-danger btn-sm">Delete</button>
+                                                <button type="submit" class="btn btn-danger btn-sm">
+                                                    <i class="fas fa-trash-alt"></i>
+                                                </button>
                                             </form>
-                                        </div>
-                
-                                        <!-- Message Detail Modal -->
-                                        <div class="modal fade" id="messageModalDashboard<%= index %>" tabindex="-1" role="dialog" aria-labelledby="messageModalLabelDashboard<%= index %>" aria-hidden="true">
-                                            <div class="modal-dialog" role="document">
-                                                <div class="modal-content">
-                                                    <div class="modal-header">
-                                                        <h5 class="modal-title" id="messageModalLabelDashboard<%= index %>">Message Details</h5>
-                                                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                                                            <span aria-hidden="true">&times;</span>
-                                                        </button>
-                                                    </div>
-                                                    <div class="modal-body">
-                                                        <p><strong>From:</strong> <%= message.name %> (<%= message.email %>)</p>
-                                                        <p><strong>Message:</strong> <%= message.message %></p>
-                                                    </div>
-                                                    <div class="modal-footer">
-                                                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                                                    </div>
-                                                </div>
-                                            </div>
                                         </div>
                                     </li>
                                 <% }); %>                                
                             </ul>
-                            <a href="/allMessages" class="btn btn-info" style="margin-top: 5px;">All Messages</a>
+                            <div class="d-flex justify-content-between align-items-center mt-3">
+                                <a href="/allMessages" class="btn btn-info">All Messages</a>
+                                <div>
+                                    <span class="ml-2"><i class="fas fa-trash-alt"></i> Delete</span>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
+                
                 
             </div>
         </div>
@@ -269,6 +341,7 @@
         <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
         <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.1/css/all.min.css">
     </body>
     <%- include('./partials/footer.ejs') %>
 

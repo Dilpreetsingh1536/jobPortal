@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta
+            name="viewport"
+            content="width=device-width, initial-scale=1, shrink-to-fit=no"
+        />
+        <title>Job Seekers</title>
+        <link
+            rel="stylesheet"
+            href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+        />
+        <link rel="stylesheet" type="text/css" href="css/nav.css" />
+        <link rel="stylesheet" type="text/css" href="css/footer.css" />
+    </head>
+    <%- include('./partials/nav.ejs') %>
+
+    <body style="background-color: #f8f9fa">
+        <div class="container mt-5">
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="card">
+                        <div class="card-body">
+                            <h5 class="card-title">Job Seeker Profile</h5>
+                            <img
+                                src="<%= usr.logo %>"
+                                class="card-img-top logo"
+                                alt="User Logo"
+                            />
+                            <p class="card-text">
+                                <strong>Name:</strong> <%= usr.name %>
+                            </p>
+                            <p class="card-text">
+                                <strong>Email:</strong> <%= usr.email %>
+                            </p>
+                            <a href="/jobSeekerMsg" class="btn btn-primary mt-3">Message</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row mt-4">
+                <div class="col-md-6">
+                    <div class="card">
+                        <div class="card-body">
+                            <h5 class="card-title">Education</h5>
+                            <% if (usr.education.length > 0) { %> <%
+                            usr.education.forEach(edu => { %>
+                            <div class="education">
+                                <p>
+                                    <strong>Education Title:</strong> <%=
+                                    edu.educationTitle %>
+                                </p>
+                                <p><strong>Major:</strong> <%= edu.major %></p>
+                                <p>
+                                    <strong>Institution Name:</strong> <%=
+                                    edu.institutionName %>
+                                </p>
+                                <p>
+                                    <strong>Start Date:</strong> <%=
+                                    edu.startDate.toLocaleDateString('en-CA') %>
+                                </p>
+                                <p>
+                                    <strong>End Date:</strong> <% if
+                                    (edu.endDate) { %> <%=
+                                    edu.endDate.toLocaleDateString('en-CA') %>
+                                    <% } else { %> Present <% } %>
+                                </p>
+                            </div>
+                            <% }) %> <% } else { %>
+                            <p>No education details available</p>
+                            <% } %>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="card">
+                        <div class="card-body">
+                            <h5 class="card-title">Experience</h5>
+                            <% if (usr.experience.length > 0) { %> <%
+                            usr.experience.forEach(exp => { %>
+                            <div class="experience">
+                                <p>
+                                    <strong>Position:</strong> <%= exp.jobTitle
+                                    %>
+                                </p>
+                                <p>
+                                    <strong>Company:</strong> <%= exp.company %>
+                                </p>
+                                <p>
+                                    <strong>Start Date:</strong> <%=
+                                    exp.expStartDate.toLocaleDateString('en-CA')
+                                    %>
+                                </p>
+                                <p>
+                                    <strong>End Date:</strong> <% if
+                                    (exp.expEndDate) { %> <%=
+                                    exp.expEndDate.toLocaleDateString('en-CA')
+                                    %> <% } else { %> Present <% } %>
+                                </p>
+                                <p>
+                                    <strong>Description:</strong> <%=
+                                    exp.description %>
+                                </p>
+                            </div>
+                            <% }) %> <% } else { %>
+                            <p>No experience details available</p>
+                            <% } %>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
+        <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+    </body>
+    <%- include('./partials/footer.ejs') %>
+</html>

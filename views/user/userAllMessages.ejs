@@ -1,26 +1,63 @@
 <!DOCTYPE html>
 <html lang="en">
-    <head>
-        <meta charset="UTF-8" />
-        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
-        <title>All Messages</title>
-        <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" />
-        <link rel="stylesheet" type="text/css" href="/css/nav.css" />
-        <link rel="stylesheet" type="text/css" href="/css/footer.css" />
-    </head>
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+    <title>All Messages</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" />
+    <link rel="stylesheet" type="text/css" href="/css/nav.css" />
+    <link rel="stylesheet" type="text/css" href="/css/footer.css" />
+</head>
 <body>
-<%- include('./partials/nav.ejs') %>
+    <%- include('./partials/nav.ejs') %>
 
-<div class="container mt-5">
-    <h1 class="mb-4">All Messages</h1>
-    <ul class="list-group">
-    </ul>
-</div>
+    <div class="container mt-5">
+        <h1 class="mb-4">All Messages</h1>
+        <% if (messages.length > 0) { %>
+            <div class="list-group">
+                <% messages.forEach(function(message) { %>
+                    <div class="list-group-item">
+                        <div class="row mb-2">
+                            <div class="col-12">
+                                <p><strong>Message:</strong> <%= message.message %></p>
+                            </div>
+                        </div>
+                        <div class="row align-items-center">
+                            <div class="col-md-4">
+                                <p class="mb-0"><strong>From:</strong> <%= message.adminUniqueId %></p>
+                            </div>
+                            <div class="col-md-4">
+                                <small><strong>Sent on:</strong> <%= message.createdAtFormatted %></small>
+                            </div>
+                            <div class="col-md-4 text-md-right">
+                                <form action="/deleteMessage/<%= message._id %>" method="POST">
+                                    <button type="submit" class="btn btn-danger btn-sm">Delete</button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                <% }); %>
+            </div>
+        <% } else { %>
+            <p>No new messages.</p>
+        <% } %>
+        <% if (totalPages > 1) { %>
+            <nav aria-label="Page navigation example">
+                <ul class="pagination justify-content-center">
+                    <% for(let i = 1; i <= totalPages; i++) { %>
+                        <li class="page-item <%= i === currentPage ? 'active' : '' %>">
+                            <a class="page-link" href="/userAllMessages?page=<%= i %>"><%= i %></a>
+                        </li>
+                    <% } %>
+                </ul>
+            </nav>
+        <% } %>
+    </div>
 
 <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
-
-<%- include('./partials/footer.ejs') %>
+    
+    <%- include('./partials/footer.ejs') %>
 </body>
 </html>

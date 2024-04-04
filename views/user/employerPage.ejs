@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta
+            name="viewport"
+            content="width=device-width, initial-scale=1, shrink-to-fit=no"
+        />
+        <title>Employers</title>
+        <link
+            rel="stylesheet"
+            href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+        />
+        <link rel="stylesheet" type="text/css" href="css/nav.css" />
+        <link rel="stylesheet" type="text/css" href="css/footer.css" />
+    </head>
+    <%- include('./partials/nav.ejs') %>
+
+    <body style="background-color: #f8f9fa">
+        <div class="container mt-5">
+            <h1>Employers</h1>
+            <div class="row">
+                <% employers.forEach(employer => { %>
+                <div class="col-md-3 mb-4">
+                    <div class="card">
+                        <img
+                            src="<%= employer.logo %>"
+                            class="card-img-top"
+                            alt="Employer Logo"
+                        />
+                        <div class="card-body">
+                            <h5 class="card-title">
+                                <%= employer.employerName %>
+                            </h5>
+
+                            <p class="card-text">
+                                Registration Number: <%=
+                                employer.registrationNumber %>
+                            </p>
+                            <form action="/viewProfile" method="post">
+                                <input
+                                    type="hidden"
+                                    name="employerId"
+                                    value="<%= employer._id %>"
+                                />
+                                <button type="submit" class="btn btn-primary">
+                                    View Profile
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+                <% }) %>
+            </div>
+        </div>
+        <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
+        <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+    </body>
+    <%- include('./partials/footer.ejs') %>
+</html>

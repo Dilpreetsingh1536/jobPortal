@@ -1,6 +1,12 @@
 const express = require("express");
 const router = express.Router();
 const userModel = require("../models/userModel");
+const jobModel = require( "../models/jobModel" );
+const adminModel = require("../models/adminModel");
+const messageModel = require("../models/messageModel");
+const employerModel = require("../models/employerModel");
+
+
 const bcrypt = require("bcrypt");
 const nodemailer = require('nodemailer');
 const ContactMessageModel = require('../models/contactMessageModel');
@@ -76,9 +82,41 @@ const checkExperienceSession = (req, res, next) => {
 // User Dashboard
 router.get("/userDashboard", checkEmployerNotLoggedIn, checkAdminNotLoggedIn, async(req, res) => {
     try {
-        const user = await userModel.findById(req.session.user._id);
+        const userData = await userModel.findById(req.session.user._id);
 
-        if (!user) {
+        const likedJobs = [];
+        for (const jobId of userData.likedJobs) {
+            const job = await jobModel.findById(jobId).populate('employerId', 'employerName');
+            if (job) {
+                likedJobs.push({
+                    jobTitle: job.jobTitle,
+                    employerName: job.employerId.employerName,
+                    sector: job.sector,
+                    city: job.city,
+                    province: job.province,
+                    salary: job.salary,
+                    street: job.street
+                });
+            }
+        }
+
+        let adminDetails = await adminModel.findOne();
+        const employer = req.session.employer;
+        const admin = req.session.admin;
+
+        const userId = req.session.user;
+
+        const messageCount = await messageModel.countDocuments({ recipientId: userId });
+
+        const sortedMessages = userData.messages && Array.isArray(userData.messages) ? userData.messages
+        .sort((a, b) => b.createdAt - a.createdAt)
+        .slice(0, 3)
+        .map(message => ({
+            ...message.toObject(),
+            adminUniqueId: adminDetails ? adminDetails.adminId : 'Admin not found',
+        })) : [];
+
+        if (!userData) {
             req.flash("error", "User not found");
             return res.redirect("/login");
         }
@@ -86,20 +124,31 @@ router.get("/userDashboard", checkEmployerNotLoggedIn, checkAdminNotLoggedIn, as
         let sortedExperiences = [];
         let sortedEducations = [];
 
-        if (user.experience && user.experience.length > 0) {
-            sortedExperiences = user.experience.sort((a, b) => b.expStartDate.getTime() - a.expStartDate.getTime()).slice(0, 3);
+        if (userData.experience && userData.experience.length > 0) {
+            sortedExperiences = userData.experience.sort((a, b) => b.expStartDate.getTime() - a.expStartDate.getTime()).slice(0, 3);
         }
 
-        if (user.education && user.education.length > 0) {
-            sortedEducations = user.education.sort((a, b) => b.startDate.getTime() - a.startDate.getTime()).slice(0, 3);
+        if (userData.education && userData.education.length > 0) {
+            sortedEducations = userData.education.sort((a, b) => b.startDate.getTime() - a.startDate.getTime()).slice(0, 3);
         }
+        const user = {
+            logo: userData.logo,
+            name: userData.name,
+            username: userData.username,
+            email: userData.email,
+            education: userData.education,
+            experience: userData.experience,
+        };
 
         res.render("userDashboard", {
             user: req.session.user,
             sortedExperiences,
             sortedEducations,
+            likedJobs,
+            messages: sortedMessages,
             admin: req.session.admin,
-            employer: req.session.employer
+            employer: req.session.employer,
+            messageCount
         });
     } catch (error) {
         console.error("Error fetching user dashboard:", error);
@@ -108,6 +157,24 @@ router.get("/userDashboard", checkEmployerNotLoggedIn, checkAdminNotLoggedIn, as
     }
 });
 
+router.post('/deleteMessage/:messageId', async (req, res) => {
+    const messageId = req.params.messageId;
+    const userId = req.session.user._id;
+
+    try {
+        await userModel.updateOne(
+            { _id: userId },
+            { $pull: { messages: { _id: messageId } } }
+        );
+
+        req.flash('success', 'Message deleted successfully.');
+        res.redirect('/userDashboard');
+    } catch (error) {
+        console.error('Failed to delete message:', error);
+        req.flash('error', 'Failed to delete message.');
+        res.redirect('/userDashboard');
+    }
+});
 
 // Edit User Details On Dashboard
 router.get("/edit-user-details", checkEmployerNotLoggedIn, checkAdminNotLoggedIn, async(req, res) => {
@@ -915,7 +982,8 @@ router.get('/clearExpSession', (req, res) => {
     res.redirect('/userDashboard');
 });
 
-router.post('/contact', async(req, res) => {
+//Contact Page 
+router.post('/contact', async (req, res) => {
     try {
         const { name, email, message } = req.body;
         const newContactMessage = new ContactMessageModel({
@@ -932,15 +1000,231 @@ router.post('/contact', async(req, res) => {
     }
 });
 
-
-router.get("/userAllMessages", async(req, res) => {
+//Search employer 
+router.get('/employerPage', checkAdminNotLoggedIn, checkEmployerNotLoggedIn, async (req, res) => {
     try {
-        const messages = [];
-        if (messages.length === 0) {
-            req.flash("info", "No messages available.");
+        const employers = await employerModel.find({}, 'employerName registrationNumber logo');
+
+        employers.forEach(employer => {
+            employer.registrationNumber = employer.registrationNumber.toUpperCase();
+        });
+
+        const user = req.session.user;
+
+        res.render('employerPage', { employers, user });
+    } catch (error) {
+        console.error(error);
+        req.flash('error', 'Internal Server Error');
+        res.redirect('/employerPage');
+    }
+});
+
+router.post('/viewProfile', (req, res) => {
+    const { employerId } = req.body;
+    req.session.employerId = employerId;
+    res.redirect('/employerProfile');
+});
+
+
+
+router.get('/employerProfile', checkAdminNotLoggedIn, checkEmployerNotLoggedIn, async (req, res) => {
+    try {
+        const employerId = req.session.employerId;
+        if (!employerId) {
+            req.flash('error', 'Employer ID not found in session.');
+            return res.redirect('/employerPage');
         }
+
+        const user = req.session.user;
+        const employer = req.session.employer;
+        const admin = req.session.admin;
+
+        const emp = await employerModel.findById(employerId);
+
+        const jobs = await jobModel.find({ employerId: employerId });
+
+        res.render('employerProfile', { employer, jobs, user, emp, admin });
+    } catch (error) {
+        console.error(error);
+        req.flash('error', 'Error fetching employer profile.');
+        res.redirect('/employerPage');
+    }
+});
+
+
+// Message send to employer
+router.get('/empMessage', checkAdminNotLoggedIn, checkEmployerNotLoggedIn, async (req, res) => {
+    try {
+        const employerId = req.session.employerId;
+        const { success, error } = req.query;
+
+        const user = req.session.user;
+        const employer = req.session.employer;
+        const admin = req.session.admin;
+
+        const emp = await employerModel.findById(employerId);
+
+        res.render('empMessage', { employer, user, admin, emp, success, error });
+    } catch (error) {
+        console.error(error);
+        req.flash('error', 'Internal Server Error');
+        res.redirect('/employerProfile');
+    }
+});
+
+// Message Post route
+router.post('/sendMessage', async (req, res) => {
+    try {
+        const { message } = req.body;
+        const senderId = req.session.user;
+        const recipientId = req.session.employerId;
+
+        const newMessage = new messageModel({
+            senderId: senderId,
+            senderModel: 'userModel',
+            recipientId: recipientId,
+            recipientModel: 'employerModel',
+            message: message
+        });
+
+        await newMessage.save();
+
+        res.redirect('/empMessage?success=Message sent successfully');
+    } catch (error) {
+        console.error(error);
+        res.redirect('/empMessage?error=Error sending message');
+    }
+});
+
+//View Message
+router.get('/viewMessage', checkAdminNotLoggedIn, checkEmployerNotLoggedIn, async (req, res) => {
+    try {
+        const userId = req.session.user;
+
+        const user = req.session.user;
+        const admin = req.session.admin;
+        const employer = req.session.employer;
+       
+        const messages = await messageModel.find({
+            recipientId: userId,
+            senderModel: 'employerModel',
+        }).populate({
+            path: 'senderId',
+            model: 'employerModel',
+            select: 'employerName' 
+        });
+
+        res.render('viewMessage', { messages, user, admin, employer });
+    } catch (error) {
+        console.error(error);
+        req.flash('error', 'Internal Server Error');
+        res.redirect('/userDashboard');
+    }
+});
+
+//Reply Message
+
+router.post('/rplyMessage', async (req, res) => {
+    try {
+        const { messageId, reply } = req.body;
+
+        const message = await messageModel.findById(messageId);
+
+        message.reply = reply;
+        await message.save();
+
+        res.redirect('/viewMessage');
+    } catch (error) {
+        console.error(error);
+        res.redirect('/viewMessage');
+    }
+});
+
+
+//Sent Messages
+router.get('/sentMessage', checkAdminNotLoggedIn, checkEmployerNotLoggedIn, async (req, res) => {
+    try {
+        const userId = req.session.user;
+
+        const user = req.session.user;
+        const admin = req.session.admin;
+        const employer = req.session.employer;
+
+        const messages = await messageModel.find({
+            senderId: userId,
+            senderModel: 'userModel'
+        }).populate({
+            path: 'recipientId',
+            model: 'employerModel',
+            select: 'employerName'
+        });
+
+        res.render('sentMessage', { messages, user, admin, employer });
+    } catch (error) {
+        console.error(error);
+        req.flash('error', 'Internal Server Error');
+        res.redirect('/userDashboard');
+    }
+});
+
+router.post('/deleteMessage/:id', async (req, res) => {
+    try {
+        const messageId = req.params.id;
+        
+        await messageModel.findByIdAndDelete(messageId);
+
+        res.redirect('/viewMessage');
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+});
+
+router.post('/deleteSentMessage/:id', async (req, res) => {
+    try {
+        const messageId = req.params.id;
+        
+        await messageModel.findByIdAndDelete(messageId);
+
+        res.redirect('/sentMessage');
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+});
+
+
+
+  router.get("/userAllMessages",checkEmployerNotLoggedIn, checkAdminNotLoggedIn, async (req, res) => {
+    try {
+        const page = parseInt(req.query.page) || 1;
+        const pageSize = 10;
+        const userId = req.session.user._id;
+        
+        const user = await userModel.findById(userId);
+        if (!user || !user.messages) {
+            req.flash("info", "No messages available.");
+            return res.redirect("/userDashboard");
+        }
+        let adminDetails = await adminModel.findOne();
+        const skip = (page - 1) * pageSize; 
+
+        const totalMessages = user.messages.length;
+        const totalPages = Math.ceil(totalMessages / pageSize);
+
+        const messages = user.messages
+            .sort((a, b) => b.createdAt - a.createdAt)
+            .slice(skip, skip + pageSize)
+            .map(message => ({
+                ...message.toObject(),
+                adminUniqueId: adminDetails ? adminDetails.adminId : 'Admin not found',
+                createdAtFormatted: message.createdAt.toDateString(),
+            }));
+
         res.render("userAllMessages", {
             messages,
+            currentPage: page,
+            totalPages,
             user: req.session.user,
             employer: req.session.employer,
             admin: req.session.admin
@@ -952,7 +1236,7 @@ router.get("/userAllMessages", async(req, res) => {
     }
 });
 
-router.get("/moreExperience", async(req, res) => {
+router.get("/moreExperience",checkEmployerNotLoggedIn, checkAdminNotLoggedIn, async (req, res) => {
     try {
         const user = await userModel.findById(req.session.user._id);
         if (!user || !user.experience) {
@@ -972,7 +1256,7 @@ router.get("/moreExperience", async(req, res) => {
     }
 });
 
-router.get("/moreEducation", async(req, res) => {
+router.get("/moreEducation",checkEmployerNotLoggedIn, checkAdminNotLoggedIn, async (req, res) => {
     try {
         const user = await userModel.findById(req.session.user._id);
         if (!user || !user.education) {
@@ -993,7 +1277,7 @@ router.get("/moreEducation", async(req, res) => {
 });
 
 
-router.get("/appliedJobs", async(req, res) => {
+router.get("/appliedJobs", checkEmployerNotLoggedIn, checkAdminNotLoggedIn, async (req, res) => {
     try {
         const appliedJobs = [];
         if (appliedJobs.length === 0) {
@@ -1012,22 +1296,50 @@ router.get("/appliedJobs", async(req, res) => {
     }
 });
 
-router.get("/likedJobs", async(req, res) => {
+router.get("/likedJobs",  checkEmployerNotLoggedIn, checkAdminNotLoggedIn, async (req, res) => {
     try {
-        const likedJobs = [];
-        if (likedJobs.length === 0) {
-            req.flash("info", "No liked jobs available.");
+        const page = parseInt(req.query.page) || 1;
+        const limit = 10; // Number of liked jobs per page
+        const skip = (page - 1) * limit;
+
+        const user = await userModel.findById(req.session.user._id);
+
+        if (!user) {
+            req.flash("error", "User not found");
+            return res.redirect("/login");
         }
-        res.render("likedJobs", {
-            likedJobs,
-            user: req.session.user,
-            employer: req.session.employer,
-            admin: req.session.admin
+
+        const likedJobsIds = user.likedJobs.slice(skip, skip + limit); // Get slice of likedJobs for current page
+
+        // Fetch detailed job information for the slice
+        const likedJobs = await Promise.all(
+            likedJobsIds.map(async (jobId) => {
+                const job = await jobModel.findById(jobId).populate('employerId', 'employerName').exec();
+                return job ? {
+                    jobTitle: job.jobTitle,
+                    employerName: job.employerId.employerName,
+                    sector: job.sector,
+                    city: job.city,
+                    province: job.province,
+                    salary: job.salary,
+                    street: job.street
+                } : null;
+            })
+        );
+
+        const totalLikedJobs = user.likedJobs.length;
+        const totalPages = Math.ceil(totalLikedJobs / limit);
+
+        res.render("likedJobs", { // Make sure you have a likedJobs.ejs file in your views
+            likedJobs: likedJobs.filter(job => job !== null), // Filter out any nulls in case a job wasn't found
+            currentPage: page,
+            totalPages: totalPages,
+            user: req.session.user
         });
     } catch (error) {
         console.error("Error fetching liked jobs:", error);
         req.flash("error", "Internal Server Error");
-        res.redirect("/userDashboard");
+        return res.redirect("/userDashboard");
     }
 });
 
