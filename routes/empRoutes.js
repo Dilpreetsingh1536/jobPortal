@@ -697,4 +697,86 @@ router.post('/deleteSentMsg/:id', async (req, res) => {
 });
 
 
+router.get("/allJobs", checkUserNotLoggedIn, checkAdminNotLoggedIn, async (req, res) => {
+    try {
+        const page = parseInt(req.query.page) || 1; // Get the current page number from query parameter, default to 1 if not provided
+        const limit = 3; // Number of jobs to display per page
+        const skip = (page - 1) * limit; // Calculate the number of items to skip
+        
+        const employerData = await employerModel.findById(req.session.employer._id);
+        const totalJobs = await jobModel.countDocuments({ employerId: employerData._id });
+        const pageCount = Math.ceil(totalJobs / limit); // Calculate the total number of pages
+        
+        const jobs = await jobModel.find({ employerId: employerData._id })
+                                   .skip(skip) // Skip items based on the current page
+                                   .limit(limit); // Limit the number of items per page
+        
+        res.render("allJobs", { jobs, user: req.session.user, admin: req.session.admin, employer: req.session.employer, pageCount, currentPage: page });
+    } catch (error) {
+        console.error("Error fetching all jobs:", error);
+        req.flash("error", "Internal Server Error");
+        return res.redirect("/empDashboard");
+    }
+});
+
+
+router.get("/allApplications", checkUserNotLoggedIn, checkAdminNotLoggedIn, async (req, res) => {
+    try {
+        const employer = req.session.employer;
+        const user = req.session.user;
+        const admin = req.session.admin;
+
+        const employerData = await employerModel.findById(req.session.employer._id);
+        const jobs = await jobModel.find({ employerId: employerData._id });
+
+        res.render("allApplications", { jobs, user, admin, employer });
+    } catch (error) {
+        console.error(error);
+        req.flash("error", "Internal Server Error");
+        res.redirect("/empDashboard");
+    }
+});
+router.get("/adminAllMessages", checkUserNotLoggedIn, checkAdminNotLoggedIn, async (req, res) => {
+    try {
+        const page = parseInt(req.query.page) || 1;
+        const pageSize = 10;
+        const employerId = req.session.employer._id;
+        
+        const employer = await employerModel.findById(employerId);
+        if (!employer || !employer.messages) {
+            req.flash("info", "No messages available.");
+            return res.redirect("/employerDashboard");
+        }
+        let adminDetails = await adminModel.findOne();
+        const skip = (page - 1) * pageSize; 
+
+        const totalMessages = employer.messages.length;
+        const totalPages = Math.ceil(totalMessages / pageSize);
+
+        const messages = employer.messages
+            .sort((a, b) => b.createdAt - a.createdAt)
+            .slice(skip, skip + pageSize)
+            .map(message => ({
+                ...message.toObject(),
+                adminUniqueId: adminDetails ? adminDetails.adminId : 'Admin not found',
+                createdAtFormatted: message.createdAt.toDateString(),
+            }));
+
+        res.render("adminAllMessages", {
+            messages,
+            currentPage: page,
+            totalPages,
+            user: req.session.user,
+            employer: req.session.employer,
+            admin: req.session.admin
+        });
+    } catch (error) {
+        console.error("Error fetching messages:", error);
+        req.flash("error", "Internal Server Error");
+        res.redirect("/employerDashboard");
+    }
+});
+
+
+
 module.exports = router;

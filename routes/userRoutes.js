@@ -83,6 +83,10 @@ const checkExperienceSession = (req, res, next) => {
 router.get("/userDashboard", checkEmployerNotLoggedIn, checkAdminNotLoggedIn, async(req, res) => {
     try {
         const userData = await userModel.findById(req.session.user._id);
+        const userId = req.session.user;
+
+        const employer = req.session.employer;
+        const admin = req.session.admin;
 
         const likedJobs = [];
         for (const jobId of userData.likedJobs) {
@@ -101,20 +105,15 @@ router.get("/userDashboard", checkEmployerNotLoggedIn, checkAdminNotLoggedIn, as
         }
 
         let adminDetails = await adminModel.findOne();
-        const employer = req.session.employer;
-        const admin = req.session.admin;
-
-        const userId = req.session.user;
-
         const messageCount = await messageModel.countDocuments({ recipientId: userId });
 
         const sortedMessages = userData.messages && Array.isArray(userData.messages) ? userData.messages
-        .sort((a, b) => b.createdAt - a.createdAt)
-        .slice(0, 3)
-        .map(message => ({
-            ...message.toObject(),
-            adminUniqueId: adminDetails ? adminDetails.adminId : 'Admin not found',
-        })) : [];
+            .sort((a, b) => b.createdAt - a.createdAt)
+            .slice(0, 3)
+            .map(message => ({
+                ...message.toObject(),
+                adminUniqueId: adminDetails ? adminDetails.adminId : 'Admin not found',
+            })) : [];
 
         if (!userData) {
             req.flash("error", "User not found");
@@ -141,13 +140,13 @@ router.get("/userDashboard", checkEmployerNotLoggedIn, checkAdminNotLoggedIn, as
         };
 
         res.render("userDashboard", {
-            user: req.session.user,
+            user,
             sortedExperiences,
             sortedEducations,
             likedJobs,
             messages: sortedMessages,
-            admin: req.session.admin,
-            employer: req.session.employer,
+            admin,
+            employer,
             messageCount
         });
     } catch (error) {
@@ -1299,7 +1298,7 @@ router.get("/appliedJobs", checkEmployerNotLoggedIn, checkAdminNotLoggedIn, asyn
 router.get("/likedJobs",  checkEmployerNotLoggedIn, checkAdminNotLoggedIn, async (req, res) => {
     try {
         const page = parseInt(req.query.page) || 1;
-        const limit = 10; // Number of liked jobs per page
+        const limit = 10;
         const skip = (page - 1) * limit;
 
         const user = await userModel.findById(req.session.user._id);
@@ -1309,9 +1308,8 @@ router.get("/likedJobs",  checkEmployerNotLoggedIn, checkAdminNotLoggedIn, async
             return res.redirect("/login");
         }
 
-        const likedJobsIds = user.likedJobs.slice(skip, skip + limit); // Get slice of likedJobs for current page
+        const likedJobsIds = user.likedJobs.slice(skip, skip + limit);
 
-        // Fetch detailed job information for the slice
         const likedJobs = await Promise.all(
             likedJobsIds.map(async (jobId) => {
                 const job = await jobModel.findById(jobId).populate('employerId', 'employerName').exec();
@@ -1330,8 +1328,8 @@ router.get("/likedJobs",  checkEmployerNotLoggedIn, checkAdminNotLoggedIn, async
         const totalLikedJobs = user.likedJobs.length;
         const totalPages = Math.ceil(totalLikedJobs / limit);
 
-        res.render("likedJobs", { // Make sure you have a likedJobs.ejs file in your views
-            likedJobs: likedJobs.filter(job => job !== null), // Filter out any nulls in case a job wasn't found
+        res.render("likedJobs", { 
+            likedJobs: likedJobs.filter(job => job !== null),
             currentPage: page,
             totalPages: totalPages,
             user: req.session.user
@@ -1342,18 +1340,5 @@ router.get("/likedJobs",  checkEmployerNotLoggedIn, checkAdminNotLoggedIn, async
         return res.redirect("/userDashboard");
     }
 });
-
-//------------------------//
-
-// Route handler for rendering user dashboard
-router.get('/dashboard', async(req, res) => {
-    try {
-        const appliedJobs = await Application.find({ userId: req.user.id });
-        res.render('userDashboard', { appliedModel: appliedModel });
-    } catch (error) {
-        res.status(500).send('Error fetching dashboard data.');
-    }
-});
-
 
 module.exports = router;

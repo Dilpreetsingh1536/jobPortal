@@ -126,9 +126,13 @@
                                 <a href="/applyJob/<%= job._id %>" class="btn btn-success">Apply</a>
                                 <% if (user) { %>
                                     <form action="/likeJob/<%= job._id %>" method="post" style="display: inline;">
-                                      <button type="submit" class="btn btn-primary">Like</button>
+                                        <% if (job.isLikedByCurrentUser) { %>
+                                            <button type="submit" class="btn btn-primary" disabled>Already Liked</button>
+                                        <% } else { %>
+                                            <button type="submit" class="btn btn-primary">Like</button>
+                                        <% } %>
                                     </form>
-                                  <% } %>
+                                <% } %>
                             </li>
                             <% }); %>
                     </ul>

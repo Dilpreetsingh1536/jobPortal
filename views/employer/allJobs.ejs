@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+    <title>all Jobs</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" />
+    <link rel="stylesheet" type="text/css" href="css/nav.css" />
+    <link rel="stylesheet" type="text/css" href="css/footer.css" />
+    <link rel="stylesheet" type="text/css" href="css/main.css" />
+</head>
+<body>
+<%- include('./partials/nav.ejs') %>
+
+<div class="container">
+    <div class="row">
+        <div class="col-md-12">
+            <div class="card" style="border: 1px solid #ccc; border-radius: 8px; box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); padding: 20px; margin-bottom: 20px;">
+                <div class="card-body">
+                    <h3 class="card-title" style="font-size: 24px; font-weight: bold">Posted Jobs</h3>
+                    <form action="/setEditJobId" method="post">
+                        <% if (jobs && jobs.length > 0) { %>
+                        <ul class="list-group">
+                            <% jobs.forEach(job => { %>
+                            <li class="list-group-item">
+                                <h5><%= job.jobTitle %></h5>
+                                <p><strong>Sector:</strong> <%= job.sector %></p>
+                                <p><strong>Salary:</strong> <%= job.salary %></p>
+                                <p><strong>Location:</strong> <%= job.street %>, <%= job.city %>, <%= job.province %> <%= job.postalCode %></p>
+                                <p><strong>Description:</strong> <%= job.description %></p>
+                                <p><strong>Job Status:</strong> <%= job.status %></p>
+                                <button type="submit" class="btn btn-warning" name="jobId" value="<%= job._id %>">Edit</button>
+                                <a href="/setDeleteJobId/<%= job._id %>" class="btn btn-danger">Delete</a>
+                            </li>
+                            <% }); %>
+                        </ul>
+                        <% } else { %>
+                        <p>No jobs posted yet.</p>
+                        <% } %>
+                    </form>
+                    <a href="/listJob" class="btn btn-success" style="margin-top: 20px">List a Job</a>
+                </div>
+                <nav aria-label="Page navigation example" class="mt-4" style="background-color: white;">
+                    <ul class="pagination">
+                        <% for(let i = 1; i <= pageCount; i++) { %>
+                            <li class="page-item <%= i === currentPage ? 'active' : '' %>">
+                                <a class="page-link" href="/allJobs?page=<%= i %>"><%= i %></a>
+                            </li>
+                        <% } %>
+                    </ul>
+                </nav>
+            </div>
+        </div>
+    </div>
+</div>
+
+<%- include('./partials/footer.ejs') %>
+
+<script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+</body>
+</html>

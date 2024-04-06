@@ -17,18 +17,23 @@
             <div class="row">
 
                 <div class="col-md-6">
-                    <div class="card" style="border: 1px solid #ccc; border-radius: 8px; box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); padding: 20px; margin-bottom: 20px;">
+                    <div class="card"
+                        style="border: 1px solid #ccc; border-radius: 8px; box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); padding: 20px; margin-bottom: 20px;">
                         <div class="card-body">
                             <h3 class="card-title" style="font-size: 24px; font-weight: bold">List of Employers</h3>
                             <ul class="list-group">
                                 <% employers.slice(0, 3).forEach(function(employee, index) { %>
                                     <li class="list-group-item d-flex justify-content-between align-items-center">
-                                        <span><strong><%= employee.employerName %></strong></span>
+                                        <span><strong>
+                                                <%= employee.employerName %>
+                                            </strong></span>
                                         <div>
-                                            <button type="button" class="btn btn-primary btn-sm" data-toggle="modal" data-target="#employerModalDashboard<%= index %>">
+                                            <button type="button" class="btn btn-primary btn-sm" data-toggle="modal"
+                                                data-target="#employerModalDashboard<%= index %>">
                                                 <i class="fas fa-eye"></i>
                                             </button>
-                                            <button type="button" class="btn btn-secondary btn-sm" data-toggle="modal" data-target="#sendMessageModal<%= index %>">
+                                            <button type="button" class="btn btn-secondary btn-sm" data-toggle="modal"
+                                                data-target="#employerSendMessageModal<%= index %>">
                                                 <i class="fas fa-envelope"></i>
                                             </button>
                                             <form action="/deleteEmployer" method="POST" style="display: inline;">
@@ -39,71 +44,91 @@
                                             </form>
                                         </div>
                                     </li>
-                                        <!-- Employer Detail Modal -->
-                                        <div class="modal fade" id="employerModalDashboard<%= index %>" tabindex="-1" role="dialog" aria-labelledby="employerModalLabelDashboard<%= index %>" aria-hidden="true">
-                                            <div class="modal-dialog" role="document">
-                                                <div class="modal-content">
-                                                    <div class="modal-header">
-                                                        <h5 class="modal-title" id="employerModalLabelDashboard<%= index %>">Employer Details</h5>
-                                                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                                                            <span aria-hidden="true">&times;</span>
-                                                        </button>
-                                                    </div>
-                                                    <div class="modal-body">
-                                                        <p><strong>Employer Name:</strong> <%= employee.employerName %></p>
-                                                        <p><strong>Email:</strong> <%= employee.email %></p>
-                                                        <h5>Posted Jobs:</h5>
-                                                        <ul>
-                                                            <% if (employee.jobs && employee.jobs.length > 0) { %>
-                                                                <% employee.jobs.forEach(function(job) { %>
-                                                                    <li>
-                                                                        <%= job.jobTitle %> - 
-                                                                        <% if (job.status === 'approved') { %>
-                                                                            <span class="text-success">Approved</span>
-                                                                        <% } else if (job.status === 'rejected') { %>
-                                                                            <span class="text-danger">Rejected</span>
-                                                                        <% } else { %>
-                                                                            <span class="text-warning">Pending</span>
-                                                                        <% } %>
-                                                                    </li>
-                                                                <% }); %>
-                                                            <% } else { %>
-                                                                <li>No jobs posted yet.</li>
-                                                            <% } %>
-                                                        </ul>
-                                                    </div>
-                                                    <div class="modal-footer">
-                                                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    <div class="modal fade" id="sendMessageModal<%= index %>" tabindex="-1" role="dialog" aria-labelledby="sendMessageModalLabel<%= index %>" aria-hidden="true">
+                                    <!-- Employer Detail Modal -->
+                                    <div class="modal fade" id="employerModalDashboard<%= index %>" tabindex="-1"
+                                        role="dialog" aria-labelledby="employerModalLabelDashboard<%= index %>"
+                                        aria-hidden="true">
                                         <div class="modal-dialog" role="document">
                                             <div class="modal-content">
                                                 <div class="modal-header">
-                                                    <h5 class="modal-title" id="sendMessageModalLabel<%= index %>">Send Message to <%= employee.employerName %></h5>
-                                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                                    <h5 class="modal-title"
+                                                        id="employerModalLabelDashboard<%= index %>">Employer Details
+                                                    </h5>
+                                                    <button type="button" class="close" data-dismiss="modal"
+                                                        aria-label="Close">
+                                                        <span aria-hidden="true">&times;</span>
+                                                    </button>
+                                                </div>
+                                                <div class="modal-body">
+                                                    <p><strong>Employer Name:</strong>
+                                                        <%= employee.employerName %>
+                                                    </p>
+                                                    <p><strong>Email:</strong>
+                                                        <%= employee.email %>
+                                                    </p>
+                                                    <h5>Posted Jobs:</h5>
+                                                    <ul>
+                                                        <% if (employee.jobs && employee.jobs.length> 0) { %>
+                                                            <% employee.jobs.forEach(function(job) { %>
+                                                                <li>
+                                                                    <%= job.jobTitle %> -
+                                                                        <% if (job.status==='approved' ) { %>
+                                                                            <span class="text-success">Approved</span>
+                                                                            <% } else if (job.status==='rejected' ) { %>
+                                                                                <span
+                                                                                    class="text-danger">Rejected</span>
+                                                                                <% } else { %>
+                                                                                    <span
+                                                                                        class="text-warning">Pending</span>
+                                                                                    <% } %>
+                                                                </li>
+                                                                <% }); %>
+                                                                    <% } else { %>
+                                                                        <li>No jobs posted yet.</li>
+                                                                        <% } %>
+                                                    </ul>
+                                                </div>
+                                                <div class="modal-footer">
+                                                    <button type="button" class="btn btn-secondary"
+                                                        data-dismiss="modal">Close</button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="modal fade" id="employerSendMessageModal<%= index %>" tabindex="-1"
+                                        role="dialog" aria-labelledby="employerSendMessageModalLabel<%= index %>"
+                                        aria-hidden="true">
+                                        <div class="modal-dialog" role="document">
+                                            <div class="modal-content">
+                                                <div class="modal-header">
+                                                    <h5 class="modal-title" id="sendMessageModalLabel<%= index %>">Send
+                                                        Message to <%= employee.employerName %>
+                                                    </h5>
+                                                    <button type="button" class="close" data-dismiss="modal"
+                                                        aria-label="Close">
                                                         <span aria-hidden="true">&times;</span>
                                                     </button>
                                                 </div>
                                                 <div class="modal-body">
                                                     <form action="/sendMessageToEmployer" method="POST">
-                                                        <input type="hidden" name="employerId" value="<%= employee._id %>">
+                                                        <input type="hidden" name="employerId"
+                                                            value="<%= employee._id %>">
                                                         <div class="form-group">
                                                             <label for="messageText<%= index %>">Message:</label>
-                                                            <textarea class="form-control" id="messageText<%= index %>" name="message" rows="3" required></textarea>
+                                                            <textarea class="form-control" id="messageText<%= index %>"
+                                                                name="message" rows="3" required></textarea>
                                                         </div>
                                                         <button type="submit" class="btn btn-primary">Send</button>
-                                                    </div>
-                                                    <div class="modal-footer">
-                                                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                                                    </div>
+                                                </div>
+                                                <div class="modal-footer">
+                                                    <button type="button" class="btn btn-secondary"
+                                                        data-dismiss="modal">Close</button>
+                                                </div>
                                                 </form>
                                             </div>
                                         </div>
                                     </div>
-                                <% }); %>
+                                    <% }); %>
                             </ul>
                             <div class="d-flex justify-content-between align-items-center mt-3">
                                 <a href="/allEmployers" class="btn btn-info">All Employers</a>
@@ -116,23 +141,28 @@
                         </div>
                     </div>
                 </div>
-                
+
                 <div class="col-md-6">
-                    <div class="card" style="border: 1px solid #ccc; border-radius: 8px; box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); padding: 20px; margin-bottom: 20px;">
+                    <div class="card"
+                        style="border: 1px solid #ccc; border-radius: 8px; box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); padding: 20px; margin-bottom: 20px;">
                         <div class="card-body">
                             <h3 class="card-title" style="font-size: 24px; font-weight: bold">List of Users</h3>
                             <ul class="list-group">
                                 <% users.slice(0, 3).forEach(function(user, index) { %>
                                     <li class="list-group-item d-flex justify-content-between align-items-center">
                                         <div>
-                                            <strong>Username:</strong> <%= user.username %><br>
-                                            <strong>Email:</strong> <%= user.email %>
+                                            <strong>Username:</strong>
+                                            <%= user.username %><br>
+                                                <strong>Email:</strong>
+                                                <%= user.email %>
                                         </div>
                                         <div>
-                                            <button type="button" class="btn btn-primary btn-sm" data-toggle="modal" data-target="#userModal<%= index %>">
+                                            <button type="button" class="btn btn-primary btn-sm" data-toggle="modal"
+                                                data-target="#userModal<%= index %>">
                                                 <i class="fas fa-eye"></i>
                                             </button>
-                                            <button type="button" class="btn btn-secondary btn-sm" data-toggle="modal" data-target="#sendMessageModal<%= index %>">
+                                            <button type="button" class="btn btn-secondary btn-sm" data-toggle="modal"
+                                                data-target="#userSendMessageModal<%= index %>">
                                                 <i class="fas fa-envelope"></i>
                                             </button>
                                             <form action="/deleteUser" method="POST" style="display: inline;">
@@ -143,78 +173,113 @@
                                             </form>
                                         </div>
                                     </li>
-                
-                                        <!-- User Detail Modal -->
-                                        <div class="modal fade" id="userModal<%= index %>" tabindex="-1" role="dialog" aria-labelledby="userModalLabel<%= index %>" aria-hidden="true">
-                                            <div class="modal-dialog" role="document">
-                                                <div class="modal-content">
-                                                    <div class="modal-header">
-                                                        <h5 class="modal-title" id="userModalLabel<%= index %>">User Details</h5>
-                                                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                                                            <span aria-hidden="true">&times;</span>
-                                                        </button>
-                                                    </div>
-                                                    <div class="modal-body">
-                                                        <!-- User details displayed here -->
-                                                        <p><strong>Username:</strong> <%= user.username %></p>
-                                                        <p><strong>Email:</strong> <%= user.email %></p>
-                                                        <h5><strong>Education:</strong></h5>
-                                                        <% user.education.forEach(function(edu){ %>
-                                                            <div>
-                                                                <p>Title: <%= edu.educationTitle %></p>
-                                                                <p>Major: <%= edu.major %></p>
-                                                                <p>Institution: <%= edu.institutionName %></p>
-                                                                <p>Start Date: <%= new Date(edu.startDate).toLocaleDateString() %></p>
-                                                                <p>End Date: <%= edu.endDate ? new Date(edu.endDate).toLocaleDateString() : 'Present' %></p>
-                                                            </div>
-                                                        <% }); %>
-                                                        <h5><strong>Experience:</strong></h5>
-                                                        <% user.experience.forEach(function(exp){ %>
-                                                            <div>
-                                                                <p>Job Title: <%= exp.jobTitle %></p>
-                                                                <p>Company: <%= exp.company %></p>
-                                                                <p>Description: <%= exp.description %></p>
-                                                                <p>Start Date: <%= new Date(exp.expStartDate).toLocaleDateString() %></p>
-                                                                <p>End Date: <%= exp.expEndDate ? new Date(exp.expEndDate).toLocaleDateString() : 'Present' %></p>
-                                                            </div>
-                                                        <% }); %>
-                                                    </div>
-                                                    <div class="modal-footer">
-                                                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
 
-                                        <div class="modal fade" id="sendMessageModal<%= index %>" tabindex="-1" role="dialog" aria-labelledby="sendMessageModalLabel<%= index %>" aria-hidden="true">
-                                            <div class="modal-dialog" role="document">
-                                                <div class="modal-content">
-                                                    <div class="modal-header">
-                                                        <h5 class="modal-title" id="sendMessageModalLabel<%= index %>">Send Message to <%= user.username %></h5>
-                                                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                                                            <span aria-hidden="true">&times;</span>
-                                                        </button>
-                                                    </div>
-                                                    <div class="modal-body">
-                                                        <form action="/sendMessage" method="POST">
-                                                            <input type="hidden" name="userId" value="<%= user._id %>">
-                                                            <div class="form-group">
-                                                                <label for="messageTextModal<%= index %>">Message:</label>
-                                                                <textarea class="form-control" id="messageTextModal<%= index %>" name="message" rows="3" required></textarea>
-                                                            </div>
-                                                            <button type="submit" class="btn btn-primary">Send Message</button>
-                                                        </form>
-                                                    </div>
-                                                    <div class="modal-footer">
-                                                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                                                    </div>
+                                    <!-- User Detail Modal -->
+                                    <div class="modal fade" id="userModal<%= index %>" tabindex="-1" role="dialog"
+                                        aria-labelledby="userModalLabel<%= index %>" aria-hidden="true">
+                                        <div class="modal-dialog" role="document">
+                                            <div class="modal-content">
+                                                <div class="modal-header">
+                                                    <h5 class="modal-title" id="userModalLabel<%= index %>">User Details
+                                                    </h5>
+                                                    <button type="button" class="close" data-dismiss="modal"
+                                                        aria-label="Close">
+                                                        <span aria-hidden="true">&times;</span>
+                                                    </button>
+                                                </div>
+                                                <div class="modal-body">
+                                                    <!-- User details displayed here -->
+                                                    <p><strong>Username:</strong>
+                                                        <%= user.username %>
+                                                    </p>
+                                                    <p><strong>Email:</strong>
+                                                        <%= user.email %>
+                                                    </p>
+                                                    <h5><strong>Education:</strong></h5>
+                                                    <% user.education.forEach(function(edu){ %>
+                                                        <div>
+                                                            <p>Title: <%= edu.educationTitle %>
+                                                            </p>
+                                                            <p>Major: <%= edu.major %>
+                                                            </p>
+                                                            <p>Institution: <%= edu.institutionName %>
+                                                            </p>
+                                                            <p>Start Date: <%= new
+                                                                    Date(edu.startDate).toLocaleDateString() %>
+                                                            </p>
+                                                            <p>End Date: <%= edu.endDate ? new
+                                                                    Date(edu.endDate).toLocaleDateString() : 'Present'
+                                                                    %>
+                                                            </p>
+                                                        </div>
+                                                        <% }); %>
+                                                            <h5><strong>Experience:</strong></h5>
+                                                            <% user.experience.forEach(function(exp){ %>
+                                                                <div>
+                                                                    <p>Job Title: <%= exp.jobTitle %>
+                                                                    </p>
+                                                                    <p>Company: <%= exp.company %>
+                                                                    </p>
+                                                                    <p>Description: <%= exp.description %>
+                                                                    </p>
+                                                                    <p>Start Date: <%= new
+                                                                            Date(exp.expStartDate).toLocaleDateString()
+                                                                            %>
+                                                                    </p>
+                                                                    <p>End Date: <%= exp.expEndDate ? new
+                                                                            Date(exp.expEndDate).toLocaleDateString()
+                                                                            : 'Present' %>
+                                                                    </p>
+                                                                </div>
+                                                                <% }); %>
+                                                </div>
+                                                <div class="modal-footer">
+                                                    <button type="button" class="btn btn-secondary"
+                                                        data-dismiss="modal">Close</button>
                                                 </div>
                                             </div>
                                         </div>
-                                        
-                                        
+                                    </div>
+
+                                    <div class="modal fade" id="userSendMessageModal<%= index %>" tabindex="-1"
+                                        role="dialog" aria-labelledby="userSendMessageModalLabel<%= index %>"
+                                        aria-hidden="true">
+                                        <div class="modal-dialog" role="document">
+                                            <div class="modal-content">
+                                                <div class="modal-header">
+                                                    <h5 class="modal-title" id="userSendMessageModalLabel<%= index %>">
+                                                        Send Message to <%= user.username %>
+                                                    </h5>
+                                                    <button type="button" class="close" data-dismiss="modal"
+                                                        aria-label="Close">
+                                                        <span aria-hidden="true">&times;</span>
+                                                    </button>
+                                                </div>
+                                                <div class="modal-body">
+                                                    <form action="/sendMessageToUser" method="POST">
+                                                        <input type="hidden" name="userId" value="<%= user._id %>">
+                                                        <div class="form-group">
+                                                            <label for="messageTextModal<%= index %>">Message:</label>
+                                                            <textarea class="form-control"
+                                                                id="messageTextModal<%= index %>" name="message"
+                                                                rows="3" required></textarea>
+                                                        </div>
+                                                        <button type="submit" class="btn btn-primary">Send
+                                                            Message</button>
+                                                    </form>
+                                                </div>
+                                                <div class="modal-footer">
+                                                    <button type="button" class="btn btn-secondary"
+                                                        data-dismiss="modal">Close</button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+
+
                                     </li>
-                                <% }); %>                                
+                                    <% }); %>
                             </ul>
                             <div class="d-flex justify-content-between align-items-center mt-3">
                                 <a href="/allUsers" class="btn btn-info">All Users</a>
@@ -227,70 +292,103 @@
                         </div>
                     </div>
                 </div>
-                
+
             </div>
             <div class="row">
                 <div class="col-md-6">
-                    <div class="card" style="border: 1px solid #ccc; border-radius: 8px; box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); padding: 20px; margin-bottom: 20px;">
+                    <div class="card"
+                        style="border: 1px solid #ccc; border-radius: 8px; box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); padding: 20px; margin-bottom: 20px;">
                         <div class="card-body">
                             <h3 class="card-title" style="font-size: 24px; font-weight: bold">Employer's Jobs</h3>
                             <ul class="list-group">
                                 <% jobs.slice(0, 3).forEach(function(job, index) { %>
                                     <li class="list-group-item d-flex justify-content-between align-items-center">
                                         <div>
-                                            <strong><%= job.jobTitle %></strong> - 
-                                            <span class="<%= job.status === 'approved' ? 'text-success' : job.status === 'rejected' ? 'text-danger' : 'text-warning' %>">
+                                            <strong>
+                                                <%= job.jobTitle %>
+                                            </strong> -
+                                            <span
+                                                class="<%= job.status === 'approved' ? 'text-success' : job.status === 'rejected' ? 'text-danger' : 'text-warning' %>">
                                                 <%= job.status.charAt(0).toUpperCase() + job.status.slice(1) %>
                                             </span>
                                         </div>
                                         <div>
-                                            <button type="button" class="btn btn-primary btn-sm" data-toggle="modal" data-target="#jobModalDashboard<%= index %>">
+                                            <button type="button" class="btn btn-primary btn-sm" data-toggle="modal"
+                                                data-target="#jobModalDashboard<%= index %>">
                                                 <i class="fas fa-eye"></i>
                                             </button>
-                                            <button type="button" class="btn btn-danger btn-sm" onclick="location.href='/deleteJob?jobId=<%= job._id %>'">
+                                            <button type="button" class="btn btn-danger btn-sm"
+                                                onclick="location.href='/deleteJob?jobId=<%= job._id %>'">
                                                 <i class="fas fa-trash-alt"></i>
                                             </button>
                                         </div>
                                     </li>
-                
-                                        <!-- Job Detail Modal -->
-                                        <div class="modal fade" id="jobModalDashboard<%= index %>" tabindex="-1" role="dialog" aria-labelledby="jobModalLabelDashboard<%= index %>" aria-hidden="true">
-                                            <div class="modal-dialog" role="document">
-                                                <div class="modal-content">
-                                                    <div class="modal-header">
-                                                        <h5 class="modal-title" id="jobModalLabelDashboard<%= index %>">Job Details</h5>
-                                                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                                                            <span aria-hidden="true">&times;</span>
-                                                        </button>
-                                                    </div>
-                                                    <div class="modal-body">
-                                                        <p><strong>Job Title:</strong> <%= job.jobTitle %></p>
-                                                        <p><strong>Posted by:</strong> <%= job.employerId ? job.employerId.employerName : 'Unknown Employer' %></p>
-                                                        <p><strong>Posted on:</strong> <%= new Date(parseInt(job._id.toString().substring(0,8), 16)*1000).toDateString() %></p>
-                                                        <p><strong>Sector:</strong> <%= job.sector %></p>
-                                                        <p><strong>Description:</strong> <%= job.description %></p>
-                                                        <p><strong>Location:</strong> <%= job.city %>, <%= job.province %>, <%= job.postalCode %></p>
-                                                        <p><strong>Salary:</strong> <%= job.salary %></p>
-                                                        <p><strong>Status:</strong>
-                                                            <span class="<%= job.status === 'approved' ? 'text-success' : job.status === 'rejected' ? 'text-danger' : 'text-warning' %>">
-                                                                <%= job.status.charAt(0).toUpperCase() + job.status.slice(1) %>
-                                                            </span>
-                                                        </p>
-                                                    </div>
-                                                    <div class="modal-footer">
-                                                        <form action="/admin/updateJobStatus" method="POST" class="mr-auto">
-                                                            <input type="hidden" name="jobId" value="<%= job._id %>">
-                                                            <input type="hidden" name="redirectPath" value="/adminDashboard">
-                                                            <button type="submit" name="action" value="approved" class="btn btn-outline-success" <%= job.status === 'approved' ? 'disabled' : '' %>>Approve</button>
-                                                            <button type="submit" name="action" value="rejected" class="btn btn-outline-danger">Reject</button>
-                                                        </form>
-                                                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                                                    </div>
+
+                                    <!-- Job Detail Modal -->
+                                    <div class="modal fade" id="jobModalDashboard<%= index %>" tabindex="-1"
+                                        role="dialog" aria-labelledby="jobModalLabelDashboard<%= index %>"
+                                        aria-hidden="true">
+                                        <div class="modal-dialog" role="document">
+                                            <div class="modal-content">
+                                                <div class="modal-header">
+                                                    <h5 class="modal-title" id="jobModalLabelDashboard<%= index %>">Job
+                                                        Details</h5>
+                                                    <button type="button" class="close" data-dismiss="modal"
+                                                        aria-label="Close">
+                                                        <span aria-hidden="true">&times;</span>
+                                                    </button>
+                                                </div>
+                                                <div class="modal-body">
+                                                    <p><strong>Job Title:</strong>
+                                                        <%= job.jobTitle %>
+                                                    </p>
+                                                    <p><strong>Posted by:</strong>
+                                                        <%= job.employerId ? job.employerId.employerName
+                                                            : 'Unknown Employer' %>
+                                                    </p>
+                                                    <p><strong>Posted on:</strong>
+                                                        <%= new Date(parseInt(job._id.toString().substring(0,8),
+                                                            16)*1000).toDateString() %>
+                                                    </p>
+                                                    <p><strong>Sector:</strong>
+                                                        <%= job.sector %>
+                                                    </p>
+                                                    <p><strong>Description:</strong>
+                                                        <%= job.description %>
+                                                    </p>
+                                                    <p><strong>Location:</strong>
+                                                        <%= job.city %>, <%= job.province %>, <%= job.postalCode %>
+                                                    </p>
+                                                    <p><strong>Salary:</strong>
+                                                        <%= job.salary %>
+                                                    </p>
+                                                    <p><strong>Status:</strong>
+                                                        <span
+                                                            class="<%= job.status === 'approved' ? 'text-success' : job.status === 'rejected' ? 'text-danger' : 'text-warning' %>">
+                                                            <%= job.status.charAt(0).toUpperCase() + job.status.slice(1)
+                                                                %>
+                                                        </span>
+                                                    </p>
+                                                </div>
+                                                <div class="modal-footer">
+                                                    <form action="/admin/updateJobStatus" method="POST" class="mr-auto">
+                                                        <input type="hidden" name="jobId" value="<%= job._id %>">
+                                                        <input type="hidden" name="redirectPath"
+                                                            value="/adminDashboard">
+                                                        <button type="submit" name="action" value="approved"
+                                                            class="btn btn-outline-success" <%=job.status==='approved'
+                                                            ? 'disabled' : '' %>>Approve</button>
+                                                        <button type="submit" name="action" value="rejected"
+                                                            class="btn btn-outline-danger">Reject</button>
+                                                    </form>
+                                                    <button type="button" class="btn btn-secondary"
+                                                        data-dismiss="modal">Close</button>
                                                 </div>
                                             </div>
                                         </div>
+                                    </div>
                                     </li>
-                                <% }); %>
+                                    <% }); %>
                             </ul>
                             <div class="d-flex justify-content-between align-items-center mt-3">
                                 <a href="/allJobs" class="btn btn-info">All Jobs</a>
@@ -303,17 +401,21 @@
                     </div>
                 </div>
                 <div class="col-md-6">
-                    <div class="card" style="border: 1px solid #ccc; border-radius: 8px; box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); padding: 20px; margin-bottom: 20px;">
+                    <div class="card"
+                        style="border: 1px solid #ccc; border-radius: 8px; box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); padding: 20px; margin-bottom: 20px;">
                         <div class="card-body">
                             <h3 class="card-title" style="font-size: 24px; font-weight: bold">New Messages</h3>
                             <ul class="list-group">
                                 <% messages.slice(0, 3).forEach(function(message, index) { %>
                                     <li class="list-group-item d-flex justify-content-between align-items-center">
                                         <div>
-                                            <strong>From:</strong> <%= message.name %> (<%= message.email %>)
-                                            <p><strong>Message:</strong> <%= message.message %></p>
+                                            <strong>From:</strong>
+                                            <%= message.name %> (<%= message.email %>)
+                                                    <p><strong>Message:</strong>
+                                                        <%= message.message %>
+                                                    </p>
                                         </div>
-                                        <div>    
+                                        <div>
                                             <form action="/deleteMessage" method="POST" style="display: inline;">
                                                 <input type="hidden" name="messageId" value="<%= message._id %>">
                                                 <button type="submit" class="btn btn-danger btn-sm">
@@ -322,7 +424,7 @@
                                             </form>
                                         </div>
                                     </li>
-                                <% }); %>                                
+                                    <% }); %>
                             </ul>
                             <div class="d-flex justify-content-between align-items-center mt-3">
                                 <a href="/allMessages" class="btn btn-info">All Messages</a>
@@ -333,8 +435,8 @@
                         </div>
                     </div>
                 </div>
-                
-                
+
+
             </div>
         </div>
 

@@ -35,28 +35,28 @@
             <h1 class="mb-4">User Account</h1>
 
         <!-- User Account Details -->
-        <div class="card" style="border: 1px solid #ccc; border-radius: 8px; box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); padding: 20px; margin-bottom: 20px;">
-            <div class="card-body">
-                <h3 class="card-title" style="font-size: 24px; font-weight: bold">User Account</h3>
-                <div class="logoContainer">
-                    <img src="<%= user.logo %>" alt="User Logo" class="logo" id="user-logo" />
-                </div>
-                <div class="row">
-                    <div class="col-md-4 mb-3">
-                        <a href="#" class="btn btn-primary btn-block"><i class="fas fa-edit"></i> Edit</a>
+        <div class="row">
+            <div class="col-md-6">
+                <div class="card" style="border: 1px solid #ccc; border-radius: 8px; box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); padding: 20px; margin-bottom: 20px;">
+                    <div class="card-body">
+                        <h3 class="card-title" style="font-size: 24px; font-weight: bold">User Account</h3>
+                        <div class="logoContainer">
+                            <img src="<%= user.logo %>" alt="User Logo" class="logo" id="user-logo" />
+                        </div>
+                        <div class="row">
+                            <div class="col-md-4 mb-3">
+                                <a href="#" class="btn btn-primary btn-block"><i class="fas fa-edit"></i> Edit</a>
+                            </div>
+                        </div>
+                        <h5 class="card-subtitle mb-3 text-muted" style="font-size: 18px">Name: <%= user.name %></h5>
+                        <h5 class="card-subtitle mb-3 text-muted" style="font-size: 18px">Username: <%= user.username %></h5>
+                        <p class="card-text" style="font-size: 16px; margin-top: 10px">Email: <%= user.email %></p>
+                        <a href="/edit-user-details" class="btn btn-success" style="margin-top: 20px">Edit Details</a>
+                        <a href="/userChangePassword" class="btn btn-info" style="margin-top: 20px">Change Password</a>
                     </div>
                 </div>
-                <h5 class="card-subtitle mb-3 text-muted" style="font-size: 18px">Name: <%= user.name %></h5>
-                <h5 class="card-subtitle mb-3 text-muted" style="font-size: 18px">Username: <%= user.username %></h5>
-                <p class="card-text" style="font-size: 16px; margin-top: 10px">Email: <%= user.email %></p>
-                <a href="/edit-user-details" class="btn btn-success" style="margin-top: 20px">Edit Details</a>
-                <a href="/userChangePassword" class="btn btn-info" style="margin-top: 20px">Change Password</a>
             </div>
-        </div>
-
-        <!-- Resume and Messages -->
-        <div class="flex-row">
-            <div class="flex-column">
+            <div class="col-md-6">
                 <div class="card" style="border: 1px solid #ccc; border-radius: 8px; box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); padding: 20px; margin-bottom: 20px;">
                     <div class="card-body">
                         <h3 class="card-title" style="font-size: 24px; font-weight: bold; margin-bottom: 20px;">Upload Resume</h3>
@@ -69,11 +69,8 @@
                         <a href="/viewMessage" class="btn btn-primary" style="margin-right: 10px;">View Messages</a>
                         <a href="/sentMessage" class="btn btn-primary">Sent Messages</a>
                     </div>
-                </div>
-
-                <div class="card" style="border: 1px solid #ccc; border-radius: 8px; box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); padding: 20px;">
                     <div class="card-body">
-                        <h3 class="card-title" style="font-size: 24px; font-weight: bold">New Messages</h3>
+                        <h3 class="card-title" style="font-size: 24px; font-weight: bold">Admin Messages</h3>
                         <% if (messages && messages.length > 0) { %>
                             <div class="list-group">
                                 <% messages.forEach(function(message) { %>
@@ -84,13 +81,13 @@
                                             </div>
                                         </div>
                                         <div class="row align-items-center">
-                                            <div class="col-md-4">
+                                            <!-- <div class="col-md-4">
                                                 <p class="mb-1"><strong>From:</strong> <%= message.adminUniqueId %></p>
-                                            </div>
-                                            <div class="col-md-4">
+                                            </div> -->
+                                            <div class="col-md-6">
                                                 <small><strong>Sent:</strong> <%= message.createdAt.toDateString() %></small>
                                             </div>
-                                            <div class="col-md-4 text-md-right">
+                                            <div class="col-md-6 text-md-right">
                                                 <form action="/deleteMessage/<%= message._id %>" method="POST" style="display: inline;">
                                                     <button type="submit" class="btn btn-danger btn-sm">Delete</button>
                                                 </form>
