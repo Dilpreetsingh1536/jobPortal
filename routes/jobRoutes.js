@@ -2,6 +2,9 @@ const express = require("express");
 const router = express.Router();
 const jobModel = require("../models/jobModel");
 const employerModel = require("../models/employerModel");
+const multer = require('multer');
+const Application = require('../models/applicationModel');
+const userModel = require( "../models/userModel" );
 
 // Update job function
 async function updateJobById(jobId, updatedFields) {
@@ -41,14 +44,14 @@ const checkUserNotLoggedIn = (req, res, next) => {
 };
 
 /*Job Search */
-router.get('/searchJob', async (req, res) => {
+router.get('/searchJob', async(req, res) => {
     try {
         const user = req.session.user;
         const employer = req.session.employer;
         const admin = req.session.admin;
 
         const uniqueSectors = await jobModel.distinct('sector');
-        
+
         const uniqueCompanies = await employerModel.distinct('employerName');
 
         const jobs = await jobModel.find({ status: 'approved' }).populate('employerId', 'employerName sector').exec();
@@ -62,7 +65,7 @@ router.get('/searchJob', async (req, res) => {
 });
 
 
-router.post('/searchJob', async (req, res) => {
+router.post('/searchJob', async(req, res) => {
     const user = req.session.user;
     const employer = req.session.employer;
     const admin = req.session.admin;
@@ -141,7 +144,7 @@ router.get('/listJob', checkUserNotLoggedIn, checkAdminNotLoggedIn, (req, res) =
     res.render("listJob", { user, employer, admin, success, error });
 });
 
-router.post("/add-job", checkUserNotLoggedIn, checkAdminNotLoggedIn, async (req, res) => {
+router.post("/add-job", checkUserNotLoggedIn, checkAdminNotLoggedIn, async(req, res) => {
     const user = req.session.user;
     const employer = req.session.employer;
     const admin = req.session.admin;
@@ -197,7 +200,7 @@ router.post("/add-job", checkUserNotLoggedIn, checkAdminNotLoggedIn, async (req,
 
 //Edit Job
 
-router.get('/editJob', checkUserNotLoggedIn, checkAdminNotLoggedIn, checkJobSession, async (req, res) => {
+router.get('/editJob', checkUserNotLoggedIn, checkAdminNotLoggedIn, checkJobSession, async(req, res) => {
     try {
         const jobId = req.session.editJobId;
         const job = await jobModel.findById(jobId);
@@ -218,7 +221,7 @@ router.get('/editJob', checkUserNotLoggedIn, checkAdminNotLoggedIn, checkJobSess
     }
 });
 
-router.post('/edit-job', checkUserNotLoggedIn, checkAdminNotLoggedIn, checkJobSession, async (req, res) => {
+router.post('/edit-job', checkUserNotLoggedIn, checkAdminNotLoggedIn, checkJobSession, async(req, res) => {
     const jobId = req.session.editJobId;
     const { jobTitle, sector, salary, street, city, province, postalCode, description } = req.body;
 
@@ -264,7 +267,7 @@ router.post('/edit-job', checkUserNotLoggedIn, checkAdminNotLoggedIn, checkJobSe
 });
 
 //Delete Job
-router.get('/deleteJob', async (req, res) => {
+router.get('/deleteJob', async(req, res) => {
     const user = req.session.user;
     const employer = req.session.employer;
     const admin = req.session.admin;
@@ -277,12 +280,12 @@ router.get('/deleteJob', async (req, res) => {
     }
 
 
-    res.render('deleteJob', { user, employer, admin, jobId, success: null, error: null  });
+    res.render('deleteJob', { user, employer, admin, jobId, success: null, error: null });
 });
 
-router.post('/deleteJob', async (req, res) => {
+router.post('/deleteJob', async(req, res) => {
     try {
-        const { jobId } = req.body; 
+        const { jobId } = req.body;
 
         if (!jobId) {
             console.error('Job ID not provided');
@@ -299,7 +302,7 @@ router.post('/deleteJob', async (req, res) => {
         res.render('deleteJob', {
             success: 'Job deleted successfully.',
             error: null,
-            jobId: null, 
+            jobId: null,
         });
     } catch (error) {
         console.error('Error deleting job:', error);
@@ -340,5 +343,83 @@ router.get('/clearJobSession', (req, res) => {
 
 //--------------------------------------------------------------------//
 
-module.exports = router;
+router.get('/applyJob/:jobId', async(req, res) => {
+    try {
+        const { jobId } = req.params;
+        const job = await jobModel.findById(jobId).exec();
 
+        if (!job) {
+            return res.status(404).send('Job not found');
+        }
+
+        const { user, employer, admin } = req.session;
+        res.render('job/applyJob', { job, user, employer, admin });
+    } catch (err) {
+        console.error(err);
+        res.status(500).send('Internal Server Error');
+    }
+});
+
+//--------------//
+
+
+/* file upload */
+const storage = multer.diskStorage({
+    destination: function(req, file, cb) {
+        cb(null, './upload');
+    },
+    filename: function(req, file, cb) {
+        cb(null, file.originalname);
+    }
+});
+const upload = multer({ storage: storage });
+
+
+router.post('/submitApplication', upload.fields([{ name: 'resume', maxCount: 1 }, { name: 'coverLetter', maxCount: 1 }]), async(req, res) => {
+    try {
+        const { jobId } = req.body;
+        const resumeFile = req.files['resume'][0];
+        const coverLetterFile = req.files['coverLetter'][0];
+
+        const application = new Application({
+            jobId: jobId,
+            resume: resumeFile.path,
+            coverLetter: coverLetterFile.path,
+        });
+        await application.save();
+
+        res.status(200).send('Application submitted successfully.');
+    } catch (error) {
+        res.status(500).send('Error submitting application.');
+    }
+
+});
+
+router.post('/likeJob/:jobId', async (req, res) => {
+    if (!req.session.user) {
+      return res.status(401).send('User not logged in');
+    }
+  
+    try {
+      const userId = req.session.user._id;
+      const { jobId } = req.params;
+  
+      const user = await userModel.findById(userId);
+  
+      if (!user.likedJobs.includes(jobId)) {
+        user.likedJobs.push(jobId);
+        await user.save();
+        console.log(`User ${userId} liked job ${jobId} successfully`);
+      } else {
+        console.log(`User ${userId} has already liked job ${jobId}.`);
+      }
+  
+      res.redirect('back'); 
+    } catch (error) {
+      console.error(error);
+      res.status(500).send('Internal Server Error');
+    }
+});
+  
+
+module.exports = router;

@@ -16,88 +16,115 @@ mongoose
     console.log(`Not Connected To MONGODB Due To Error Below \n ${err}`);
   });
 
-  const experienceSchema = new mongoose.Schema({
-    jobTitle: {
+const experienceSchema = new mongoose.Schema({
+  jobTitle: {
+    type: String,
+    required: true,
+    trim: true,
+  },
+  company: {
+    type: String,
+    required: true,
+    trim: true,
+  },
+  expStartDate: {
+    type: Date,
+    required: true,
+  },
+  expEndDate: {
+    type: Date,
+  },
+  description: {
+    type: String,
+    trim: true,
+  },
+});
+
+const educationSchema = new mongoose.Schema({
+  educationTitle: {
+    type: String,
+    required: true,
+    trim: true,
+  },
+  major: {
+    type: String,
+    required: true,
+    trim: true,
+  },
+  institutionName: {
+    type: String,
+    required: true,
+    trim: true,
+  },
+  startDate: {
+    type: Date,
+    required: true,
+  },
+  endDate: {
+    type: Date,
+  },
+});
+
+  const messageSchema = new mongoose.Schema({
+    message: {
       type: String,
       required: true,
       trim: true,
     },
-    company: {
-      type: String,
-      required: true,
-      trim: true,
-    },
-    expStartDate: {
+    createdAt: {
       type: Date,
       required: true,
+      default: Date.now,
     },
-    expEndDate: {
-      type: Date,
-    },
-    description: {
-      type: String,
-      trim: true,
-    },
+    read: {
+      type: Boolean,
+      required: true,
+      default: false,
+    }
   });
-  
-  const educationSchema = new mongoose.Schema({
-    educationTitle: {
-      type: String,
-      required: true,
-      trim: true,
-    },
-    major: {
-      type: String,
-      required: true,
-      trim: true,
-    },
-    institutionName: {
-      type: String,
-      required: true,
-      trim: true,
-    },
-    startDate: {
-      type: Date,
-      required: true,
-    },
-    endDate: {
-      type: Date,
-    },
-  });
-  
-  const userSchema = new mongoose.Schema({
-    name: {
-      type: String,
-      required: true,
-      trim: true,
-    },
-    username: {
-      type: String,
-      required: true,
-      unique: true,
-      trim: true,
-    },
-    email: {
-      type: String,
-      required: true,
-      unique: true,
-      trim: true,
-    },
-    password: {
-      type: String,
-      required: true,
-    },
-    sixDigitCode: {
-      type: String,
-      default: null,
-    },
-    sixDigitCodeExpires: {
-      type: Date,
-      default: null,
-    },
-    education: [educationSchema],
-    experience: [experienceSchema],
-  });
+
+const userSchema = new mongoose.Schema({
+  name: {
+    type: String,
+    required: true,
+    trim: true,
+  },
+  username: {
+    type: String,
+    required: true,
+    unique: true,
+    trim: true,
+  },
+  email: {
+    type: String,
+    required: true,
+    unique: true,
+    trim: true,
+  },
+  password: {
+    type: String,
+    required: true,
+  },
+  sixDigitCode: {
+    type: String,
+    default: null,
+  },
+  sixDigitCodeExpires: {
+    type: Date,
+    default: null,
+  },
+  logo: {
+    type: String,
+    default: '/images/profile_logo.png',
+  },
+  education: [educationSchema],
+  experience: [experienceSchema],
+    messages: [messageSchema],
+    likedJobs: [{
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'jobModel'
+  }],
+});
 
 userSchema.statics.findById = async function (userId) {
   return this.findOne({ _id: userId });

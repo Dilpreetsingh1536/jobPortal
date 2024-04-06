@@ -9,6 +9,10 @@ const userRoutes = require("./routes/userRoutes");
 const empRoutes = require("./routes/empRoutes");
 const adminRoutes = require("./routes/adminRoutes");
 const jobRoutes = require("./routes/jobRoutes");
+const job = require('./models/jobModel');
+const multer = require('multer');
+
+
 
 const cookieParser = require('cookie-parser');
 
@@ -24,13 +28,13 @@ app.listen(3001, () => {
 });
 
 app.set("views", [
-  path.join(__dirname, "views"),
-  path.join(__dirname, "views", "user"),
-  path.join(__dirname, "views", "employer"),
-  path.join(__dirname, "views", "job"),
-  path.join(__dirname, "views", "admin"),
-  path.join(__dirname, "views", "partials"),
-  path.join(__dirname, "views", "contact")
+    path.join(__dirname, "views"),
+    path.join(__dirname, "views", "user"),
+    path.join(__dirname, "views", "employer"),
+    path.join(__dirname, "views", "job"),
+    path.join(__dirname, "views", "admin"),
+    path.join(__dirname, "views", "partials"),
+    path.join(__dirname, "views", "contact")
 ]);
 
 /* SESSION */
@@ -40,6 +44,9 @@ const accountSessionStore = MongoStore.create({
     dbName: "career_connect_session",
     collectionName: "sessions",
 });
+
+
+
 
 app.use(session({
     secret: "A secret key to sign the cookie",
@@ -75,10 +82,10 @@ app.get('/empSearch', (req, res) => {
 
 /* contactUs */
 app.get("/contactUs", (req, res) => {
-  const user = req.session.user;
-  const employer = req.session.employer;
-  const admin = req.session.admin;
-  res.render("contactUs", { user, employer, admin });
+    const user = req.session.user;
+    const employer = req.session.employer;
+    const admin = req.session.admin;
+    res.render("contactUs", { user, employer, admin });
 });
 /*Abous us*/
 app.get('/aboutUs', (req, res) => {
@@ -87,8 +94,6 @@ app.get('/aboutUs', (req, res) => {
     const admin = req.session.admin;
     res.render('aboutUs', { user, employer, admin });
 });
-
-
 
 app.use("/", userRoutes);
 app.use("/", empRoutes);

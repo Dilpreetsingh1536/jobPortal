@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+    <title>All Jobs</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" />
+    <link rel="stylesheet" type="text/css" href="/css/nav.css" />
+    <link rel="stylesheet" type="text/css" href="/css/footer.css" />
+</head>
+<body>
+<%- include('./partials/nav.ejs') %>
+
+<div class="container mt-5">
+    <h1 class="mb-4">All Jobs</h1>
+    <ul class="list-group">
+        <% jobs.forEach(function(job, index) { %>
+            <li class="list-group-item d-flex justify-content-between align-items-center">
+                <div>
+                    <strong><%= job.jobTitle %></strong> - 
+                    <span class="<%= job.status === 'approved' ? 'text-success' : job.status === 'rejected' ? 'text-danger' : 'text-warning' %>">
+                        <%= job.status.charAt(0).toUpperCase() + job.status.slice(1) %>
+                    </span>
+                </div>
+                <div>
+                    <button type="button" class="btn btn-primary btn-sm" data-toggle="modal" data-target="#jobModal<%= index %>">View</button>
+                    <button type="button" class="btn btn-danger btn-sm" onclick="location.href='/deleteJob?jobId=<%= job._id %>'">Delete</button>
+                </div>
+
+                <!-- Job Detail Modal -->
+                <div class="modal fade" id="jobModal<%= index %>" tabindex="-1" role="dialog" aria-labelledby="jobModalLabel<%= index %>" aria-hidden="true">
+                    <div class="modal-dialog" role="document">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="jobModalLabel<%= index %>">Job Details</h5>
+                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                    <span aria-hidden="true">&times;</span>
+                                </button>
+                            </div>
+                            <div class="modal-body">
+                                <p><strong>Job Title:</strong> <%= job.jobTitle %></p>
+                                <p><strong>Posted by:</strong> <%= job.employerId ? job.employerId.employerName : 'Unknown Employer' %></p>
+                                <p><strong>Posted on:</strong> <%= new Date(parseInt(job._id.toString().substring(0,8), 16)*1000).toDateString() %></p>
+                                <p><strong>Sector:</strong> <%= job.sector %></p>
+                                <p><strong>Description:</strong> <%= job.description %></p>
+                                <p><strong>Location:</strong> <%= job.city %>, <%= job.province %>, <%= job.postalCode %></p>
+                                <p><strong>Salary:</strong> <%= job.salary %></p>
+                                <p><strong>Status:</strong>
+                                    <span class="<%= job.status === 'approved' ? 'text-success' : job.status === 'rejected' ? 'text-danger' : 'text-warning' %>">
+                                        <%= job.status.charAt(0).toUpperCase() + job.status.slice(1) %>
+                                    </span>
+                                </p>
+                            </div>
+                            <div class="modal-footer">
+                                <form action="/admin/updateJobStatus" method="POST" class="mr-auto">
+                                    <input type="hidden" name="jobId" value="<%= job._id %>">
+                                    <input type="hidden" name="redirectPath" value="/allJobs">
+                                    <button type="submit" name="action" value="approved" class="btn btn-outline-success" <%= job.status === 'approved' ? 'disabled' : '' %>>Approve</button>
+                                    <button type="submit" name="action" value="rejected" class="btn btn-outline-danger">Reject</button>
+                                </form>
+                                
+                                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+            </li>
+        <% }); %>
+    </ul>
+    <nav aria-label="Page navigation example" style="background-color: white;">
+        <ul class="pagination justify-content-center">
+            <% for(let i = 1; i <= pages; i++) { %>
+                <li class="page-item <%= i === current ? 'active' : '' %>">
+                    <a class="page-link" href="/allJobs?page=<%= i %>"><%= i %></a>
+                </li>
+            <% } %>
+        </ul>
+    </nav>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+
+<%- include('./partials/footer.ejs') %>
+</body>
+</html>

@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta
+            name="viewport"
+            content="width=device-width, initial-scale=1, shrink-to-fit=no"
+        />
+        <title>Sent Messages</title>
+        <link
+            rel="stylesheet"
+            href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+        />
+        <link rel="stylesheet" type="text/css" href="css/nav.css" />
+        <link rel="stylesheet" type="text/css" href="css/footer.css" />
+    </head>
+    <%- include('./partials/nav.ejs') %>
+    <body style="background-color: #f8f9fa">
+        <div class="container mt-5">
+            <h1>Sent Messages</h1>
+            <div class="row">
+                <% if (messages.length > 0) { %> <% messages.forEach(message =>
+                { %>
+                <div class="col-md-12 mb-3">
+                    <div class="card">
+                        <div class="card-body">
+                            <h5 class="card-title">
+                                To: <%= message.recipientId.name %>
+                            </h5>
+                            <p class="card-text">You: <%= message.message %></p>
+                            <p class="card-text">
+                                Date: <%= new
+                                Date(message.timestamp).toLocaleString() %>
+                            </p>
+                            <% if (message.reply) { %>
+                            <p class="card-text">Reply: <%= message.reply %></p>
+                            <% } else { %>
+                            <p class="card-text">No reply yet</p>
+                            <% } %>
+                            <form
+                                action="/deleteSentMsg/<%= message._id %>"
+                                method="POST"
+                            >
+                                <button type="submit" class="btn btn-danger">
+                                    Delete
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+                <% }) %> <% } else { %>
+                <p>No messages sent yet</p>
+                <% } %>
+            </div>
+        </div>
+
+        <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
+        <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+    </body>
+    <%- include('./partials/footer.ejs') %>
+</html>

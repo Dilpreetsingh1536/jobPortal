@@ -11,75 +11,52 @@
     <link rel="stylesheet" type="text/css" href="css/password.css" />
 </head>
 <%- include('./partials/nav.ejs') %>
-<body>
-    <div class="container">
-        <h1 style="margin-top: 15px">Edit Experience</h1>
-        <% if (success) { %>
-        <p class="success-message"><%= success %></p>
-        <% } %> <% if (error) { %>
-        <p class="error-message"><%= error %></p>
-        <% } %>
-        <form method="post" action="/edit-experience">
-            <div class="form-group">
-                <label for="jobTitle">Job Title</label>
-                <input
-                    type="text"
-                    class="form-control"
-                    id="jobTitle"
-                    name="jobTitle"
-                    value="<%= experience.jobTitle %>"
-                    required
-                />
-            </div>
-            <div class="form-group">
-                <label for="company">Company Name</label>
-                <input
-                    type="text"
-                    class="form-control"
-                    id="company"
-                    name="company"
-                    value="<%= experience.company %>"
-                    required
-                />
-            </div>
-            <div class="form-group">
-                <label for="expStartDate">Start Date</label>
-                <input
-                    type="date"
-                    class="form-control"
-                    id="expStartDate"
-                    name="expStartDate"
 
-                    value="<%= experience.expStartDate.split('T')[0] %>"
-                    required
-                />
-            </div>
-            <div class="form-group">
-                <label for="expEndDate">End Date</label>
-                <input
-                    type="date"
-                    class="form-control"
-                    id="expEndDate"
-                    name="expEndDate"
-
-                    value="<%= experience.expEndDate ? experience.expEndDate.split('T')[0] : '' %>"
-                />
-            </div>
-            <div class="form-group">
-                <label for="description">Description</label>
-                <textarea
-                    class="form-control"
-                    id="description"
-                    name="description"
-                    rows="4"
-                ><%= experience.description %></textarea>
-            </div>
-            <button type="submit" class="btn btn-success">
-                Save Changes
-            </button>
-            <a href="/clearExpSession" class="btn btn-info">Back</a>
-        </form>
-    </div>
+    <body>
+        <div class="container">
+            <h1 style="margin-top: 15px">Edit Experience</h1>
+            <% if (success) { %>
+                <p class="success-message">
+                    <%= success %>
+                </p>
+                <% } %>
+                    <% if (error) { %>
+                        <p class="error-message">
+                            <%= error %>
+                        </p>
+                        <% } %>
+                            <form method="post" action="/edit-experience">
+                                <div class="form-group">
+                                    <label for="jobTitle">Job Title</label>
+                                    <input type="text" class="form-control" id="jobTitle" name="jobTitle"
+                                        value="<%= experience.jobTitle %>" required />
+                                </div>
+                                <div class="form-group">
+                                    <label for="company">Company Name</label>
+                                    <input type="text" class="form-control" id="company" name="company"
+                                        value="<%= experience.company %>" required />
+                                </div>
+                                <div class="form-group">
+                                    <label for="expStartDate">Start Date</label>
+                                    <input type="date" class="form-control" id="expStartDate" name="expStartDate"
+                                        value="<%= experience.expStartDate.split('T')[0] %>" required />
+                                </div>
+                                <div class="form-group">
+                                    <label for="expEndDate">End Date</label>
+                                    <input type="date" class="form-control" id="expEndDate" name="expEndDate"
+                                        value="<%= experience.expEndDate ? experience.expEndDate.split('T')[0] : '' %>" />
+                                </div>
+                                <div class="form-group">
+                                    <label for="description">Description</label>
+                                    <textarea class="form-control" id="description" name="description"
+                                        rows="4"><%= experience.description %></textarea>
+                                </div>
+                                <button type="submit" class="btn btn-success">
+                                    Save Changes
+                                </button>
+                                <a href="/clearExpSession" class="btn btn-info">Back</a>
+                            </form>
+        </div>
 
         <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
