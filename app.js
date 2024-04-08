@@ -9,7 +9,7 @@ const userRoutes = require("./routes/userRoutes");
 const empRoutes = require("./routes/empRoutes");
 const adminRoutes = require("./routes/adminRoutes");
 const jobRoutes = require("./routes/jobRoutes");
-const job = require('./models/jobModel');
+const jobModel = require('./models/jobModel');
 const multer = require('multer');
 
 
@@ -46,8 +46,6 @@ const accountSessionStore = MongoStore.create({
 });
 
 
-
-
 app.use(session({
     secret: "A secret key to sign the cookie",
     resave: false,
@@ -57,11 +55,29 @@ app.use(session({
 
 
 /* HOME */
-app.get("/home", (req, res) => {
-    const user = req.session.user;
-    const employer = req.session.employer;
-    const admin = req.session.admin;
-    res.render("home", { user, admin, employer });
+const fetchTopSectors = async () => {
+    try {
+        const sectors = await jobModel.aggregate([
+            { $group: { _id: "$sector" } },
+            { $sample: { size: 8 } }
+        ]);
+        return sectors.map(s => s._id);
+    } catch (error) {
+        console.log(error);
+        throw new Error('Error fetching sectors from the database');
+    }
+};
+
+app.get("/home", async (req, res) => {
+    try {
+        const topSectors = await fetchTopSectors();
+        const user = req.session.user;
+        const employer = req.session.employer;
+        const admin = req.session.admin;
+        res.render("home", { user, admin, employer, topSectors });
+    } catch (error) {
+        res.status(500).send(error.message);
+    }
 });
 
 /*User Search*/
