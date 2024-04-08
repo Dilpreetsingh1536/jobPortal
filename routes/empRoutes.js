@@ -777,6 +777,11 @@ router.get("/adminAllMessages", checkUserNotLoggedIn, checkAdminNotLoggedIn, asy
     }
 });
 
-
+router.get("/empMembership", checkUserNotLoggedIn, checkAdminNotLoggedIn, (req, res) => {
+    res.render("empMembership", { 
+        user: req.session.user,
+        employer: req.session.employer,
+        admin: req.session.admin });
+});
 
 module.exports = router;
