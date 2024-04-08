@@ -361,10 +361,10 @@ router.get('/clearJobSession', (req, res) => {
 
 //--------------------------------------------------------------------//
 
-router.get('/applyJob/:jobId', async(req, res) => {
+router.get('/applyJob/:jobId', async (req, res) => {
     try {
         const { jobId } = req.params;
-        const job = await jobModel.findById(jobId).exec();
+        const job = await jobModel.findById(jobId).populate('employerId').exec();
 
         if (!job) {
             return res.status(404).send('Job not found');

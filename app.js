@@ -10,6 +10,7 @@ const empRoutes = require("./routes/empRoutes");
 const adminRoutes = require("./routes/adminRoutes");
 const jobRoutes = require("./routes/jobRoutes");
 const jobModel = require('./models/jobModel');
+const employerModel = require( './models/employerModel' );
 const multer = require('multer');
 
 
@@ -68,13 +69,36 @@ const fetchTopSectors = async () => {
     }
 };
 
+const fetchFeaturedJobs = async (limit = 4) => {
+    try {
+        const jobs = await jobModel.aggregate([
+            { $match: { status: 'approved' } },
+            { $sample: { size: limit } }
+        ]);
+
+        for (let job of jobs) {
+            const employer = await employerModel.findById(job.employerId);
+            if (employer) {
+                job.employerName = employer.employerName;
+            } else {
+                job.employerName = "Unknown Employer";
+            }
+        }
+        return jobs;
+    } catch (error) {
+        console.error('Error fetching featured jobs from the database:', error);
+        throw new Error('Error fetching featured jobs from the database');
+    }
+};
+
 app.get("/home", async (req, res) => {
     try {
         const topSectors = await fetchTopSectors();
+        const featuredJobs = await fetchFeaturedJobs();
         const user = req.session.user;
         const employer = req.session.employer;
         const admin = req.session.admin;
-        res.render("home", { user, admin, employer, topSectors });
+        res.render("home", { user, admin, employer, topSectors, featuredJobs });
     } catch (error) {
         res.status(500).send(error.message);
     }

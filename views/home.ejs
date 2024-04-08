@@ -42,7 +42,7 @@
                 <div class="row">
                     <div class="col-lg-12">
                         <div class="browse-btn2 text-center mt-50">
-                            <a class="border-btn2">Browse All Sectors</a>
+                            <a class="border-btn2" href="/searchJob">Browse All Sectors</a>
                         </div>
                     </div>
                 </div>
@@ -60,86 +60,29 @@
                         </div>
                         <!-- Jobs Row -->
                         <div class="row">
-                            <!-- Single Job Card -->
-                            <div class="col-md-6 mb-4">
-                                <div class="job-card">
-                                    <div class="job-card-img">
-                                        <img src="assets/imgs/Graphic-Designer.png" alt="Graphic Designer">
-                                    </div>
-                                    <div class="job-card-content">
-                                        <h4>Graphic Designer</h4>
-                                        <ul>
-                                            <li>Design Studio</li>
-                                            <li><i class="fas fa-map-marker-alt"></i>New York, USA</li>
-                                            <li>$2500 - $3000</li>
-                                        </ul>
-                                    </div>
-                                    <div class="job-card-footer">
-                                        Part Time
-                                        <span>2 days ago</span>
-                                    </div>
-                                </div>
-                            </div>
-                            <!-- Single Job Card -->
-                            <div class="col-md-6 mb-4">
-                                <div class="job-card">
-                                    <div class="job-card-img">
-                                        <img src="assets/imgs/softwaredeveloper.png" alt="Software Developer">
-                                    </div>
-                                    <div class="job-card-content">
-                                        <h4>Software Developer</h4>
-                                        <ul>
-                                            <li>Tech Solutions</li>
-                                            <li><i class="fas fa-map-marker-alt"></i>London, UK</li>
-                                            <li>$4000 - $5000</li>
-                                        </ul>
-                                    </div>
-                                    <div class="job-card-footer">
-                                        Full Time
-                                        <span>1 week ago</span>
+                            <% featuredJobs.forEach(function(job) { %>
+                                <div class="col-md-6 mb-4"> 
+                                    <div class="job-card">
+                                        <div class="job-card-img">
+                                            <img src="assets/imgs/<%= job.image || 'Graphic-Designer.png' %>" alt="<%= job.jobTitle %>">
+                                        </div>
+                                        <div class="job-card-content">
+                                            <h4><%= job.jobTitle %></h4>
+                                            <ul>
+                                                <li><strong>Comapny:</strong> <%= job.employerName %></li>
+                                                <li><strong>Address:</strong><i class="fas fa-map-marker-alt"></i> <%= [job.street, job.city, job.province, job.postalCode].join(', ') %></li>
+                                                <li><strong>Salary:</strong> <%= job.salary %></li>
+                                                <li><strong>Sector:</strong> <%= job.sector %></li>
+                                                <li><strong>Description:</strong> <%= job.description %></li>
+                                            </ul>
+                                        </div>
+                                        <div class="job-card-footer">
+                                            <a href="/applyJob/<%= job._id %>" class="btn btn-primary">Apply Now</a>
+                                            <span>Posted: <%= new Date(parseInt(job._id.toString().substring(0, 8), 16) * 1000).toLocaleDateString() %></span>
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
-                            <!-- Single Job Card -->
-                            <div class="col-md-6 mb-4">
-                                <div class="job-card">
-                                    <div class="job-card-img">
-                                        <img src="assets/imgs/data-analyst.jpg" alt="Data Analyst">
-                                    </div>
-                                    <div class="job-card-content">
-                                        <h4>Data Analyst</h4>
-                                        <ul>
-                                            <li>Analytics Firm</li>
-                                            <li><i class="fas fa-map-marker-alt"></i>Berlin, Germany</li>
-                                            <li>$3500 - $4500</li>
-                                        </ul>
-                                    </div>
-                                    <div class="job-card-footer">
-                                        Remote
-                                        <span>3 days ago</span>
-                                    </div>
-                                </div>
-                            </div>
-                            <!-- Single Job Card -->
-                            <div class="col-md-6 mb-4">
-                                <div class="job-card">
-                                    <div class="job-card-img">
-                                        <img src="assets/imgs/project manager.jpeg" alt="Project Manager">
-                                    </div>
-                                    <div class="job-card-content">
-                                        <h4>Project Manager</h4>
-                                        <ul>
-                                            <li>Construction Co.</li>
-                                            <li><i class="fas fa-map-marker-alt"></i>Sydney, Australia</li>
-                                            <li>$5000 - $7000</li>
-                                        </ul>
-                                    </div>
-                                    <div class="job-card-footer">
-                                        Contract
-                                        <span>5 days ago</span>
-                                    </div>
-                                </div>
-                            </div>
+                            <% }); %>
                         </div>
                     </div>
                 </section>
