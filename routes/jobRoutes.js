@@ -46,26 +46,37 @@ const checkUserNotLoggedIn = (req, res, next) => {
 /*Job Search */
 router.get('/searchJob', async(req, res) => {
     try {
+        const { sector } = req.query;
         const user = req.session.user;
         const employer = req.session.employer;
         const admin = req.session.admin;
 
+        let filter = { status: 'approved' };
+        if (sector) {
+            filter.sector = sector; 
+        }
+
         const uniqueSectors = await jobModel.distinct('sector');
-
         const uniqueCompanies = await employerModel.distinct('employerName');
-
-        const jobs = await jobModel.find({ status: 'approved' }).populate('employerId', 'employerName sector').exec();
+        const jobs = await jobModel.find(filter).populate('employerId', 'employerName sector').exec();
 
         for (let job of jobs) {
             const jobIdAsString = job._id.toString();
-            job.isLikedByCurrentUser = user && user.likedJobs.includes(jobIdAsString);
+            job.isLikedByCurrentUser = user && user.likedJobs && user.likedJobs.includes(jobIdAsString);
         }
-        
-        res.render("searchJob", { user, employer, admin, jobs, uniqueSectors, uniqueCompanies });
+
+        res.render("searchJob", {
+            user, 
+            employer, 
+            admin, 
+            jobs, 
+            uniqueSectors, 
+            uniqueCompanies, 
+            selectedSector: sector
+        });
     } catch (error) {
-        console.error(error);
-        req.flash("error", "Internal Server Error");
-        res.redirect("/searchJob");
+        console.error('Error fetching jobs with sector filter:', error);
+        res.status(500).send('Internal Server Error');
     }
 });
 
@@ -127,7 +138,7 @@ router.post('/searchJob', async(req, res) => {
         const uniqueSectors = await jobModel.distinct('sector');
         const uniqueCompanies = await employerModel.distinct('employerName');
 
-        const jobs = await jobModel.find({ status: 'approved' }).populate('employerId', 'employerName sector').exec();
+        const jobs = await jobModel.find(filter).populate('employerId', 'employerName').exec();
 
         for (let job of jobs) {
             const jobIdAsString = job._id.toString();
@@ -141,9 +152,6 @@ router.post('/searchJob', async(req, res) => {
         res.redirect('/searchJob');
     }
 });
-
-
-
 
 /*Job Listing*/
 router.get('/listJob', checkUserNotLoggedIn, checkAdminNotLoggedIn, (req, res) => {
