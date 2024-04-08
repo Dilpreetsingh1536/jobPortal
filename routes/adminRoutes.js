@@ -191,7 +191,7 @@ router.post('/admin/updateJobStatus', async (req, res) => {
 
     try {
         await jobModel.findByIdAndUpdate(jobId, { status: action });
-        res.redirect(redirectPath || '/allJobs');
+        res.redirect(redirectPath || '/allEmployersJobs');
     } catch (error) {
         console.error('Failed to update job status:', error);
         res.status(500).send('Server error');
@@ -260,7 +260,7 @@ router.get('/allUsers', checkUserNotLoggedIn, checkEmployerNotLoggedIn, checkNot
     }
 });
 
-router.get('/allJobs', async (req, res) => {
+router.get('/allEmployersJobs', async (req, res) => {
     const perPage = 10;
     let page = req.query.page || 1;
 
@@ -271,7 +271,7 @@ router.get('/allJobs', async (req, res) => {
             .skip((perPage * page) - perPage)
             .limit(perPage);
 
-        res.render('allJobs', {
+        res.render('allEmployersJobs', {
             jobs,
             current: parseInt(page),
             pages: Math.ceil(jobsCount / perPage),

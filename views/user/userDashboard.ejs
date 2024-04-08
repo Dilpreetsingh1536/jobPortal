@@ -51,8 +51,8 @@
                         <h5 class="card-subtitle mb-3 text-muted" style="font-size: 18px">Name: <%= user.name %></h5>
                         <h5 class="card-subtitle mb-3 text-muted" style="font-size: 18px">Username: <%= user.username %></h5>
                         <p class="card-text" style="font-size: 16px; margin-top: 10px">Email: <%= user.email %></p>
-                        <a href="/edit-user-details" class="btn btn-success" style="margin-top: 20px">Edit Details</a>
-                        <a href="/userChangePassword" class="btn btn-info" style="margin-top: 20px">Change Password</a>
+                        <a href="/edit-user-details" class="btn btn-success" style="margin-top: 20px"> <i class="fa fa-edit"></i> Edit Details</a>
+                        <a href="/userChangePassword" class="btn btn-info" style="margin-top: 20px"><i class="fa fa-key"></i> Change Password</a>
                     </div>
                 </div>
             </div>
@@ -280,7 +280,8 @@
         <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
         <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
-        <%- include('./partials/footer.ejs') %>
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.1/css/all.min.css">
 </body>
+<%- include('./partials/footer.ejs') %>
 
 </html>
