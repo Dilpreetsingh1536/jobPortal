@@ -46,14 +46,21 @@ const checkUserNotLoggedIn = (req, res, next) => {
 /*Job Search */
 router.get('/searchJob', async(req, res) => {
     try {
-        const { sector } = req.query;
+        const { sector, job, location } = req.query;
         const user = req.session.user;
         const employer = req.session.employer;
         const admin = req.session.admin;
 
         let filter = { status: 'approved' };
-        if (sector) {
-            filter.sector = sector; 
+        if (sector) filter.sector = sector;
+        if (job) filter.jobTitle = new RegExp(job, 'i');
+        if (location) {
+            filter.$or = [
+                { street: new RegExp(location, 'i') },
+                { city: new RegExp(location, 'i') },
+                { province: new RegExp(location, 'i') },
+                { postalCode: new RegExp(location, 'i') }
+            ];
         }
 
         const uniqueSectors = await jobModel.distinct('sector');
@@ -91,16 +98,13 @@ router.post('/searchJob', async(req, res) => {
 
         const filter = { status: 'approved' };
 
-        if (job) {
-            filter.jobTitle = new RegExp(job, 'i');
-        }
-
+        if (job) filter.jobTitle = new RegExp(job, 'i');
         if (location) {
             filter.$or = [
                 { street: new RegExp(location, 'i') },
                 { city: new RegExp(location, 'i') },
                 { province: new RegExp(location, 'i') },
-                { postalCode: new RegExp(location, 'i') },
+                { postalCode: new RegExp(location, 'i') }
             ];
         }
 
