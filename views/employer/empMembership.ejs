@@ -15,31 +15,52 @@
     <%- include('./partials/nav.ejs') %>
 
     <div class="container mt-5">
-        <h1 class="mb-4">Membership Plans</h1>
+        <h1 class="mb-4">Explore Our Membership Plans</h1>
         <div class="row">
-            <!-- Example Plan Card -->
-            <% ['Free', 'Basic', 'Premium'].forEach(function(plan) { %>
+            <% ['Starter', 'Pro', 'Ultimate'].forEach(function(plan, index) { %>
                 <div class="col-md-4">
-                    <div class="card mb-4 shadow">
+                    <div class="card membership-plan-card mb-4 shadow">
                         <div class="card-header">
                             <h4 class="my-0 font-weight-normal"><%= plan %> Plan</h4>
                         </div>
                         <div class="card-body">
-                            <h1 class="card-title pricing-card-title">$<%= plan === 'Free' ? 0 : plan === 'Basic' ? 9.99 : 19.99 %><small class="text-muted">/ mo</small></h1>
+                            <h1 class="card-title pricing-card-title">$<%= plan === 'Starter' ? 0 : plan === 'Pro' ? 15.99 : 29.99 %><small class="text-muted">/ mo</small></h1>
                             <ul class="list-unstyled mt-3 mb-4">
-                                <li>10 users included</li>
-                                <li>2 GB of storage</li>
-                                <li>Email support</li>
-                                <li>Help center access</li>
+                                <li><%= plan === 'Starter' ? "Up to 5 users" : plan === 'Pro' ? "Up to 20 users" : "Unlimited users" %></li>
+                                <li><%= plan === 'Starter' ? "1 GB of storage" : plan === 'Pro' ? "10 GB of storage" : "Unlimited storage" %></li>
+                                <li>Priority email support</li>
+                                <li>Access to premium content</li>
                             </ul>
-                            <form action="/upgradeMembership" method="get">
-                                <input type="hidden" name="plan" value="<%= plan %>">
-                                <button type="submit" class="btn btn-lg btn-block btn-outline-primary">Select</button>
-                            </form>
+                            <input type="hidden" name="plan" value="<%= plan %>">
+                            <button type="button" class="btn btn-lg btn-block btn-primary select-plan" data-plan="<%= plan %>">Choose Plan</button>
                         </div>
                     </div>
                 </div>
             <% }); %>
+        </div>
+    </div>
+
+    <div class="modal fade" id="paymentModal" tabindex="-1" role="dialog" aria-labelledby="paymentModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="paymentModalLabel">Secure Payment</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div id="plan-details" class="mb-3"></div>
+                    <form id="payment-form">
+                        <div id="card-element" class="form-control"></div>
+                        <div id="card-errors" class="alert alert-danger mt-2" role="alert" style="display: none;"></div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary" id="submit-payment">Confirm Payment</button>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -48,5 +69,105 @@
     <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+    <script src="https://js.stripe.com/v3/"></script>
+
+
+    <script>
+        var stripe = Stripe('pk_test_51P3kykCqjFE2iT0kefFlawJZu417FKvmuTFdFZwYilB2C9C9MIPWWbyUDDKPoMQ5abc7XzD3h8gAXMEdLSNftNiF00Jj3O9gL2');
+        var elements = stripe.elements();
+        var card = elements.create('card', {style: {base: {fontSize: '16px'}}});
+        card.mount('#card-element');
+    
+        var selectedPlan = null;
+    
+        card.on('change', function(event) {
+            var displayError = document.getElementById('card-errors');
+            if (event.error) {
+                displayError.textContent = event.error.message;
+                displayError.style.display = 'block';
+            } else {
+                displayError.textContent = '';
+                displayError.style.display = 'none';
+            }
+        });
+    
+        document.querySelectorAll('.select-plan').forEach(function(button) {
+            button.addEventListener('click', function() {
+                selectedPlan = this.getAttribute('data-plan');
+                document.getElementById('plan-details').innerHTML = `Selected Plan: <strong>${selectedPlan}</strong>`;
+                if (selectedPlan !== 'Starter') {
+                    $('#paymentModal').modal('show');
+                } else {
+                    alert('Starter plan selected. No payment needed.');
+                }
+            });
+        });
+    
+        document.getElementById('submit-payment').addEventListener('click', function(ev) {
+    ev.preventDefault();
+    this.disabled = true;
+
+    var displayError = document.getElementById('card-errors');
+    displayError.className = 'alert alert-danger mt-2';
+    displayError.style.display = 'none';
+
+    if (selectedPlan === 'Starter') {
+        alert('Starter plan selected. No payment needed.');
+        this.disabled = false;
+        return;
+    }
+
+    stripe.createPaymentMethod({
+        type: 'card',
+        card: card,
+    }).then(function(result) {
+        if (result.error) {
+            displayError.textContent = result.error.message;
+            displayError.style.display = 'block';
+            document.getElementById('submit-payment').disabled = false;
+        } else {
+            fetch('/create-payment-intent', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({
+                    paymentMethodId: result.paymentMethod.id,
+                    plan: selectedPlan
+                }),
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.error) {
+                    throw new Error(data.error);
+                } else if (data.clientSecret) {
+                    return stripe.confirmCardPayment(data.clientSecret, {
+                        payment_method: result.paymentMethod.id,
+                    });
+                } else if (data.success) {
+                    displayError.className = 'alert alert-success mt-2';
+                    displayError.textContent = data.message || "Operation successful!";
+                    displayError.style.display = 'block';
+                    setTimeout(() => $('#paymentModal').modal('hide'), 3000);
+                } else {
+                    throw new Error("Unexpected response data");
+                }
+            })
+            .then(result => {
+                if (result && result.paymentIntent && result.paymentIntent.status === 'succeeded') {
+                    displayError.className = 'alert alert-success mt-2';
+                    displayError.textContent = "Payment successful!";
+                    displayError.style.display = 'block';
+                    setTimeout(() => $('#paymentModal').modal('hide'), 3000);
+                }
+            })
+            .catch(error => {
+                displayError.textContent = error.message;
+                displayError.style.display = 'block';
+                document.getElementById('submit-payment').disabled = false;
+            });
+        }
+    });
+});
+    </script>
+    
 </body>
 </html>

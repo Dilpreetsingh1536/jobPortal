@@ -10,6 +10,8 @@ const bcrypt = require("bcrypt");
 const nodemailer = require('nodemailer');
 const userModel = require("../models/userModel");
 
+const stripe = require('stripe')('sk_test_51P3kykCqjFE2iT0kclnF74C7Rwz4QW85PSRx1CLrAKwI1lNfX3jQFr0L0wsSy4aW9YkwBNxEMocu95rn9t5TedlI00bag4Vj1H');
+
 // Code Send
 const sixDigitCode = Math.floor(100000 + Math.random() * 900000);
 
@@ -783,5 +785,38 @@ router.get("/empMembership", checkUserNotLoggedIn, checkAdminNotLoggedIn, (req, 
         employer: req.session.employer,
         admin: req.session.admin });
 });
+
+router.post('/create-payment-intent', async (req, res) => {
+    const { paymentMethodId, plan } = req.body;
+    let amount;
+
+    switch (plan) {
+        case 'Starter':
+            return res.json({ success: true, message: "Free plan selected, no payment needed." });
+        case 'Pro':
+            amount = 1599;
+            break;
+        case 'Ultimate':
+            amount = 2999;
+            break;
+        default:
+            return res.status(400).send({ error: 'Invalid plan selected.' });
+    }
+
+    try {
+        const paymentIntent = await stripe.paymentIntents.create({
+            amount: amount,
+            currency: 'cad',
+            description: `${plan} Membership Plan Payment`,
+            payment_method: paymentMethodId,
+            automatic_payment_methods: { enabled: true, allow_redirects: 'never' },
+        });
+        
+        res.json({ success: true, paymentIntentId: paymentIntent.id, clientSecret: paymentIntent.client_secret });
+    } catch (error) {
+        res.status(500).send({ error: error.message });
+    }
+});
+
 
 module.exports = router;
