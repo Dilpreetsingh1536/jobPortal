@@ -125,8 +125,7 @@ const userSchema = new mongoose.Schema({
     ref: 'jobModel'
   }],
   resume: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'upload'
+    type: String
   }
 });
 

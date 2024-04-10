@@ -5,13 +5,11 @@ const jobModel = require("../models/jobModel");
 const adminModel = require("../models/adminModel");
 const messageModel = require("../models/messageModel");
 const employerModel = require("../models/employerModel");
-const { GridFsStorage } = require('multer-gridfs-storage');
 const multer = require('multer');
-const Grid = require('gridfs-stream');
-const crypto = require('crypto');
-const mongoose = require('mongoose');
+const fs = require('fs');
 
-router.use(express.static(__dirname+ "/public"));  
+router.use(express.static(__dirname + "/public"));
+router.use("/public", express.static("public"));
 
 
 const bcrypt = require("bcrypt");
@@ -106,18 +104,6 @@ router.get("/userDashboard", checkEmployerNotLoggedIn, checkAdminNotLoggedIn, as
                 });
             }
         }
-
-        let resumeDownloadLink = null;
-        if (userData.resume) {
-            const file = await gfs.files.findOne({ _id: userData.resume });
-
-            if (file) {
-                resumeDownloadLink = `${req.protocol}://${req.get('host')}/downloadResume/${file.filename}`;
-            } else {
-                console.error('Resume file not found for user:', userData._id);
-            }
-        }
-
         let adminDetails = await adminModel.findOne();
         const employer = req.session.employer;
         const admin = req.session.admin;
@@ -156,6 +142,7 @@ router.get("/userDashboard", checkEmployerNotLoggedIn, checkAdminNotLoggedIn, as
             email: userData.email,
             education: userData.education,
             experience: userData.experience,
+            resume: userData.resume,
         };
 
         res.render("userDashboard", {
@@ -167,7 +154,7 @@ router.get("/userDashboard", checkEmployerNotLoggedIn, checkAdminNotLoggedIn, as
             admin: req.session.admin,
             employer: req.session.employer,
             messageCount,
-            resumeDownloadLink
+
         });
     } catch (error) {
         console.error("Error fetching user dashboard:", error);
@@ -1376,44 +1363,40 @@ router.get('/dashboard', async (req, res) => {
 });
 
 //Upload resume
-let gfs;
-const conn = mongoose.connection;
-conn.once('open', () => {
-    gfs = Grid(conn.db, mongoose.mongo);
-    gfs.collection('upload');
-});
-
-const storage = new GridFsStorage({
-    url: "mongodb+srv://dilpreet1999:Singh1536@cluster0.4g4xjah.mongodb.net/careerconnect_model?retryWrites=true&w=majority",
-    file: (req, file) => {
-        return new Promise((resolve, reject) => {
-            crypto.randomBytes(16, (err, buf) => {
-                if (err) {
-                    return reject(err);
-                }
-                const fileInfo = {
-                    filename: file.originalname,
-                    bucketName: 'upload'
-                };
-                resolve(fileInfo);
-            });
-        });
+const storage = multer.diskStorage({
+    destination: function (req, file, cb) {
+        cb(null, './public/uploads');
+    },
+    filename: function (req, file, cb) {
+        cb(null, file.originalname);
     }
 });
-
-const upload = multer({ storage });
+const upload = multer({ storage: storage });
 
 router.post('/uploadResume', upload.single('resume'), async (req, res) => {
     try {
         if (!req.file) {
-            return res.status(400).send('No file uploaded.');
+            return res.status(400).json({ error: 'No file uploaded' });
         }
+
         const userId = req.session.user._id;
-        await userModel.findByIdAndUpdate(userId, { resume: req.file.id });
+
+        const filePath = req.file.path;
+
+        const user = await userModel.findById(userId);
+        if (!user) {
+            fs.unlinkSync(filePath);
+            return res.status(404).json({ error: 'User not found' });
+        }
+
+        user.resume = filePath;
+
+        await user.save();
+
         res.redirect('/userDashboard');
     } catch (error) {
-        console.error(error);
-        res.status(500).send('Internal Server Error');
+        console.error('Error uploading logo:', error);
+        res.redirect('/userDashboard');
     }
 });
 
@@ -1426,39 +1409,13 @@ router.post('/deleteResume', async (req, res) => {
         res.redirect('/userDashboard');
     } catch (error) {
         console.error(error);
-        res.status(500).json({ error: 'Internal Server Error' });
+        res.redirect('/userDashboard');
     }
 });
 
 
 //----------------------------------------------------------------------//
 
-// Route to serve file for download
-
-router.get('/downloadResume/:id', async (req, res) => {
-    try {
-        const fileId = req.params.id;
-
-        const file = await gfs.files.findOne({ _id: fileId });
-        if (!file) {
-            return res.status(404).json({ error: 'File not found' });
-        }
-
-        const chunks = await gfs.chunks.find({ files_id: fileId }).toArray();
-
-        let data = [];
-        for (let i = 0; i < chunks.length; i++) {
-            data.push(chunks[i].data.buffer);
-        }
-
-        res.set('Content-Type', file.contentType);
-        res.set('Content-Disposition', `attachment; filename="${file.filename}"`);
-        res.send(Buffer.concat(data));
-    } catch (error) {
-        console.error('Error downloading resume:', error);
-        res.status(500).json({ error: 'Internal Server Error' });
-    }
-});
 
 //Update profile logo
 const store = multer.diskStorage({
@@ -1471,7 +1428,6 @@ const store = multer.diskStorage({
 });
 const images = multer({ storage: store });
 
-const fs = require('fs');
 
 router.post('/uploadLogo', images.single('logo'), async (req, res) => {
     try {
@@ -1481,7 +1437,7 @@ router.post('/uploadLogo', images.single('logo'), async (req, res) => {
 
         const userId = req.session.user._id;
 
-        const filePath = req.file.filename; 
+        const filePath = req.file.filename;
 
         const user = await userModel.findById(userId);
         if (!user) {
@@ -1496,7 +1452,7 @@ router.post('/uploadLogo', images.single('logo'), async (req, res) => {
         res.redirect('/userDashboard');
     } catch (error) {
         console.error('Error uploading logo:', error);
-        res.status(500).json({ error: 'Internal Server Error' });
+        res.redirect('/userDashboard');
     }
 });
 
@@ -1509,7 +1465,6 @@ router.post('/deleteLogo', async (req, res) => {
         res.redirect('/userDashboard');
     } catch (error) {
         console.error("Error deleting logo:", error);
-        req.flash("error", "Internal Server Error");
         res.redirect("/userDashboard");
     }
 });
