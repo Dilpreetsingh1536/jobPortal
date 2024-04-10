@@ -1,10 +1,17 @@
 const express = require("express");
 const router = express.Router();
 const userModel = require("../models/userModel");
-const jobModel = require( "../models/jobModel" );
+const jobModel = require("../models/jobModel");
 const adminModel = require("../models/adminModel");
 const messageModel = require("../models/messageModel");
 const employerModel = require("../models/employerModel");
+const { GridFsStorage } = require('multer-gridfs-storage');
+const multer = require('multer');
+const Grid = require('gridfs-stream');
+const crypto = require('crypto');
+const mongoose = require('mongoose');
+
+router.use(express.static(__dirname+ "/public"));  
 
 
 const bcrypt = require("bcrypt");
@@ -80,7 +87,7 @@ const checkExperienceSession = (req, res, next) => {
 };
 
 // User Dashboard
-router.get("/userDashboard", checkEmployerNotLoggedIn, checkAdminNotLoggedIn, async(req, res) => {
+router.get("/userDashboard", checkEmployerNotLoggedIn, checkAdminNotLoggedIn, async (req, res) => {
     try {
         const userData = await userModel.findById(req.session.user._id);
 
@@ -100,6 +107,17 @@ router.get("/userDashboard", checkEmployerNotLoggedIn, checkAdminNotLoggedIn, as
             }
         }
 
+        let resumeDownloadLink = null;
+        if (userData.resume) {
+            const file = await gfs.files.findOne({ _id: userData.resume });
+
+            if (file) {
+                resumeDownloadLink = `${req.protocol}://${req.get('host')}/downloadResume/${file.filename}`;
+            } else {
+                console.error('Resume file not found for user:', userData._id);
+            }
+        }
+
         let adminDetails = await adminModel.findOne();
         const employer = req.session.employer;
         const admin = req.session.admin;
@@ -109,12 +127,12 @@ router.get("/userDashboard", checkEmployerNotLoggedIn, checkAdminNotLoggedIn, as
         const messageCount = await messageModel.countDocuments({ recipientId: userId });
 
         const sortedMessages = userData.messages && Array.isArray(userData.messages) ? userData.messages
-        .sort((a, b) => b.createdAt - a.createdAt)
-        .slice(0, 3)
-        .map(message => ({
-            ...message.toObject(),
-            adminUniqueId: adminDetails ? adminDetails.adminId : 'Admin not found',
-        })) : [];
+            .sort((a, b) => b.createdAt - a.createdAt)
+            .slice(0, 3)
+            .map(message => ({
+                ...message.toObject(),
+                adminUniqueId: adminDetails ? adminDetails.adminId : 'Admin not found',
+            })) : [];
 
         if (!userData) {
             req.flash("error", "User not found");
@@ -141,14 +159,15 @@ router.get("/userDashboard", checkEmployerNotLoggedIn, checkAdminNotLoggedIn, as
         };
 
         res.render("userDashboard", {
-            user: req.session.user,
+            user,
             sortedExperiences,
             sortedEducations,
             likedJobs,
             messages: sortedMessages,
             admin: req.session.admin,
             employer: req.session.employer,
-            messageCount
+            messageCount,
+            resumeDownloadLink
         });
     } catch (error) {
         console.error("Error fetching user dashboard:", error);
@@ -156,6 +175,7 @@ router.get("/userDashboard", checkEmployerNotLoggedIn, checkAdminNotLoggedIn, as
         res.redirect("/userDashboard");
     }
 });
+
 
 router.post('/deleteMessage/:messageId', async (req, res) => {
     const messageId = req.params.messageId;
@@ -177,7 +197,7 @@ router.post('/deleteMessage/:messageId', async (req, res) => {
 });
 
 // Edit User Details On Dashboard
-router.get("/edit-user-details", checkEmployerNotLoggedIn, checkAdminNotLoggedIn, async(req, res) => {
+router.get("/edit-user-details", checkEmployerNotLoggedIn, checkAdminNotLoggedIn, async (req, res) => {
     try {
         const userData = await userModel.findById(req.session.user._id);
         const user = {
@@ -193,7 +213,7 @@ router.get("/edit-user-details", checkEmployerNotLoggedIn, checkAdminNotLoggedIn
 });
 
 // Update Password On Dashboard
-router.post("/update-user-details", checkEmployerNotLoggedIn, checkAdminNotLoggedIn, async(req, res) => {
+router.post("/update-user-details", checkEmployerNotLoggedIn, checkAdminNotLoggedIn, async (req, res) => {
     try {
         const { name, username, email } = req.body;
         const userIdToUpdate = req.session.user._id ? req.session.user._id : null;
@@ -226,7 +246,7 @@ router.get("/userchangepassword", (req, res) => {
     res.render("userChangePassword", { user, admin, employer });
 });
 
-router.post("/userchangepassword", async(req, res) => {
+router.post("/userchangepassword", async (req, res) => {
     const { currentPassword, newPassword, confirmPassword } = req.body;
     const userId = req.session.user._id;
 
@@ -271,7 +291,7 @@ router.get("/signup", checkEmployerNotLoggedIn, checkAdminNotLoggedIn, (req, res
 });
 
 
-router.post("/signup_post", checkEmployerNotLoggedIn, checkAdminNotLoggedIn, async(req, res) => {
+router.post("/signup_post", checkEmployerNotLoggedIn, checkAdminNotLoggedIn, async (req, res) => {
     const { name, username, email, password, confirmPassword } = req.body;
 
     const nameRegex = /[A-Za-z\s]{2,}/;
@@ -331,7 +351,7 @@ router.get("/login", checkEmployerNotLoggedIn, checkAdminNotLoggedIn, (req, res)
     res.render("user/login", { error: errorMessage, user, admin, employer });
 });
 
-router.post("/login_post", checkEmployerNotLoggedIn, async(req, res) => {
+router.post("/login_post", checkEmployerNotLoggedIn, async (req, res) => {
     const { username, password } = req.body;
 
     const usernameRegex = /^[A-Za-z0-9_]{4,}$/;
@@ -394,7 +414,7 @@ router.get("/forgot-password", checkEmployerNotLoggedIn, checkAdminNotLoggedIn, 
     res.render("forgotPassword", { error: errorMessage, user, admin, savedEmail, employer });
 });
 
-router.post("/send-code", checkEmployerNotLoggedIn, checkAdminNotLoggedIn, async(req, res) => {
+router.post("/send-code", checkEmployerNotLoggedIn, checkAdminNotLoggedIn, async (req, res) => {
     const { email } = req.body;
 
     res.cookie('user_forgot_email', email, { maxAge: 900000, httpOnly: true });
@@ -434,7 +454,7 @@ router.get("/enter-code", checkEmployerNotLoggedIn, checkAdminNotLoggedIn, (req,
     res.render("enterCode", { error: errorMessage, email: savedEmail, user, admin, employer });
 });
 
-router.post("/verify-code", checkEmployerNotLoggedIn, checkAdminNotLoggedIn, async(req, res) => {
+router.post("/verify-code", checkEmployerNotLoggedIn, checkAdminNotLoggedIn, async (req, res) => {
     const { email, sixDigitCode } = req.body;
     if (!sixDigitCode) {
         req.flash("error", "Please enter six-digit code");
@@ -467,7 +487,7 @@ router.get("/reset-password", checkEmployerNotLoggedIn, checkAdminNotLoggedIn, (
     res.render("resetPassword", { error: errorMessage, email: savedEmail, user, admin, employer });
 });
 
-router.post("/update-password", checkEmployerNotLoggedIn, checkAdminNotLoggedIn, async(req, res) => {
+router.post("/update-password", checkEmployerNotLoggedIn, checkAdminNotLoggedIn, async (req, res) => {
     const { email, newPassword, confirmPassword } = req.body;
     if (!newPassword || !confirmPassword) {
         req.flash("error", "Password fields are required.");
@@ -500,7 +520,7 @@ router.get('/add-education-form', checkEmployerNotLoggedIn, checkAdminNotLoggedI
     res.render("addEducation", { user, employer, admin, success, error });
 });
 
-router.post('/add-education', checkEmployerNotLoggedIn, checkAdminNotLoggedIn, async(req, res) => {
+router.post('/add-education', checkEmployerNotLoggedIn, checkAdminNotLoggedIn, async (req, res) => {
     const { educationTitle, major, institutionName, startDate, endDate } = req.body;
 
     if (!educationTitle || !major || !institutionName || !startDate) {
@@ -575,7 +595,7 @@ router.get('/experience-form', checkEmployerNotLoggedIn, checkAdminNotLoggedIn, 
     res.render("addExperience", { user, employer, admin, success, error });
 });
 
-router.post("/add-experience", checkEmployerNotLoggedIn, checkAdminNotLoggedIn, async(req, res) => {
+router.post("/add-experience", checkEmployerNotLoggedIn, checkAdminNotLoggedIn, async (req, res) => {
     const { jobTitle, company, expStartDate, expEndDate, description } = req.body;
 
     const startDate = new Date(expStartDate);
@@ -643,7 +663,7 @@ router.post("/add-experience", checkEmployerNotLoggedIn, checkAdminNotLoggedIn, 
 
 //Edit Education
 
-router.get('/editEducation', checkEmployerNotLoggedIn, checkAdminNotLoggedIn, async(req, res) => {
+router.get('/editEducation', checkEmployerNotLoggedIn, checkAdminNotLoggedIn, async (req, res) => {
     try {
         const educationId = req.query.educationId;
         req.session.editEducationId = educationId;
@@ -669,7 +689,7 @@ router.get('/editEducation', checkEmployerNotLoggedIn, checkAdminNotLoggedIn, as
 });
 
 //Update education
-const updateEducationById = async(userId, educationId, updatedFields) => {
+const updateEducationById = async (userId, educationId, updatedFields) => {
     try {
         const user = await userModel.findById(userId);
         const educationToUpdate = user.education.id(educationId);
@@ -689,7 +709,7 @@ const updateEducationById = async(userId, educationId, updatedFields) => {
 };
 
 
-router.post('/edit-education', checkEmployerNotLoggedIn, checkAdminNotLoggedIn, async(req, res) => {
+router.post('/edit-education', checkEmployerNotLoggedIn, checkAdminNotLoggedIn, async (req, res) => {
     try {
         const userId = req.session.user._id;
         const educationId = req.session.editEducationId;
@@ -726,7 +746,7 @@ router.post('/edit-education', checkEmployerNotLoggedIn, checkAdminNotLoggedIn, 
 
 
 //Delete Education
-router.get('/deleteEducation', checkEducationSession, async(req, res) => {
+router.get('/deleteEducation', checkEducationSession, async (req, res) => {
     try {
         const educationId = req.session.editEducationId;
         const user = req.session.user;
@@ -754,11 +774,11 @@ router.get('/deleteEducation', checkEducationSession, async(req, res) => {
 });
 
 
-const getUserById = async(userId) => {
+const getUserById = async (userId) => {
     return await userModel.findById(userId);
 };
 
-const deleteEducationById = async(userId, educationId) => {
+const deleteEducationById = async (userId, educationId) => {
     try {
         const user = await getUserById(userId);
 
@@ -773,7 +793,7 @@ const deleteEducationById = async(userId, educationId) => {
 };
 
 
-router.post('/delete-education', checkAdminNotLoggedIn, checkEducationSession, async(req, res) => {
+router.post('/delete-education', checkAdminNotLoggedIn, checkEducationSession, async (req, res) => {
     try {
         const userId = req.session.user._id;
         const educationId = req.session.editEducationId;
@@ -819,7 +839,7 @@ router.get('/clearEduSession', (req, res) => {
 
 //Edit Experienece
 
-router.get('/editExperience', checkEmployerNotLoggedIn, checkAdminNotLoggedIn, async(req, res) => {
+router.get('/editExperience', checkEmployerNotLoggedIn, checkAdminNotLoggedIn, async (req, res) => {
     try {
         const experienceId = req.query.experienceId;
         req.session.editExperienceId = experienceId;
@@ -845,7 +865,7 @@ router.get('/editExperience', checkEmployerNotLoggedIn, checkAdminNotLoggedIn, a
 });
 
 //Update experience
-const updateExperienceById = async(userId, experienceId, updatedFields) => {
+const updateExperienceById = async (userId, experienceId, updatedFields) => {
     try {
         const user = await userModel.findById(userId);
         const experienceToUpdate = user.experience.id(experienceId);
@@ -864,7 +884,7 @@ const updateExperienceById = async(userId, experienceId, updatedFields) => {
     }
 };
 
-router.post('/edit-experience', checkEmployerNotLoggedIn, checkAdminNotLoggedIn, async(req, res) => {
+router.post('/edit-experience', checkEmployerNotLoggedIn, checkAdminNotLoggedIn, async (req, res) => {
     try {
         const userId = req.session.user._id;
         const experienceId = req.session.editExperienceId;
@@ -900,7 +920,7 @@ router.post('/edit-experience', checkEmployerNotLoggedIn, checkAdminNotLoggedIn,
 });
 
 // Delete Experience
-router.get('/deleteExperience', checkExperienceSession, async(req, res) => {
+router.get('/deleteExperience', checkExperienceSession, async (req, res) => {
     try {
         const experienceId = req.session.editExperienceId;
         const user = req.session.user;
@@ -927,7 +947,7 @@ router.get('/deleteExperience', checkExperienceSession, async(req, res) => {
     }
 });
 
-const deleteExperienceById = async(userId, experienceId) => {
+const deleteExperienceById = async (userId, experienceId) => {
     try {
         const user = await getUserById(userId);
 
@@ -941,7 +961,7 @@ const deleteExperienceById = async(userId, experienceId) => {
     }
 };
 
-router.post('/delete-experience', checkAdminNotLoggedIn, checkExperienceSession, async(req, res) => {
+router.post('/delete-experience', checkAdminNotLoggedIn, checkExperienceSession, async (req, res) => {
     try {
         const userId = req.session.user._id;
         const experienceId = req.session.editExperienceId;
@@ -1104,14 +1124,14 @@ router.get('/viewMessage', checkAdminNotLoggedIn, checkEmployerNotLoggedIn, asyn
         const user = req.session.user;
         const admin = req.session.admin;
         const employer = req.session.employer;
-       
+
         const messages = await messageModel.find({
             recipientId: userId,
             senderModel: 'employerModel',
         }).populate({
             path: 'senderId',
             model: 'employerModel',
-            select: 'employerName' 
+            select: 'employerName'
         });
 
         res.render('viewMessage', { messages, user, admin, employer });
@@ -1170,7 +1190,7 @@ router.get('/sentMessage', checkAdminNotLoggedIn, checkEmployerNotLoggedIn, asyn
 router.post('/deleteMessage/:id', async (req, res) => {
     try {
         const messageId = req.params.id;
-        
+
         await messageModel.findByIdAndDelete(messageId);
 
         res.redirect('/viewMessage');
@@ -1183,7 +1203,7 @@ router.post('/deleteMessage/:id', async (req, res) => {
 router.post('/deleteSentMessage/:id', async (req, res) => {
     try {
         const messageId = req.params.id;
-        
+
         await messageModel.findByIdAndDelete(messageId);
 
         res.redirect('/sentMessage');
@@ -1195,19 +1215,19 @@ router.post('/deleteSentMessage/:id', async (req, res) => {
 
 
 
-  router.get("/userAllMessages",checkEmployerNotLoggedIn, checkAdminNotLoggedIn, async (req, res) => {
+router.get("/userAllMessages", checkEmployerNotLoggedIn, checkAdminNotLoggedIn, async (req, res) => {
     try {
         const page = parseInt(req.query.page) || 1;
         const pageSize = 10;
         const userId = req.session.user._id;
-        
+
         const user = await userModel.findById(userId);
         if (!user || !user.messages) {
             req.flash("info", "No messages available.");
             return res.redirect("/userDashboard");
         }
         let adminDetails = await adminModel.findOne();
-        const skip = (page - 1) * pageSize; 
+        const skip = (page - 1) * pageSize;
 
         const totalMessages = user.messages.length;
         const totalPages = Math.ceil(totalMessages / pageSize);
@@ -1236,7 +1256,7 @@ router.post('/deleteSentMessage/:id', async (req, res) => {
     }
 });
 
-router.get("/moreExperience",checkEmployerNotLoggedIn, checkAdminNotLoggedIn, async (req, res) => {
+router.get("/moreExperience", checkEmployerNotLoggedIn, checkAdminNotLoggedIn, async (req, res) => {
     try {
         const user = await userModel.findById(req.session.user._id);
         if (!user || !user.experience) {
@@ -1256,7 +1276,7 @@ router.get("/moreExperience",checkEmployerNotLoggedIn, checkAdminNotLoggedIn, as
     }
 });
 
-router.get("/moreEducation",checkEmployerNotLoggedIn, checkAdminNotLoggedIn, async (req, res) => {
+router.get("/moreEducation", checkEmployerNotLoggedIn, checkAdminNotLoggedIn, async (req, res) => {
     try {
         const user = await userModel.findById(req.session.user._id);
         if (!user || !user.education) {
@@ -1296,7 +1316,7 @@ router.get("/appliedJobs", checkEmployerNotLoggedIn, checkAdminNotLoggedIn, asyn
     }
 });
 
-router.get("/likedJobs",  checkEmployerNotLoggedIn, checkAdminNotLoggedIn, async (req, res) => {
+router.get("/likedJobs", checkEmployerNotLoggedIn, checkAdminNotLoggedIn, async (req, res) => {
     try {
         const page = parseInt(req.query.page) || 1;
         const limit = 10; // Number of liked jobs per page
@@ -1346,7 +1366,7 @@ router.get("/likedJobs",  checkEmployerNotLoggedIn, checkAdminNotLoggedIn, async
 //------------------------//
 
 // Route handler for rendering user dashboard
-router.get('/dashboard', async(req, res) => {
+router.get('/dashboard', async (req, res) => {
     try {
         const appliedJobs = await Application.find({ userId: req.user.id });
         res.render('userDashboard', { appliedModel: appliedModel });
@@ -1354,6 +1374,148 @@ router.get('/dashboard', async(req, res) => {
         res.status(500).send('Error fetching dashboard data.');
     }
 });
+
+//Upload resume
+let gfs;
+const conn = mongoose.connection;
+conn.once('open', () => {
+    gfs = Grid(conn.db, mongoose.mongo);
+    gfs.collection('upload');
+});
+
+const storage = new GridFsStorage({
+    url: "mongodb+srv://dilpreet1999:Singh1536@cluster0.4g4xjah.mongodb.net/careerconnect_model?retryWrites=true&w=majority",
+    file: (req, file) => {
+        return new Promise((resolve, reject) => {
+            crypto.randomBytes(16, (err, buf) => {
+                if (err) {
+                    return reject(err);
+                }
+                const fileInfo = {
+                    filename: file.originalname,
+                    bucketName: 'upload'
+                };
+                resolve(fileInfo);
+            });
+        });
+    }
+});
+
+const upload = multer({ storage });
+
+router.post('/uploadResume', upload.single('resume'), async (req, res) => {
+    try {
+        if (!req.file) {
+            return res.status(400).send('No file uploaded.');
+        }
+        const userId = req.session.user._id;
+        await userModel.findByIdAndUpdate(userId, { resume: req.file.id });
+        res.redirect('/userDashboard');
+    } catch (error) {
+        console.error(error);
+        res.status(500).send('Internal Server Error');
+    }
+});
+
+router.post('/deleteResume', async (req, res) => {
+    try {
+        const userId = req.session.user._id;
+
+        await userModel.findByIdAndUpdate(userId, { resume: null });
+
+        res.redirect('/userDashboard');
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+});
+
+
+//----------------------------------------------------------------------//
+
+// Route to serve file for download
+
+router.get('/downloadResume/:id', async (req, res) => {
+    try {
+        const fileId = req.params.id;
+
+        const file = await gfs.files.findOne({ _id: fileId });
+        if (!file) {
+            return res.status(404).json({ error: 'File not found' });
+        }
+
+        const chunks = await gfs.chunks.find({ files_id: fileId }).toArray();
+
+        let data = [];
+        for (let i = 0; i < chunks.length; i++) {
+            data.push(chunks[i].data.buffer);
+        }
+
+        res.set('Content-Type', file.contentType);
+        res.set('Content-Disposition', `attachment; filename="${file.filename}"`);
+        res.send(Buffer.concat(data));
+    } catch (error) {
+        console.error('Error downloading resume:', error);
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+});
+
+//Update profile logo
+const store = multer.diskStorage({
+    destination: function (req, file, cb) {
+        cb(null, './public/images');
+    },
+    filename: function (req, file, cb) {
+        cb(null, file.originalname);
+    }
+});
+const images = multer({ storage: store });
+
+const fs = require('fs');
+
+router.post('/uploadLogo', images.single('logo'), async (req, res) => {
+    try {
+        if (!req.file) {
+            return res.status(400).json({ error: 'No file uploaded' });
+        }
+
+        const userId = req.session.user._id;
+
+        const filePath = req.file.filename; 
+
+        const user = await userModel.findById(userId);
+        if (!user) {
+            fs.unlinkSync(filePath);
+            return res.status(404).json({ error: 'User not found' });
+        }
+
+        user.logo = filePath;
+
+        await user.save();
+
+        res.redirect('/userDashboard');
+    } catch (error) {
+        console.error('Error uploading logo:', error);
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+});
+
+
+// Delete logo
+router.post('/deleteLogo', async (req, res) => {
+    try {
+        const userId = req.session.user._id;
+        await userModel.findByIdAndUpdate(userId, { $unset: { logo: "" } });
+        res.redirect('/userDashboard');
+    } catch (error) {
+        console.error("Error deleting logo:", error);
+        req.flash("error", "Internal Server Error");
+        res.redirect("/userDashboard");
+    }
+});
+
+
+
 
 
 module.exports = router;

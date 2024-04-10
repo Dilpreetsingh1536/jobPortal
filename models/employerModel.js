@@ -76,8 +76,7 @@ const employerSchema = new mongoose.Schema({
         },
     },
     logo: {
-        type: String,
-        default: '/images/profile_logo.png', 
+        type: String
     },
     messages: [messageSchema],
 });

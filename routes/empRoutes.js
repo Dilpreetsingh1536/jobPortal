@@ -3,12 +3,13 @@ const router = express.Router();
 const employerModel = require("../models/employerModel");
 const jobModel = require("../models/jobModel");
 const messageModel = require("../models/messageModel");
-
-const adminModel = require( "../models/adminModel" );
-
+const adminModel = require("../models/adminModel");
 const bcrypt = require("bcrypt");
 const nodemailer = require('nodemailer');
 const userModel = require("../models/userModel");
+const multer = require('multer');
+
+router.use(express.static(__dirname+ "/public")); 
 
 // Code Send
 const sixDigitCode = Math.floor(100000 + Math.random() * 900000);
@@ -82,18 +83,18 @@ router.get("/empDashboard", checkUserNotLoggedIn, checkAdminNotLoggedIn, async (
         let adminDetails = await adminModel.findOne();
 
         const sortedMessages = employerData.messages ? employerData.messages
-        .sort((a, b) => b.createdAt - a.createdAt)
-        .slice(0, 3)
-        .map(message => ({
-            ...message.toObject(),
-            adminUniqueId: adminDetails ? adminDetails.adminId : 'Admin not found',
-        })) : [];
+            .sort((a, b) => b.createdAt - a.createdAt)
+            .slice(0, 3)
+            .map(message => ({
+                ...message.toObject(),
+                adminUniqueId: adminDetails ? adminDetails.adminId : 'Admin not found',
+            })) : [];
 
         console.log(sortedMessages);
 
         const jobs = await jobModel.find({ employerId: employerData._id });
 
-        res.render("empDashboard", { user, admin, employer, jobs, error: error, success: success, messageCount, messages: sortedMessages  });
+        res.render("empDashboard", { user, admin, employer, jobs, error: error, success: success, messageCount, messages: sortedMessages });
     } catch (error) {
         console.error(error);
         req.flash("error", "Internal Server Error");
@@ -695,6 +696,61 @@ router.post('/deleteSentMsg/:id', async (req, res) => {
         res.status(500).json({ error: 'Internal Server Error' });
     }
 });
+
+//Update emp profile logo
+const store = multer.diskStorage({
+    destination: function (req, file, cb) {
+        cb(null, './public/images');
+    },
+    filename: function (req, file, cb) {
+        cb(null, file.originalname);
+    }
+});
+const images = multer({ storage: store });
+
+const fs = require('fs');
+
+router.post('/uploadEmpLogo', images.single('logo'), async (req, res) => {
+    try {
+        if (!req.file) {
+            return res.status(400).json({ error: 'No file uploaded' });
+        }
+
+        const employerId = req.session.employer._id;
+
+        const filePath = req.file.filename;
+
+        const employer = await employerModel.findById(employerId);
+        if (!employer) {
+            fs.unlinkSync(filePath);
+            console.error('Error uploading logo:', error);
+            res.redirect('/empDashboard');
+        }
+
+        employer.logo = filePath;
+
+        await employer.save();
+
+        res.redirect('/empDashboard');
+    } catch (error) {
+        console.error('Error uploading logo:', error);
+        res.redirect('/empDashboard');
+    }
+});
+
+
+// Delete logo
+router.post('/deleteEmpLogo', async (req, res) => {
+    try {
+        const employerId = req.session.employer._id;
+        await employerModel.findByIdAndUpdate(employerId, { $unset: { logo: "" } });
+        res.redirect('/empDashboard');
+    } catch (error) {
+        console.error("Error deleting logo:", error);
+        res.redirect("/empDashboard");
+    }
+});
+
 
 
 module.exports = router;
