@@ -7,6 +7,7 @@
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" />
     <link rel="stylesheet" type="text/css" href="/css/nav.css" />
     <link rel="stylesheet" type="text/css" href="/css/footer.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.1/css/all.min.css">
 </head>
 <body>
 <%- include('./partials/nav.ejs') %>
@@ -18,13 +19,22 @@
             <li class="list-group-item d-flex justify-content-between align-items-center">
                 <span><%= user.username %> - <%= user.email %></span>
                 <div>
-                    <button type="button" class="btn btn-primary btn-sm" data-toggle="modal" data-target="#userModal<%= index %>">View</button>
-            
+                    <button type="button" class="btn btn-primary btn-sm" data-toggle="modal" data-target="#userModal<%= index %>">
+                        <i class="fas fa-eye"></i> View
+                    </button>
+                    
+                    <button type="button" class="btn btn-secondary btn-sm" data-toggle="modal" data-target="#sendMessageModal<%= index %>">
+                        <i class="fas fa-envelope"></i> Message
+                    </button>
+
                     <form action="/deleteUser" method="POST" style="display: inline;">
                         <input type="hidden" name="email" value="<%= user.email %>">
-                        <button type="submit" class="btn btn-danger btn-sm">Delete</button>
+                        <button type="submit" class="btn btn-danger btn-sm">
+                            <i class="fas fa-trash-alt"></i> Delete
+                        </button>
                     </form>
                 </div>
+        
         
                 <!-- User Detail Modal -->
                 <div class="modal fade" id="userModal<%= index %>" tabindex="-1" role="dialog" aria-labelledby="userModalLabel<%= index %>" aria-hidden="true">
@@ -65,6 +75,31 @@
                         </div>
                     </div>
                 </div>
+                <div class="modal fade" id="sendMessageModal<%= index %>" tabindex="-1" role="dialog" aria-labelledby="sendMessageModalLabel<%= index %>" aria-hidden="true">
+                    <div class="modal-dialog" role="document">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="sendMessageModalLabel<%= index %>">Send Message to <%= user.username %></h5>
+                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                    <span aria-hidden="true">&times;</span>
+                                </button>
+                            </div>
+                            <div class="modal-body">
+                                <form action="/sendMessageToUser" method="POST">
+                                    <input type="hidden" name="userId" value="<%= user._id %>">
+                                    <div class="form-group">
+                                        <label for="messageText<%= index %>">Message:</label>
+                                        <textarea class="form-control" id="messageText<%= index %>" name="message" rows="3" required></textarea>
+                                    </div>
+                                    <button type="submit" class="btn btn-primary">Send Message</button>
+                                </form>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </li>
         <% }); %>        
     </ul>
@@ -82,6 +117,36 @@
 <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+
+<script>
+    $(document).ready(function() {
+        $('form').on('submit', function(event) {
+            event.preventDefault();
+            var form = $(this);
+            var modalId = form.closest('.modal').attr('id');
+            var textArea = $('#' + modalId + ' textarea[name="message"]');
+    
+            $.ajax({
+                type: 'POST',
+                url: form.attr('action'),
+                data: form.serialize(),
+                success: function(response) {
+                    if (response.success) {
+                        textArea.val('');
+    
+                        $('#' + modalId + ' .modal-body').append('<div class="alert alert-success mt-3" role="alert">' + response.message + '</div>');
+                    } else {
+                        $('#' + modalId + ' .modal-body').append('<div class="alert alert-danger mt-3" role="alert">' + response.message + '</div>');
+                    }
+                },
+                error: function() {
+                    $('#' + modalId + ' .modal-body').append('<div class="alert alert-danger mt-3" role="alert">An error occurred while attempting to send the message.</div>');
+                }
+            });
+        });
+    });
+    </script>
 
 <%- include('./partials/footer.ejs') %>
 </body>

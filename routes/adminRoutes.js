@@ -316,11 +316,10 @@ router.post('/sendMessageToUser', async (req, res) => {
         await userModel.findByIdAndUpdate(userId, {
             $push: { messages: { message: message, createdAt: new Date(), read: false } }
         });
-        res.redirect('/adminDashboard');
+        res.json({ success: true, message: 'Message sent successfully!' });
     } catch (error) {
         console.error('Error sending message to user:', error);
-        req.flash('error', 'An error occurred while sending the message to the user.');
-        res.redirect('/adminDashboard');
+        res.status(500).json({ success: false, message: 'An error occurred while sending the message to the user.' });
     }
 });
 
@@ -330,10 +329,10 @@ router.post('/sendMessageToEmployer', async (req, res) => {
         await employerModel.findByIdAndUpdate(employerId, {
             $push: { messages: { message: message, createdAt: new Date(), read: false } }
         });
-        res.redirect('/adminDashboard');
+        res.json({ success: true, message: 'Message sent successfully!' });
     } catch (error) {
         console.error('Error sending message to employer:', error);
-        res.status(500).send('An error occurred while sending the message to the employer.');
+        res.status(500).json({ success: false, message: 'An error occurred while sending the message to the employer.' });
     }
 });
 

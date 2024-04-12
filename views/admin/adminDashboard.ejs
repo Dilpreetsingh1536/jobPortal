@@ -374,15 +374,15 @@
                                                     </p>
                                                 </div>
                                                 <div class="modal-footer">
-                                                    <form action="/admin/updateJobStatus" method="POST" class="mr-auto">
+                                                    <form action="/admin/updateJobStatus" method="POST" class="mr-auto status-update">
                                                         <input type="hidden" name="jobId" value="<%= job._id %>">
-                                                        <input type="hidden" name="redirectPath"
-                                                            value="/adminDashboard">
-                                                        <button type="submit" name="action" value="approved"
-                                                            class="btn btn-outline-success" <%=job.status==='approved'
-                                                            ? 'disabled' : '' %>>Approve</button>
-                                                        <button type="submit" name="action" value="rejected"
-                                                            class="btn btn-outline-danger">Reject</button>
+                                                        <input type="hidden" name="redirectPath" value="/adminDashboard">
+                                                        <button type="submit" name="action" value="approved" class="btn btn-outline-success" <%= job.status === 'approved' ? 'disabled' : '' %>>
+                                                            <i class="fas fa-thumbs-up"></i> Approve
+                                                        </button>
+                                                        <button type="submit" name="action" value="rejected" class="btn btn-outline-danger">
+                                                            <i class="fas fa-thumbs-down"></i> Reject
+                                                        </button>
                                                     </form>
                                                     <button type="button" class="btn btn-secondary"
                                                         data-dismiss="modal">Close</button>
@@ -446,6 +446,38 @@
         <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
         <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+
+        <script>
+            $(document).ready(function() {
+                // Targeting only specific forms for AJAX
+                $('form:not(.status-update)').on('submit', function(event) {
+                    event.preventDefault();
+                    var form = $(this);
+                    var modalId = form.closest('.modal').attr('id');
+                    var textArea = $('#' + modalId + ' textarea[name="message"]');
+        
+                    $.ajax({
+                        type: 'POST',
+                        url: form.attr('action'),
+                        data: form.serialize(),
+                        success: function(response) {
+                            if (response.success) {
+                                textArea.val('');
+                                $('#' + modalId + ' .modal-body').append('<div class="alert alert-success mt-3" role="alert">' + response.message + '</div>');
+                            } else {
+                                $('#' + modalId + ' .modal-body').append('<div class="alert alert-danger mt-3" role="alert">' + response.message + '</div>');
+                            }
+                        },
+                        error: function() {
+                            $('#' + modalId + ' .modal-body').append('<div class="alert alert-danger mt-3" role="alert">An error occurred while attempting to send the message.</div>');
+                        }
+                    });
+                });
+            });
+        </script>
+        
+                
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.1/css/all.min.css">
     </body>
     <%- include('./partials/footer.ejs') %>
