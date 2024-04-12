@@ -21,10 +21,55 @@
                         style="border: 1px solid #ccc; border-radius: 8px; box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); padding: 20px; margin-bottom: 20px;">
                         <div class="card-body">
                             <div class="logoContainer">
-                                <img src="<%= employer.logo %>" alt="User Logo" class="logo" id="user-logo" />
+                                <% if (employer.logo) { %>
+                                    <img src=" ../images/<%= employer.logo %>" alt="User Logo" class="logo"
+                                        id="user-logo" />
+                                    <% } else { %>
+                                        <img src="images/profile_logo.png" alt="User Logo" class="logo"
+                                            id="user-logo" />
+                                        <% } %>
                             </div>
                             <div class="row">
                                 <div class="col-md-4 mb-3">
+                                    <button class="btn btn-primary" data-toggle="modal" data-target="#editLogoModal">
+                                        Edit Logo
+                                    </button>
+                                    <% if (employer.logo) { %>
+                                        <form action="/deleteEmpLogo" method="POST">
+                                            <input type="hidden" name="employerId" value="<%= employer._id %>" />
+                                            <button type="submit" class="btn btn-danger mt-1">
+                                                Delete Logo
+                                            </button>
+                                        </form>
+                                        <% } %>
+                                </div>
+                            </div>
+                            <!-- Upload logo -->
+                            <div class="modal fade" id="editLogoModal" tabindex="-1" role="dialog"
+                                aria-labelledby="editLogoModalLabel" aria-hidden="true">
+                                <div class="modal-dialog" role="document">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <h5 class="modal-title" id="editLogoModalLabel">
+                                                Edit Logo
+                                            </h5>
+                                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                                <span aria-hidden="true">&times;</span>
+                                            </button>
+                                        </div>
+                                        <div class="modal-body">
+                                            <form method="post" action="uploadEmpLogo" enctype="multipart/form-data">
+                                                <div class="form-group">
+                                                    <label for="logoInput">Choose Logo:</label>
+                                                    <input type="file" class="form-control-file" id="logoInput"
+                                                        name="logo" />
+                                                </div>
+                                                <button type="submit" class="btn btn-primary">
+                                                    Upload
+                                                </button>
+                                            </form>
+                                        </div>
+                                    </div>
                                     <a href="#" class="btn btn-primary btn-block">
                                         <i class="fas fa-edit"></i> Edit
                                     </a>
@@ -38,39 +83,43 @@
                             </h5>
                             <h5 class="card-subtitle mb-3 text-muted" style="font-size: 18px">
                                 Email: <%= employer.email %>
-                            </p>
-                            <h5 class="card-subtitle mb-3 text-muted" style="font-size: 18px">
-                                Membership: <%= employer.membership %>
-                            </p>
-                            <a href="/edit-emp-details" class="btn btn-success" style="margin-top: 20px">
-                                <i class="fas fa-pencil-alt"></i> Edit Details
-                            </a>
-                            <a href="/empChangePassword" class="btn btn-info" style="margin-top: 20px">
-                                <i class="fas fa-key"></i> Change Password
-                            </a>
-                            <a href="/empMembership" class="btn btn-warning" style="margin-top: 20px">
-                                <i class="fas fa-edit"></i> Membership
-                            </a>
+                                    </p>
+                                    <h5 class="card-subtitle mb-3 text-muted" style="font-size: 18px">
+                                        Membership: <%= employer.membership %>
+                                            </p>
+                                            <a href="/edit-emp-details" class="btn btn-success"
+                                                style="margin-top: 20px">
+                                                <i class="fas fa-pencil-alt"></i> Edit Details
+                                            </a>
+                                            <a href="/empChangePassword" class="btn btn-info" style="margin-top: 20px">
+                                                <i class="fas fa-key"></i> Change Password
+                                            </a>
+                                            <a href="/empMembership" class="btn btn-warning" style="margin-top: 20px">
+                                                <i class="fas fa-edit"></i> Membership
+                                            </a>
                         </div>
                     </div>
                 </div>
-                
+
 
 
                 <div class="col-md-6">
-                    <div class="card" style="border: 1px solid #ccc; border-radius: 8px; box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); padding: 20px; margin-bottom: 20px;">
+                    <div class="card"
+                        style="border: 1px solid #ccc; border-radius: 8px; box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); padding: 20px; margin-bottom: 20px;">
                         <div class="card-body">
                             <div class="d-flex justify-content-between align-items-center">
                                 <h3 class="card-title" style="font-size: 24px; font-weight: bold">Admin Messages</h3>
-                                <a href="/adminAllMessages" class="btn btn-info"><i class="fa fa-list"></i> View More</a>
+                                <a href="/adminAllMessages" class="btn btn-info"><i class="fa fa-list"></i> View
+                                    More</a>
                             </div>
-                            <% if (messages && messages.length > 0) { %>
+                            <% if (messages && messages.length> 0) { %>
                                 <div class="list-group">
                                     <% messages.forEach(function(message) { %>
                                         <div class="list-group-item list-group-item-action">
                                             <div class="row">
                                                 <div class="col-12">
-                                                    <p class="mb-1"><strong><i class="fa fa-envelope"></i> Message:</strong>
+                                                    <p class="mb-1"><strong><i class="fa fa-envelope"></i>
+                                                            Message:</strong>
                                                         <%= message.message %>
                                                     </p>
                                                 </div>
@@ -87,7 +136,8 @@
                                                     </small>
                                                 </div>
                                                 <div class="col-md-6 text-md-right">
-                                                    <form action="/deleteMessageForEmployer/<%= message._id %>" method="POST" style="display: inline;">
+                                                    <form action="/deleteMessageForEmployer/<%= message._id %>"
+                                                        method="POST" style="display: inline;">
                                                         <button type="submit" class="btn btn-danger btn-sm">
                                                             <i class="fa fa-trash"></i> Delete
                                                         </button>
@@ -95,21 +145,26 @@
                                                 </div>
                                             </div>
                                         </div>
-                                    <% }); %>
+                                        <% }); %>
                                 </div>
-                            <% } else { %>
-                                <p>No new messages.</p>
-                            <% } %>
-                            <h3 class="card-title" style="font-size: 24px; font-weight: bold; margin-top: 10px;">Messages</h3>
-                            <p class="card-text">
-                                Total Messages: <span class="badge badge-primary"><%= messageCount %></span>
-                            </p>
-                            <a href="/viewMsg" class="btn btn-primary"><i class="fa fa-eye"></i> View Messages</a>
-                            <a href="/sentMsg" class="btn btn-primary"><i class="fa fa-paper-plane"></i> Sent Messages</a>
+                                <% } else { %>
+                                    <p>No new messages.</p>
+                                    <% } %>
+                                        <h3 class="card-title"
+                                            style="font-size: 24px; font-weight: bold; margin-top: 10px;">Messages</h3>
+                                        <p class="card-text">
+                                            Total Messages: <span class="badge badge-primary">
+                                                <%= messageCount %>
+                                            </span>
+                                        </p>
+                                        <a href="/viewMsg" class="btn btn-primary"><i class="fa fa-eye"></i> View
+                                            Messages</a>
+                                        <a href="/sentMsg" class="btn btn-primary"><i class="fa fa-paper-plane"></i>
+                                            Sent Messages</a>
                         </div>
                     </div>
                 </div>
-                
+
             </div>
             <div class="row">
                 <div class="col-md-6">
@@ -203,11 +258,14 @@
                                 </ul>
                             </form>
                             <div class="d-flex justify-content-between align-items-center mt-3">
-                                <a href="/allJobs" class="btn btn-info" style="margin-top: 20px"><i class="fa fa-list"></i> View More</a>
-                                <a href="/listJob" class="btn btn-success" style="margin-top: 20px"><i class="fa fa-plus"></i> List a Job</a>
-                                    <span class="ml-2"><i class="fas fa-eye" style="margin-top: 20px"></i> View</span>
-                                    <span class="ml-2"><i class="fas fa-edit" style="margin-top: 20px"></i> Edit</span>
-                                    <span class="ml-2"><i class="fas fa-trash-alt" style="margin-top: 20px"></i> Delete</span>
+                                <a href="/allJobs" class="btn btn-info" style="margin-top: 20px"><i
+                                        class="fa fa-list"></i> View More</a>
+                                <a href="/listJob" class="btn btn-success" style="margin-top: 20px"><i
+                                        class="fa fa-plus"></i> List a Job</a>
+                                <span class="ml-2"><i class="fas fa-eye" style="margin-top: 20px"></i> View</span>
+                                <span class="ml-2"><i class="fas fa-edit" style="margin-top: 20px"></i> Edit</span>
+                                <span class="ml-2"><i class="fas fa-trash-alt" style="margin-top: 20px"></i>
+                                    Delete</span>
                             </div>
                         </div>
                     </div>
@@ -218,7 +276,8 @@
                         style="border: 1px solid #ccc; border-radius: 8px; box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); padding: 20px; margin-bottom: 20px;">
                         <div class="card-body">
                             <h3 class="card-title" style="font-size: 24px; font-weight: bold">New Applications</h3>
-                            <a href="/allApplications" class="btn btn-info mt-3"><i class="fa fa-list"></i> View More</a>
+                            <a href="/allApplications" class="btn btn-info mt-3"><i class="fa fa-list"></i> View
+                                More</a>
                         </div>
                     </div>
                 </div>

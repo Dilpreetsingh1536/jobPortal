@@ -1,10 +1,15 @@
 const express = require("express");
 const router = express.Router();
 const userModel = require("../models/userModel");
-const jobModel = require( "../models/jobModel" );
+const jobModel = require("../models/jobModel");
 const adminModel = require("../models/adminModel");
 const messageModel = require("../models/messageModel");
 const employerModel = require("../models/employerModel");
+const multer = require('multer');
+const fs = require('fs');
+
+router.use(express.static(__dirname + "/public"));
+router.use("/public", express.static("public"));
 
 
 const bcrypt = require("bcrypt");
@@ -111,7 +116,6 @@ router.get("/userDashboard", checkEmployerNotLoggedIn, checkAdminNotLoggedIn, ch
                 });
             }
         }
-
         let adminDetails = await adminModel.findOne();
         const messageCount = await messageModel.countDocuments({ recipientId: userId });
 
@@ -145,6 +149,7 @@ router.get("/userDashboard", checkEmployerNotLoggedIn, checkAdminNotLoggedIn, ch
             email: userData.email,
             education: userData.education,
             experience: userData.experience,
+            resume: userData.resume,
         };
 
         res.render("userDashboard", {
@@ -163,6 +168,7 @@ router.get("/userDashboard", checkEmployerNotLoggedIn, checkAdminNotLoggedIn, ch
         res.redirect("/userDashboard");
     }
 });
+
 
 router.post('/deleteMessage/:messageId', async (req, res) => {
     const messageId = req.params.messageId;
@@ -200,7 +206,7 @@ router.get("/edit-user-details", checkEmployerNotLoggedIn, checkAdminNotLoggedIn
 });
 
 // Update Password On Dashboard
-router.post("/update-user-details", checkEmployerNotLoggedIn, checkAdminNotLoggedIn, async(req, res) => {
+router.post("/update-user-details", checkEmployerNotLoggedIn, checkAdminNotLoggedIn, async (req, res) => {
     try {
         const { name, username, email } = req.body;
         const userIdToUpdate = req.session.user._id ? req.session.user._id : null;
@@ -233,7 +239,7 @@ router.get("/userchangepassword",checkEmployerNotLoggedIn, checkAdminNotLoggedIn
     res.render("userChangePassword", { user, admin, employer });
 });
 
-router.post("/userchangepassword", async(req, res) => {
+router.post("/userchangepassword", async (req, res) => {
     const { currentPassword, newPassword, confirmPassword } = req.body;
     const userId = req.session.user._id;
 
@@ -278,7 +284,7 @@ router.get("/signup", checkEmployerNotLoggedIn, checkAdminNotLoggedIn, (req, res
 });
 
 
-router.post("/signup_post", checkEmployerNotLoggedIn, checkAdminNotLoggedIn, async(req, res) => {
+router.post("/signup_post", checkEmployerNotLoggedIn, checkAdminNotLoggedIn, async (req, res) => {
     const { name, username, email, password, confirmPassword } = req.body;
 
     const nameRegex = /[A-Za-z\s]{2,}/;
@@ -338,7 +344,7 @@ router.get("/login", checkEmployerNotLoggedIn, checkAdminNotLoggedIn, (req, res)
     res.render("user/login", { error: errorMessage, user, admin, employer });
 });
 
-router.post("/login_post", checkEmployerNotLoggedIn, async(req, res) => {
+router.post("/login_post", checkEmployerNotLoggedIn, async (req, res) => {
     const { username, password } = req.body;
 
     const usernameRegex = /^[A-Za-z0-9_]{4,}$/;
@@ -401,7 +407,7 @@ router.get("/forgot-password", checkEmployerNotLoggedIn, checkAdminNotLoggedIn, 
     res.render("forgotPassword", { error: errorMessage, user, admin, savedEmail, employer });
 });
 
-router.post("/send-code", checkEmployerNotLoggedIn, checkAdminNotLoggedIn, async(req, res) => {
+router.post("/send-code", checkEmployerNotLoggedIn, checkAdminNotLoggedIn, async (req, res) => {
     const { email } = req.body;
 
     res.cookie('user_forgot_email', email, { maxAge: 900000, httpOnly: true });
@@ -441,7 +447,7 @@ router.get("/enter-code", checkEmployerNotLoggedIn, checkAdminNotLoggedIn, (req,
     res.render("enterCode", { error: errorMessage, email: savedEmail, user, admin, employer });
 });
 
-router.post("/verify-code", checkEmployerNotLoggedIn, checkAdminNotLoggedIn, async(req, res) => {
+router.post("/verify-code", checkEmployerNotLoggedIn, checkAdminNotLoggedIn, async (req, res) => {
     const { email, sixDigitCode } = req.body;
     if (!sixDigitCode) {
         req.flash("error", "Please enter six-digit code");
@@ -485,7 +491,7 @@ router.get("/reset-password", checkEmployerNotLoggedIn, checkAdminNotLoggedIn, c
     res.render("resetPassword", { error: errorMessage, email: savedEmail, user, admin, employer });
 });
 
-router.post("/update-password", checkEmployerNotLoggedIn, checkAdminNotLoggedIn, async(req, res) => {
+router.post("/update-password", checkEmployerNotLoggedIn, checkAdminNotLoggedIn, async (req, res) => {
     const { email, newPassword, confirmPassword } = req.body;
     if (!newPassword || !confirmPassword) {
         req.flash("error", "Password fields are required.");
@@ -518,7 +524,7 @@ router.get('/add-education-form', checkEmployerNotLoggedIn, checkAdminNotLoggedI
     res.render("addEducation", { user, employer, admin, success, error });
 });
 
-router.post('/add-education', checkEmployerNotLoggedIn, checkAdminNotLoggedIn, async(req, res) => {
+router.post('/add-education', checkEmployerNotLoggedIn, checkAdminNotLoggedIn, async (req, res) => {
     const { educationTitle, major, institutionName, startDate, endDate } = req.body;
 
     if (!educationTitle || !major || !institutionName || !startDate) {
@@ -593,7 +599,7 @@ router.get('/experience-form', checkEmployerNotLoggedIn, checkAdminNotLoggedIn, 
     res.render("addExperience", { user, employer, admin, success, error });
 });
 
-router.post("/add-experience", checkEmployerNotLoggedIn, checkAdminNotLoggedIn, async(req, res) => {
+router.post("/add-experience", checkEmployerNotLoggedIn, checkAdminNotLoggedIn, async (req, res) => {
     const { jobTitle, company, expStartDate, expEndDate, description } = req.body;
 
     const startDate = new Date(expStartDate);
@@ -687,7 +693,7 @@ router.get('/editEducation', checkEmployerNotLoggedIn, checkAdminNotLoggedIn, ch
 });
 
 //Update education
-const updateEducationById = async(userId, educationId, updatedFields) => {
+const updateEducationById = async (userId, educationId, updatedFields) => {
     try {
         const user = await userModel.findById(userId);
         const educationToUpdate = user.education.id(educationId);
@@ -707,7 +713,7 @@ const updateEducationById = async(userId, educationId, updatedFields) => {
 };
 
 
-router.post('/edit-education', checkEmployerNotLoggedIn, checkAdminNotLoggedIn, async(req, res) => {
+router.post('/edit-education', checkEmployerNotLoggedIn, checkAdminNotLoggedIn, async (req, res) => {
     try {
         const userId = req.session.user._id;
         const educationId = req.session.editEducationId;
@@ -744,7 +750,7 @@ router.post('/edit-education', checkEmployerNotLoggedIn, checkAdminNotLoggedIn, 
 
 
 //Delete Education
-router.get('/deleteEducation', checkEducationSession, async(req, res) => {
+router.get('/deleteEducation', checkEducationSession, async (req, res) => {
     try {
         const educationId = req.session.editEducationId;
         const user = req.session.user;
@@ -772,11 +778,11 @@ router.get('/deleteEducation', checkEducationSession, async(req, res) => {
 });
 
 
-const getUserById = async(userId) => {
+const getUserById = async (userId) => {
     return await userModel.findById(userId);
 };
 
-const deleteEducationById = async(userId, educationId) => {
+const deleteEducationById = async (userId, educationId) => {
     try {
         const user = await getUserById(userId);
 
@@ -791,7 +797,7 @@ const deleteEducationById = async(userId, educationId) => {
 };
 
 
-router.post('/delete-education', checkAdminNotLoggedIn, checkEducationSession, async(req, res) => {
+router.post('/delete-education', checkAdminNotLoggedIn, checkEducationSession, async (req, res) => {
     try {
         const userId = req.session.user._id;
         const educationId = req.session.editEducationId;
@@ -837,7 +843,7 @@ router.get('/clearEduSession', (req, res) => {
 
 //Edit Experienece
 
-router.get('/editExperience', checkEmployerNotLoggedIn, checkAdminNotLoggedIn, async(req, res) => {
+router.get('/editExperience', checkEmployerNotLoggedIn, checkAdminNotLoggedIn, async (req, res) => {
     try {
         const experienceId = req.query.experienceId;
         req.session.editExperienceId = experienceId;
@@ -863,7 +869,7 @@ router.get('/editExperience', checkEmployerNotLoggedIn, checkAdminNotLoggedIn, a
 });
 
 //Update experience
-const updateExperienceById = async(userId, experienceId, updatedFields) => {
+const updateExperienceById = async (userId, experienceId, updatedFields) => {
     try {
         const user = await userModel.findById(userId);
         const experienceToUpdate = user.experience.id(experienceId);
@@ -882,7 +888,7 @@ const updateExperienceById = async(userId, experienceId, updatedFields) => {
     }
 };
 
-router.post('/edit-experience', checkEmployerNotLoggedIn, checkAdminNotLoggedIn, async(req, res) => {
+router.post('/edit-experience', checkEmployerNotLoggedIn, checkAdminNotLoggedIn, async (req, res) => {
     try {
         const userId = req.session.user._id;
         const experienceId = req.session.editExperienceId;
@@ -918,7 +924,7 @@ router.post('/edit-experience', checkEmployerNotLoggedIn, checkAdminNotLoggedIn,
 });
 
 // Delete Experience
-router.get('/deleteExperience', checkExperienceSession, async(req, res) => {
+router.get('/deleteExperience', checkExperienceSession, async (req, res) => {
     try {
         const experienceId = req.session.editExperienceId;
         const user = req.session.user;
@@ -945,7 +951,7 @@ router.get('/deleteExperience', checkExperienceSession, async(req, res) => {
     }
 });
 
-const deleteExperienceById = async(userId, experienceId) => {
+const deleteExperienceById = async (userId, experienceId) => {
     try {
         const user = await getUserById(userId);
 
@@ -959,7 +965,7 @@ const deleteExperienceById = async(userId, experienceId) => {
     }
 };
 
-router.post('/delete-experience', checkAdminNotLoggedIn, checkExperienceSession, async(req, res) => {
+router.post('/delete-experience', checkAdminNotLoggedIn, checkExperienceSession, async (req, res) => {
     try {
         const userId = req.session.user._id;
         const experienceId = req.session.editExperienceId;
@@ -1122,14 +1128,14 @@ router.get('/viewMessage', checkAdminNotLoggedIn, checkEmployerNotLoggedIn, chec
         const user = req.session.user;
         const admin = req.session.admin;
         const employer = req.session.employer;
-       
+
         const messages = await messageModel.find({
             recipientId: userId,
             senderModel: 'employerModel',
         }).populate({
             path: 'senderId',
             model: 'employerModel',
-            select: 'employerName' 
+            select: 'employerName'
         });
 
         res.render('viewMessage', { messages, user, admin, employer });
@@ -1188,7 +1194,7 @@ router.get('/sentMessage', checkAdminNotLoggedIn, checkEmployerNotLoggedIn, chec
 router.post('/deleteMessage/:id', async (req, res) => {
     try {
         const messageId = req.params.id;
-        
+
         await messageModel.findByIdAndDelete(messageId);
 
         res.redirect('/viewMessage');
@@ -1201,7 +1207,7 @@ router.post('/deleteMessage/:id', async (req, res) => {
 router.post('/deleteSentMessage/:id', async (req, res) => {
     try {
         const messageId = req.params.id;
-        
+
         await messageModel.findByIdAndDelete(messageId);
 
         res.redirect('/sentMessage');
@@ -1218,14 +1224,14 @@ router.post('/deleteSentMessage/:id', async (req, res) => {
         const page = parseInt(req.query.page) || 1;
         const pageSize = 10;
         const userId = req.session.user._id;
-        
+
         const user = await userModel.findById(userId);
         if (!user || !user.messages) {
             req.flash("info", "No messages available.");
             return res.redirect("/userDashboard");
         }
         let adminDetails = await adminModel.findOne();
-        const skip = (page - 1) * pageSize; 
+        const skip = (page - 1) * pageSize;
 
         const totalMessages = user.messages.length;
         const totalPages = Math.ceil(totalMessages / pageSize);
@@ -1392,5 +1398,116 @@ router.post('/unlikeJob/:jobId', async (req, res) => {
         res.status(500).send('Internal Server Error');
     }
 });
+
+//Upload resume
+const storage = multer.diskStorage({
+    destination: function (req, file, cb) {
+        cb(null, './public/uploads');
+    },
+    filename: function (req, file, cb) {
+        cb(null, file.originalname);
+    }
+});
+const upload = multer({ storage: storage });
+
+router.post('/uploadResume', upload.single('resume'), async (req, res) => {
+    try {
+        if (!req.file) {
+            return res.status(400).json({ error: 'No file uploaded' });
+        }
+
+        const userId = req.session.user._id;
+
+        const filePath = req.file.path;
+
+        const user = await userModel.findById(userId);
+        if (!user) {
+            fs.unlinkSync(filePath);
+            return res.status(404).json({ error: 'User not found' });
+        }
+
+        user.resume = filePath;
+
+        await user.save();
+
+        res.redirect('/userDashboard');
+    } catch (error) {
+        console.error('Error uploading logo:', error);
+        res.redirect('/userDashboard');
+    }
+});
+
+router.post('/deleteResume', async (req, res) => {
+    try {
+        const userId = req.session.user._id;
+
+        await userModel.findByIdAndUpdate(userId, { resume: null });
+
+        res.redirect('/userDashboard');
+    } catch (error) {
+        console.error(error);
+        res.redirect('/userDashboard');
+    }
+});
+
+
+//----------------------------------------------------------------------//
+
+
+//Update profile logo
+const store = multer.diskStorage({
+    destination: function (req, file, cb) {
+        cb(null, './public/images');
+    },
+    filename: function (req, file, cb) {
+        cb(null, file.originalname);
+    }
+});
+const images = multer({ storage: store });
+
+
+router.post('/uploadLogo', images.single('logo'), async (req, res) => {
+    try {
+        if (!req.file) {
+            return res.status(400).json({ error: 'No file uploaded' });
+        }
+
+        const userId = req.session.user._id;
+
+        const filePath = req.file.filename;
+
+        const user = await userModel.findById(userId);
+        if (!user) {
+            fs.unlinkSync(filePath);
+            return res.status(404).json({ error: 'User not found' });
+        }
+
+        user.logo = filePath;
+
+        await user.save();
+
+        res.redirect('/userDashboard');
+    } catch (error) {
+        console.error('Error uploading logo:', error);
+        res.redirect('/userDashboard');
+    }
+});
+
+
+// Delete logo
+router.post('/deleteLogo', async (req, res) => {
+    try {
+        const userId = req.session.user._id;
+        await userModel.findByIdAndUpdate(userId, { $unset: { logo: "" } });
+        res.redirect('/userDashboard');
+    } catch (error) {
+        console.error("Error deleting logo:", error);
+        res.redirect("/userDashboard");
+    }
+});
+
+
+
+
 
 module.exports = router;

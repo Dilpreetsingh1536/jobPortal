@@ -28,6 +28,7 @@ app.listen(3001, () => {
     console.log("Server is listening at port 3001");
 });
 
+
 app.set("views", [
     path.join(__dirname, "views"),
     path.join(__dirname, "views", "user"),
@@ -36,6 +37,8 @@ app.set("views", [
     path.join(__dirname, "views", "admin"),
     path.join(__dirname, "views", "partials"),
     path.join(__dirname, "views", "contact")
+   
+
 ]);
 
 /* SESSION */
