@@ -500,7 +500,6 @@ router.post('/unlikeJob/:jobId', async (req, res) => {
 });
 
   
->>>>>>> f74948e70e3253f3f6a62286a93bafc519af50a9
 
   
 
