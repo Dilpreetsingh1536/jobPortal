@@ -431,12 +431,46 @@ router.post('/likeJob/:jobId', async (req, res) => {
         if (!user.likedJobs.includes(jobId)) {
             user.likedJobs.push(jobId);
             await user.save();
+            
+            req.session.user.likedJobs = user.likedJobs;
+            
             console.log(`User ${userId} liked job ${jobId} successfully`);
         } else {
             console.log(`User ${userId} has already liked job ${jobId}.`);
         }
 
-        res.redirect('/likedJobs');
+        res.redirect('/searchJob');
+
+    } catch (error) {
+        console.error(error);
+        res.status(500).send('Internal Server Error');
+    }
+});
+
+router.post('/unlikeJob/:jobId', async (req, res) => {
+    if (!req.session.user) {
+        return res.status(401).send('User not logged in');
+    }
+
+    try {
+        const userId = req.session.user._id;
+        const { jobId } = req.params;
+
+        const user = await userModel.findById(userId);
+
+        const index = user.likedJobs.indexOf(jobId);
+        if (index > -1) {
+            user.likedJobs.splice(index, 1);
+            await user.save();
+
+            req.session.user.likedJobs = user.likedJobs;
+
+            console.log(`User ${userId} unliked job ${jobId} successfully`);
+        } else {
+            console.log(`Job ${jobId} was not found in the liked jobs of user ${userId}.`);
+        }
+
+        res.redirect('/searchJob');
 
     } catch (error) {
         console.error(error);

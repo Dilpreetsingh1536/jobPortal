@@ -80,6 +80,12 @@ const employerSchema = new mongoose.Schema({
         default: '/images/profile_logo.png', 
     },
     messages: [messageSchema],
+    membershipPlan: {
+        type: String,
+        required: true,
+        default: 'Starter',
+        enum: ['Starter', 'Pro', 'Ultimate']
+    },
 });
 
 const employerModel = mongoose.model("employerModel", employerSchema);

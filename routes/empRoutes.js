@@ -58,8 +58,16 @@ const checkAdminNotLoggedIn = (req, res, next) => {
     }
 };
 
+const checkLoggedIn = (req, res, next) => {
+    if (req.session.employer) {
+        next();
+    } else {
+        res.redirect('/empLogin');
+    }
+};
+
 //Employer Dashboard
-router.get("/empDashboard", checkUserNotLoggedIn, checkAdminNotLoggedIn, async (req, res) => {
+router.get("/empDashboard", checkUserNotLoggedIn, checkAdminNotLoggedIn, checkLoggedIn, async (req, res) => {
     try {
         const employerData = await employerModel.findById(req.session.employer._id);
         const employerId = req.session.employer;
@@ -78,6 +86,7 @@ router.get("/empDashboard", checkUserNotLoggedIn, checkAdminNotLoggedIn, async (
             employerName: employerData.employerName,
             employerId: employerData.employerId,
             email: employerData.email,
+            membership : employerData.membershipPlan,
         };
 
 
@@ -780,10 +789,14 @@ router.get("/adminAllMessages", checkUserNotLoggedIn, checkAdminNotLoggedIn, asy
 });
 
 router.get("/empMembership", checkUserNotLoggedIn, checkAdminNotLoggedIn, (req, res) => {
+
+    const currentPlan = req.session.employer.membershipPlan;
+
     res.render("empMembership", { 
         user: req.session.user,
         employer: req.session.employer,
-        admin: req.session.admin });
+        admin: req.session.admin,
+        currentPlan: currentPlan, });
 });
 
 router.post('/create-payment-intent', async (req, res) => {
@@ -815,6 +828,38 @@ router.post('/create-payment-intent', async (req, res) => {
         res.json({ success: true, paymentIntentId: paymentIntent.id, clientSecret: paymentIntent.client_secret });
     } catch (error) {
         res.status(500).send({ error: error.message });
+    }
+});
+
+router.post('/update-membership-plan', async (req, res) => {
+    const employerId = req.session.employer._id;
+    const { plan } = req.body;
+
+    if (!['Starter', 'Pro', 'Ultimate'].includes(plan)) {
+        return res.status(400).json({ error: 'Invalid plan selected.' });
+    }
+
+    try {
+        const updatedEmployer = await employerModel.findByIdAndUpdate(employerId, {
+            $set: { membershipPlan: plan }
+        }, { new: true });
+
+        if (!updatedEmployer) {
+            return res.status(404).json({ error: 'Employer not found.' });
+        }
+
+        req.session.employer.membershipPlan = plan;
+
+        req.session.save(err => {
+            if (err) {
+                console.error("Session save error:", err);
+                return res.status(500).json({ error: 'Failed to update session.' });
+            }
+            res.json({ success: true, message: `Membership plan updated to ${plan}.` });
+        });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: 'Failed to update membership plan.' });
     }
 });
 

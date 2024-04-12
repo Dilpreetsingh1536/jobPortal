@@ -61,6 +61,14 @@ const checkAdminNotLoggedIn = (req, res, next) => {
     }
 };
 
+const checkLoggedIn = (req, res, next) => {
+    if (req.session.user) {
+        next();
+    } else {
+        res.redirect('/login');
+    }
+};
+
 // If Education not in session route Restricted
 const checkEducationSession = (req, res, next) => {
     if (req.session.editEducationId) {
@@ -80,7 +88,7 @@ const checkExperienceSession = (req, res, next) => {
 };
 
 // User Dashboard
-router.get("/userDashboard", checkEmployerNotLoggedIn, checkAdminNotLoggedIn, async(req, res) => {
+router.get("/userDashboard", checkEmployerNotLoggedIn, checkAdminNotLoggedIn, checkLoggedIn, async(req, res) => {
     try {
         const userData = await userModel.findById(req.session.user._id);
         const userId = req.session.user;
@@ -1295,7 +1303,7 @@ router.get("/appliedJobs", checkEmployerNotLoggedIn, checkAdminNotLoggedIn, asyn
     }
 });
 
-router.get("/likedJobs",  checkEmployerNotLoggedIn, checkAdminNotLoggedIn, async (req, res) => {
+router.get("/likedJobs", checkEmployerNotLoggedIn, checkAdminNotLoggedIn, async (req, res) => {
     try {
         const page = parseInt(req.query.page) || 1;
         const limit = 10;
@@ -1312,23 +1320,14 @@ router.get("/likedJobs",  checkEmployerNotLoggedIn, checkAdminNotLoggedIn, async
 
         const likedJobs = await Promise.all(
             likedJobsIds.map(async (jobId) => {
-                const job = await jobModel.findById(jobId).populate('employerId', 'employerName').exec();
-                return job ? {
-                    jobTitle: job.jobTitle,
-                    employerName: job.employerId.employerName,
-                    sector: job.sector,
-                    city: job.city,
-                    province: job.province,
-                    salary: job.salary,
-                    street: job.street
-                } : null;
+                return await jobModel.findById(jobId).populate('employerId', 'employerName').exec();
             })
         );
 
         const totalLikedJobs = user.likedJobs.length;
         const totalPages = Math.ceil(totalLikedJobs / limit);
 
-        res.render("likedJobs", { 
+        res.render("likedJobs", {
             likedJobs: likedJobs.filter(job => job !== null),
             currentPage: page,
             totalPages: totalPages,
@@ -1340,5 +1339,49 @@ router.get("/likedJobs",  checkEmployerNotLoggedIn, checkAdminNotLoggedIn, async
         return res.redirect("/userDashboard");
     }
 });
+
+
+router.get('/applyJob/:jobId', async (req, res) => {
+    if (!req.session.user) {
+        return res.status(401).send('User not logged in');
+    }
+    try {
+        const { jobId } = req.params;
+        const job = await jobModel.findById(jobId).populate('employerId').exec();
+        if (!job) {
+            return res.status(404).send('Job not found');
+        }
+        res.render('job/applyJob', { job, user: req.session.user });
+    } catch (err) {
+        console.error(err);
+        res.status(500).send('Internal Server Error');
+    }
+});
+
+router.post('/unlikeJob/:jobId', async (req, res) => {
+    if (!req.session.user) {
+        return res.status(401).send('User not logged in');
+    }
+    try {
+        const userId = req.session.user._id;
+        const { jobId } = req.params;
+        const user = await userModel.findById(userId);
+        const index = user.likedJobs.indexOf(jobId);
+        if (index > -1) {
+            user.likedJobs.splice(index, 1);
+            await user.save();
+            req.session.user.likedJobs = user.likedJobs;
+            res.redirect('/likedJobs');
+        } else {
+            console.log(`Job ${jobId} was not found in the liked jobs of user ${userId}.`);
+            res.redirect('/likedJobs');
+        }
+    } catch (error) {
+        console.error(error);
+        res.status(500).send('Internal Server Error');
+    }
+});
+
+
 
 module.exports = router;
