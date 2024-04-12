@@ -66,8 +66,7 @@ router.get('/searchJob', async (req, res) => {
 
         const uniqueSectors = await jobModel.distinct('sector');
         const uniqueCompanies = await employerModel.distinct('employerName');
-<<<<<<< HEAD
-        const jobs = await jobModel.find({ status: 'approved' }).populate('employerId', 'employerName sector').exec();
+        const jobs = await jobModel.find(filter).populate('employerId', 'employerName sector').exec();
 
         let userAppliedJobs = [];
         if (user) {
@@ -76,12 +75,6 @@ router.get('/searchJob', async (req, res) => {
         }
 
         res.render("searchJob", { user, employer, admin, jobs, uniqueSectors, uniqueCompanies, userAppliedJobs });
-    } catch (error) {
-        console.error(error);
-        res.redirect("/searchJob");
-=======
-        const jobs = await jobModel.find(filter).populate('employerId', 'employerName sector').exec();
-
         for (let job of jobs) {
             const jobIdAsString = job._id.toString();
             job.isLikedByCurrentUser = user && user.likedJobs && user.likedJobs.includes(jobIdAsString);
@@ -99,14 +92,11 @@ router.get('/searchJob', async (req, res) => {
     } catch (error) {
         console.error('Error fetching jobs with sector filter:', error);
         res.status(500).send('Internal Server Error');
->>>>>>> f74948e70e3253f3f6a62286a93bafc519af50a9
     }
 });
 
 
-
-
-router.post('/searchJob', async (req, res) => {
+router.post('/searchJob', async(req, res) => {
     const user = req.session.user;
     const employer = req.session.employer;
     const admin = req.session.admin;
@@ -450,11 +440,7 @@ router.post('/submitApplication', upload.fields([{ name: 'resume', maxCount: 1 }
 
 router.post('/likeJob/:jobId', async (req, res) => {
     if (!req.session.user) {
-<<<<<<< HEAD
-        return res.status(401).send('User not logged in');
-=======
         return res.redirect('/login');
->>>>>>> f74948e70e3253f3f6a62286a93bafc519af50a9
     }
 
     try {
@@ -466,25 +452,14 @@ router.post('/likeJob/:jobId', async (req, res) => {
         if (!user.likedJobs.includes(jobId)) {
             user.likedJobs.push(jobId);
             await user.save();
-<<<<<<< HEAD
-=======
             
             req.session.user.likedJobs = user.likedJobs;
             
->>>>>>> f74948e70e3253f3f6a62286a93bafc519af50a9
             console.log(`User ${userId} liked job ${jobId} successfully`);
         } else {
             console.log(`User ${userId} has already liked job ${jobId}.`);
         }
 
-<<<<<<< HEAD
-        res.redirect('back');
-    } catch (error) {
-        console.error(error);
-    }
-});
-
-=======
         res.redirect('/searchJob');
 
     } catch (error) {
@@ -526,5 +501,7 @@ router.post('/unlikeJob/:jobId', async (req, res) => {
 
   
 >>>>>>> f74948e70e3253f3f6a62286a93bafc519af50a9
+
+  
 
 module.exports = router;
