@@ -1,13 +1,13 @@
 <!DOCTYPE html>
 <html lang="en">
-    <head>
-        <meta charset="UTF-8" />
-        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
-        <title>Liked Jobs</title>
-        <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" />
-        <link rel="stylesheet" type="text/css" href="/css/nav.css" />
-        <link rel="stylesheet" type="text/css" href="/css/footer.css" />
-    </head>
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+    <title>Liked Jobs</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" />
+    <link rel="stylesheet" type="text/css" href="/css/nav.css" />
+    <link rel="stylesheet" type="text/css" href="/css/footer.css" />
+</head>
 <body>
 <%- include('./partials/nav.ejs') %>
 
@@ -16,11 +16,18 @@
     <ul class="list-group">
         <% likedJobs.forEach(function(job, index) { %>
             <li class="list-group-item d-flex justify-content-between align-items-center">
-                <span><strong><%= job.jobTitle %></strong> - <%= job.employerName %></span>
-                <button type="button" class="btn btn-primary btn-sm" data-toggle="modal" data-target="#jobDetailModal<%= index %>">
-                    View
-                </button>
-        
+                <span>
+                    <strong><%= job.jobTitle %></strong> - <%= job.employerId.employerName %>
+                </span>
+                <div>
+                    <a href="/applyJob/<%= job._id %>" class="btn btn-success btn-sm">Apply</a>
+                    <form action="/unlikeJob/<%= job._id %>" method="post" style="display: inline;">
+                        <button type="submit" class="btn btn-secondary btn-sm">Unlike</button>
+                    </form>
+                    <button type="button" class="btn btn-primary btn-sm" data-toggle="modal" data-target="#jobDetailModal<%= index %>">
+                        View
+                    </button>
+                </div>
                 <!-- Job Detail Modal -->
                 <div class="modal fade" id="jobDetailModal<%= index %>" tabindex="-1" role="dialog" aria-labelledby="jobDetailModalLabel<%= index %>" aria-hidden="true">
                     <div class="modal-dialog" role="document">
@@ -33,7 +40,7 @@
                             </div>
                             <div class="modal-body">
                                 <p><strong>Job Title:</strong> <%= job.jobTitle %></p>
-                                <p><strong>Employer:</strong> <%= job.employerName %></p>
+                                <p><strong>Employer:</strong> <%= job.employerId.employerName %></p>
                                 <p><strong>Sector:</strong> <%= job.sector %></p>
                                 <p><strong>Location:</strong> <%= job.city %>, <%= job.province %></p>
                                 <p><strong>Salary:</strong> <%= job.salary %></p>

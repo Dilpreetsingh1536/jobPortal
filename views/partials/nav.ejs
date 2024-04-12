@@ -16,7 +16,7 @@
                     <a href="/moreEducation">Education</a>
                     <a href="/appliedJobs">Applied Jobs</a>
                     <a href="/likedJobs">Liked Jobs</a>
-                    <a href="/userAllMessages">Messages</a>
+                    <a href="/userAllMessages">Admin Messages</a>
                 </div>
             </li>
         <li><a href="/employerPage">Employers</a></li>
@@ -32,7 +32,16 @@
         <li><a href="/adminDashboard">Dashboard</a></li>
         <li><a href="/adminLogout">Logout</a></li>
         <% } else if (employer) { %>
-        <li><a href="/empDashboard">Dashboard</a></li>
+            <li class="dropdown">
+                <a href="/empDashboard" class="account-link">Dashboard & Insights</a>
+                <div class="dropdown-content">
+                    <a href="/empDashboard">Dashboard</a>
+                    <a href="/allApplications">Application</a>
+                    <a href="/adminAllMessages">Admin Messages</a>
+                    <a href="/allJobs">All Jobs</a>
+                    <a href="/empMembership">Membership</a>
+                </div>
+            </li>
         <li><a href="/jobSeekersPage">Job Seekers</a></li>
         <li class="dropdown">
             <a href="#" class="account-link">Company Info</a>

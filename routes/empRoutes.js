@@ -11,6 +11,8 @@ const multer = require('multer');
 
 router.use(express.static(__dirname+ "/public")); 
 
+const stripe = require('stripe')('sk_test_51P3kykCqjFE2iT0kclnF74C7Rwz4QW85PSRx1CLrAKwI1lNfX3jQFr0L0wsSy4aW9YkwBNxEMocu95rn9t5TedlI00bag4Vj1H');
+
 // Code Send
 const sixDigitCode = Math.floor(100000 + Math.random() * 900000);
 
@@ -57,8 +59,16 @@ const checkAdminNotLoggedIn = (req, res, next) => {
     }
 };
 
+const checkLoggedIn = (req, res, next) => {
+    if (req.session.employer) {
+        next();
+    } else {
+        res.redirect('/empLogin');
+    }
+};
+
 //Employer Dashboard
-router.get("/empDashboard", checkUserNotLoggedIn, checkAdminNotLoggedIn, async (req, res) => {
+router.get("/empDashboard", checkUserNotLoggedIn, checkAdminNotLoggedIn, checkLoggedIn, async (req, res) => {
     try {
         const employerData = await employerModel.findById(req.session.employer._id);
         const employerId = req.session.employer;
@@ -77,6 +87,7 @@ router.get("/empDashboard", checkUserNotLoggedIn, checkAdminNotLoggedIn, async (
             employerName: employerData.employerName,
             employerId: employerData.employerId,
             email: employerData.email,
+            membership : employerData.membershipPlan,
         };
 
 
@@ -751,6 +762,162 @@ router.post('/deleteEmpLogo', async (req, res) => {
     }
 });
 
+
+
+router.get("/allJobs", checkUserNotLoggedIn, checkAdminNotLoggedIn, async (req, res) => {
+    try {
+        const page = parseInt(req.query.page) || 1; // Get the current page number from query parameter, default to 1 if not provided
+        const limit = 3; // Number of jobs to display per page
+        const skip = (page - 1) * limit; // Calculate the number of items to skip
+        
+        const employerData = await employerModel.findById(req.session.employer._id);
+        const totalJobs = await jobModel.countDocuments({ employerId: employerData._id });
+        const pageCount = Math.ceil(totalJobs / limit); // Calculate the total number of pages
+        
+        const jobs = await jobModel.find({ employerId: employerData._id })
+                                   .skip(skip) // Skip items based on the current page
+                                   .limit(limit); // Limit the number of items per page
+        
+        res.render("allJobs", { jobs, user: req.session.user, admin: req.session.admin, employer: req.session.employer, pageCount, currentPage: page });
+    } catch (error) {
+        console.error("Error fetching all jobs:", error);
+        req.flash("error", "Internal Server Error");
+        return res.redirect("/empDashboard");
+    }
+});
+
+
+router.get("/allApplications", checkUserNotLoggedIn, checkAdminNotLoggedIn, async (req, res) => {
+    try {
+        const employer = req.session.employer;
+        const user = req.session.user;
+        const admin = req.session.admin;
+
+        const employerData = await employerModel.findById(req.session.employer._id);
+        const jobs = await jobModel.find({ employerId: employerData._id });
+
+        res.render("allApplications", { jobs, user, admin, employer });
+    } catch (error) {
+        console.error(error);
+        req.flash("error", "Internal Server Error");
+        res.redirect("/empDashboard");
+    }
+});
+router.get("/adminAllMessages", checkUserNotLoggedIn, checkAdminNotLoggedIn, async (req, res) => {
+    try {
+        const page = parseInt(req.query.page) || 1;
+        const pageSize = 10;
+        const employerId = req.session.employer._id;
+        
+        const employer = await employerModel.findById(employerId);
+        if (!employer || !employer.messages) {
+            req.flash("info", "No messages available.");
+            return res.redirect("/employerDashboard");
+        }
+        let adminDetails = await adminModel.findOne();
+        const skip = (page - 1) * pageSize; 
+
+        const totalMessages = employer.messages.length;
+        const totalPages = Math.ceil(totalMessages / pageSize);
+
+        const messages = employer.messages
+            .sort((a, b) => b.createdAt - a.createdAt)
+            .slice(skip, skip + pageSize)
+            .map(message => ({
+                ...message.toObject(),
+                adminUniqueId: adminDetails ? adminDetails.adminId : 'Admin not found',
+                createdAtFormatted: message.createdAt.toDateString(),
+            }));
+
+        res.render("adminAllMessages", {
+            messages,
+            currentPage: page,
+            totalPages,
+            user: req.session.user,
+            employer: req.session.employer,
+            admin: req.session.admin
+        });
+    } catch (error) {
+        console.error("Error fetching messages:", error);
+        req.flash("error", "Internal Server Error");
+        res.redirect("/employerDashboard");
+    }
+});
+
+router.get("/empMembership", checkUserNotLoggedIn, checkAdminNotLoggedIn, (req, res) => {
+
+    const currentPlan = req.session.employer.membershipPlan;
+
+    res.render("empMembership", { 
+        user: req.session.user,
+        employer: req.session.employer,
+        admin: req.session.admin,
+        currentPlan: currentPlan, });
+});
+
+router.post('/create-payment-intent', async (req, res) => {
+    const { paymentMethodId, plan } = req.body;
+    let amount;
+
+    switch (plan) {
+        case 'Starter':
+            return res.json({ success: true, message: "Free plan selected, no payment needed." });
+        case 'Pro':
+            amount = 1599;
+            break;
+        case 'Ultimate':
+            amount = 2999;
+            break;
+        default:
+            return res.status(400).send({ error: 'Invalid plan selected.' });
+    }
+
+    try {
+        const paymentIntent = await stripe.paymentIntents.create({
+            amount: amount,
+            currency: 'cad',
+            description: `${plan} Membership Plan Payment`,
+            payment_method: paymentMethodId,
+            automatic_payment_methods: { enabled: true, allow_redirects: 'never' },
+        });
+        
+        res.json({ success: true, paymentIntentId: paymentIntent.id, clientSecret: paymentIntent.client_secret });
+    } catch (error) {
+        res.status(500).send({ error: error.message });
+    }
+});
+
+router.post('/update-membership-plan', async (req, res) => {
+    const employerId = req.session.employer._id;
+    const { plan } = req.body;
+
+    if (!['Starter', 'Pro', 'Ultimate'].includes(plan)) {
+        return res.status(400).json({ error: 'Invalid plan selected.' });
+    }
+
+    try {
+        const updatedEmployer = await employerModel.findByIdAndUpdate(employerId, {
+            $set: { membershipPlan: plan }
+        }, { new: true });
+
+        if (!updatedEmployer) {
+            return res.status(404).json({ error: 'Employer not found.' });
+        }
+
+        req.session.employer.membershipPlan = plan;
+
+        req.session.save(err => {
+            if (err) {
+                console.error("Session save error:", err);
+                return res.status(500).json({ error: 'Failed to update session.' });
+            }
+            res.json({ success: true, message: `Membership plan updated to ${plan}.` });
+        });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: 'Failed to update membership plan.' });
+    }
+});
 
 
 module.exports = router;

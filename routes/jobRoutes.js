@@ -46,21 +46,44 @@ const checkUserNotLoggedIn = (req, res, next) => {
 /*Job Search */
 router.get('/searchJob', async(req, res) => {
     try {
+        const { sector, job, location } = req.query;
         const user = req.session.user;
         const employer = req.session.employer;
         const admin = req.session.admin;
 
+        let filter = { status: 'approved' };
+        if (sector) filter.sector = sector;
+        if (job) filter.jobTitle = new RegExp(job, 'i');
+        if (location) {
+            filter.$or = [
+                { street: new RegExp(location, 'i') },
+                { city: new RegExp(location, 'i') },
+                { province: new RegExp(location, 'i') },
+                { postalCode: new RegExp(location, 'i') }
+            ];
+        }
+
         const uniqueSectors = await jobModel.distinct('sector');
-
         const uniqueCompanies = await employerModel.distinct('employerName');
+        const jobs = await jobModel.find(filter).populate('employerId', 'employerName sector').exec();
 
-        const jobs = await jobModel.find({ status: 'approved' }).populate('employerId', 'employerName sector').exec();
+        for (let job of jobs) {
+            const jobIdAsString = job._id.toString();
+            job.isLikedByCurrentUser = user && user.likedJobs && user.likedJobs.includes(jobIdAsString);
+        }
 
-        res.render("searchJob", { user, employer, admin, jobs, uniqueSectors, uniqueCompanies });
+        res.render("searchJob", {
+            user, 
+            employer, 
+            admin, 
+            jobs, 
+            uniqueSectors, 
+            uniqueCompanies, 
+            selectedSector: sector
+        });
     } catch (error) {
-        console.error(error);
-        req.flash("error", "Internal Server Error");
-        res.redirect("/searchJob");
+        console.error('Error fetching jobs with sector filter:', error);
+        res.status(500).send('Internal Server Error');
     }
 });
 
@@ -75,16 +98,13 @@ router.post('/searchJob', async(req, res) => {
 
         const filter = { status: 'approved' };
 
-        if (job) {
-            filter.jobTitle = new RegExp(job, 'i');
-        }
-
+        if (job) filter.jobTitle = new RegExp(job, 'i');
         if (location) {
             filter.$or = [
                 { street: new RegExp(location, 'i') },
                 { city: new RegExp(location, 'i') },
                 { province: new RegExp(location, 'i') },
-                { postalCode: new RegExp(location, 'i') },
+                { postalCode: new RegExp(location, 'i') }
             ];
         }
 
@@ -124,6 +144,11 @@ router.post('/searchJob', async(req, res) => {
 
         const jobs = await jobModel.find(filter).populate('employerId', 'employerName').exec();
 
+        for (let job of jobs) {
+            const jobIdAsString = job._id.toString();
+            job.isLikedByCurrentUser = user && user.likedJobs.includes(jobIdAsString);
+        }
+
         res.render('searchJob', { user, employer, admin, jobs, uniqueSectors, uniqueCompanies });
     } catch (error) {
         console.error(error);
@@ -131,9 +156,6 @@ router.post('/searchJob', async(req, res) => {
         res.redirect('/searchJob');
     }
 });
-
-
-
 
 /*Job Listing*/
 router.get('/listJob', checkUserNotLoggedIn, checkAdminNotLoggedIn, (req, res) => {
@@ -343,10 +365,10 @@ router.get('/clearJobSession', (req, res) => {
 
 //--------------------------------------------------------------------//
 
-router.get('/applyJob/:jobId', async(req, res) => {
+router.get('/applyJob/:jobId', async (req, res) => {
     try {
         const { jobId } = req.params;
-        const job = await jobModel.findById(jobId).exec();
+        const job = await jobModel.findById(jobId).populate('employerId').exec();
 
         if (!job) {
             return res.status(404).send('Job not found');
@@ -397,29 +419,65 @@ router.post('/submitApplication', upload.fields([{ name: 'resume', maxCount: 1 }
 
 router.post('/likeJob/:jobId', async (req, res) => {
     if (!req.session.user) {
-      return res.status(401).send('User not logged in');
+        return res.status(401).send('User not logged in');
     }
-  
+
     try {
-      const userId = req.session.user._id;
-      const { jobId } = req.params;
-  
-      const user = await userModel.findById(userId);
-  
-      if (!user.likedJobs.includes(jobId)) {
-        user.likedJobs.push(jobId);
-        await user.save();
-        console.log(`User ${userId} liked job ${jobId} successfully`);
-      } else {
-        console.log(`User ${userId} has already liked job ${jobId}.`);
-      }
-  
-      res.redirect('back'); 
+        const userId = req.session.user._id;
+        const { jobId } = req.params;
+
+        const user = await userModel.findById(userId);
+
+        if (!user.likedJobs.includes(jobId)) {
+            user.likedJobs.push(jobId);
+            await user.save();
+            
+            req.session.user.likedJobs = user.likedJobs;
+            
+            console.log(`User ${userId} liked job ${jobId} successfully`);
+        } else {
+            console.log(`User ${userId} has already liked job ${jobId}.`);
+        }
+
+        res.redirect('/searchJob');
+
     } catch (error) {
-      console.error(error);
-      res.status(500).send('Internal Server Error');
+        console.error(error);
+        res.status(500).send('Internal Server Error');
     }
 });
+
+router.post('/unlikeJob/:jobId', async (req, res) => {
+    if (!req.session.user) {
+        return res.status(401).send('User not logged in');
+    }
+
+    try {
+        const userId = req.session.user._id;
+        const { jobId } = req.params;
+
+        const user = await userModel.findById(userId);
+
+        const index = user.likedJobs.indexOf(jobId);
+        if (index > -1) {
+            user.likedJobs.splice(index, 1);
+            await user.save();
+
+            req.session.user.likedJobs = user.likedJobs;
+
+            console.log(`User ${userId} unliked job ${jobId} successfully`);
+        } else {
+            console.log(`Job ${jobId} was not found in the liked jobs of user ${userId}.`);
+        }
+
+        res.redirect('/searchJob');
+
+    } catch (error) {
+        console.error(error);
+        res.status(500).send('Internal Server Error');
+    }
+});
+
   
 
 module.exports = router;

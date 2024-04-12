@@ -1,37 +1,24 @@
 <!DOCTYPE html>
 <html lang="en">
-    <head>
-        <meta charset="UTF-8" />
-        <meta
-            name="viewport"
-            content="width=device-width, initial-scale=1, shrink-to-fit=no"
-        />
-        <title>Employer Dashboard</title>
-        <link
-            rel="stylesheet"
-            href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
-        />
-        <link rel="stylesheet" type="text/css" href="css/nav.css" />
-        <link rel="stylesheet" type="text/css" href="css/footer.css" />
-        <link rel="stylesheet" type="text/css" href="css/main.css" />
-    </head>
-    <%- include('./partials/nav.ejs') %>
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+    <title>Employer Dashboard</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" />
+    <link rel="stylesheet" type="text/css" href="css/nav.css" />
+    <link rel="stylesheet" type="text/css" href="css/footer.css" />
+    <link rel="stylesheet" type="text/css" href="css/main.css" />
+</head>
+<%- include('./partials/nav.ejs') %>
 
     <body style="background-color: #f8f9fa">
         <div class="container mt-5">
             <h1 class="mb-4">Employer Dashboard</h1>
             <div class="row">
                 <div class="col-md-6">
-                    <div
-                        class="card"
-                        style="
-                            border: 1px solid #ccc;
-                            border-radius: 8px;
-                            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-                            padding: 20px;
-                            margin-bottom: 20px;
-                        "
-                    >
+                    <div class="card"
+                        style="border: 1px solid #ccc; border-radius: 8px; box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); padding: 20px; margin-bottom: 20px;">
                         <div class="card-body">
                             <div class="logoContainer">
                                 <% if (employer.logo) { %>
@@ -49,6 +36,7 @@
                                     id="user-logo"
                                 />
                                 <% } %>
+                                <img src="<%= employer.logo %>" alt="User Logo" class="logo" id="user-logo" />
                             </div>
                             <div class="row">
                                 <div class="col-md-4 mb-3">
@@ -131,252 +119,212 @@
                                             </form>
                                         </div>
                                     </div>
+                                    <a href="#" class="btn btn-primary btn-block">
+                                        <i class="fas fa-edit"></i> Edit
+                                    </a>
                                 </div>
                             </div>
-                            <h3
-                                class="card-title"
-                                style="font-size: 24px; font-weight: bold"
-                            >
+                            <h3 class="card-title" style="font-size: 24px; font-weight: bold">
                                 Company: <%= employer.employerName %>
                             </h3>
-                            <h5
-                                class="card-subtitle mb-3 text-muted"
-                                style="font-size: 18px"
-                            >
+                            <h5 class="card-subtitle mb-3 text-muted" style="font-size: 18px">
                                 ID: <%= employer.employerId %>
                             </h5>
-                            <p
-                                class="card-text"
-                                style="font-size: 16px; margin-top: 10px"
-                            >
+                            <h5 class="card-subtitle mb-3 text-muted" style="font-size: 18px">
                                 Email: <%= employer.email %>
                             </p>
-                            <a
-                                href="/edit-emp-details"
-                                class="btn btn-success"
-                                style="margin-top: 20px"
-                                >Edit Details</a
-                            >
-                            <a
-                                href="/empChangePassword"
-                                class="btn btn-info"
-                                style="margin-top: 20px"
-                                >Change Password</a
-                            >
+                            <h5 class="card-subtitle mb-3 text-muted" style="font-size: 18px">
+                                Membership: <%= employer.membership %>
+                            </p>
+                            <a href="/edit-emp-details" class="btn btn-success" style="margin-top: 20px">
+                                <i class="fas fa-pencil-alt"></i> Edit Details
+                            </a>
+                            <a href="/empChangePassword" class="btn btn-info" style="margin-top: 20px">
+                                <i class="fas fa-key"></i> Change Password
+                            </a>
+                            <a href="/empMembership" class="btn btn-warning" style="margin-top: 20px">
+                                <i class="fas fa-edit"></i> Membership
+                            </a>
                         </div>
                     </div>
                 </div>
-                <div class="col-md-6">
-                    <div
-                        class="card"
-                        style="
-                            border: 1px solid #ccc;
-                            border-radius: 8px;
-                            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-                            padding: 20px;
-                            margin-bottom: 20px;
-                        "
-                    >
-                        <div class="card-body">
-                            <h3
-                                class="card-title"
-                                style="font-size: 24px; font-weight: bold"
-                            >
-                                New Applications
-                            </h3>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="row">
-                <div class="col-md-6">
-                    <div
-                        class="card"
-                        style="
-                            border: 1px solid #ccc;
-                            border-radius: 8px;
-                            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-                            padding: 20px;
-                            margin-bottom: 20px;
-                        "
-                    >
-                        <div class="card-body">
-                            <h3
-                                class="card-title"
-                                style="font-size: 24px; font-weight: bold"
-                            >
-                                Posted Jobs
-                            </h3>
+                
 
-                            <% if (error && error.length > 0) { %>
-                            <div class="alert alert-danger" role="alert">
-                                <%= error %>
+
+                <div class="col-md-6">
+                    <div class="card" style="border: 1px solid #ccc; border-radius: 8px; box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); padding: 20px; margin-bottom: 20px;">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <h3 class="card-title" style="font-size: 24px; font-weight: bold">Admin Messages</h3>
+                                <a href="/adminAllMessages" class="btn btn-info"><i class="fa fa-list"></i> View More</a>
                             </div>
-                            <% } %> <% if (success && success.length > 0) { %>
-                            <div class="alert alert-success" role="alert">
-                                <%= success %>
-                            </div>
-                            <% } %>
-
-                            <form action="/setEditJobId" method="post">
-                                <% if (jobs && jobs.length > 0) { %>
-                                <ul class="list-group">
-                                    <% jobs.forEach(job => { %>
-                                    <li class="list-group-item">
-                                        <h5><%= job.jobTitle %></h5>
-                                        <p>
-                                            <strong>Sector:</strong> <%=
-                                            job.sector %>
-                                        </p>
-                                        <p>
-                                            <strong>Salary:</strong> <%=
-                                            job.salary %>
-                                        </p>
-                                        <p>
-                                            <strong>Location:</strong> <%=
-                                            job.street %>, <%= job.city %>, <%=
-                                            job.province %> <%= job.postalCode
-                                            %>
-                                        </p>
-                                        <p>
-                                            <strong>Description:</strong> <%=
-                                            job.description %>
-                                        </p>
-                                        <p>
-                                            <strong>Job Status:</strong> <%=
-                                            job.status %>
-                                        </p>
-                                        <button
-                                            type="submit"
-                                            class="btn btn-warning"
-                                            name="jobId"
-                                            value="<%= job._id %>"
-                                        >
-                                            Edit
-                                        </button>
-
-                                        <a
-                                            href="/setDeleteJobId/<%= job._id %>"
-                                            class="btn btn-danger"
-                                            >Delete</a
-                                        >
-                                    </li>
-                                    <% }); %>
-                                </ul>
-                                <% } else { %>
-                                <p>No jobs posted yet.</p>
-                                <% } %>
-                            </form>
-
-                            <a
-                                href="/listJob"
-                                class="btn btn-success"
-                                style="margin-top: 20px"
-                                >List a Job</a
-                            >
-                        </div>
-                    </div>
-                </div>
-                <div class="col-md-6">
-                    <div
-                        class="card"
-                        style="
-                            border: 1px solid #ccc;
-                            border-radius: 8px;
-                            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-                            padding: 20px;
-                            margin-bottom: 20px;
-                        "
-                    >
-                        <div class="card-body">
-                            <h3
-                                class="card-title"
-                                style="font-size: 24px; font-weight: bold"
-                            >
-                                New Messages
-                            </h3>
                             <% if (messages && messages.length > 0) { %>
-                            <div class="list-group">
-                                <% messages.forEach(function(message) { %>
-                                <div
-                                    class="list-group-item list-group-item-action"
-                                >
-                                    <div class="row">
-                                        <div class="col-12">
-                                            <p class="mb-1">
-                                                <strong>Message:</strong> <%=
-                                                message.message %>
-                                            </p>
+                                <div class="list-group">
+                                    <% messages.forEach(function(message) { %>
+                                        <div class="list-group-item list-group-item-action">
+                                            <div class="row">
+                                                <div class="col-12">
+                                                    <p class="mb-1"><strong><i class="fa fa-envelope"></i> Message:</strong>
+                                                        <%= message.message %>
+                                                    </p>
+                                                </div>
+                                            </div>
+                                            <div class="row align-items-center">
+                                                <!-- <div class="col-md-4">
+                                                    <p class="mb-1"><strong><i class="fa fa-user"></i> From:</strong>
+                                                        <%= message.adminUniqueId %>
+                                                    </p>
+                                                </div> -->
+                                                <div class="col-md-6">
+                                                    <small><strong><i class="fa fa-paper-plane"></i> Sent:</strong>
+                                                        <%= message.createdAt.toDateString() %>
+                                                    </small>
+                                                </div>
+                                                <div class="col-md-6 text-md-right">
+                                                    <form action="/deleteMessageForEmployer/<%= message._id %>" method="POST" style="display: inline;">
+                                                        <button type="submit" class="btn btn-danger btn-sm">
+                                                            <i class="fa fa-trash"></i> Delete
+                                                        </button>
+                                                    </form>
+                                                </div>
+                                            </div>
                                         </div>
-                                    </div>
-                                    <div class="row align-items-center">
-                                        <div class="col-md-4">
-                                            <p class="mb-1">
-                                                <strong>From:</strong> <%=
-                                                message.adminUniqueId %>
-                                            </p>
-                                        </div>
-                                        <div class="col-md-4">
-                                            <small
-                                                ><strong>Sent:</strong> <%=
-                                                message.createdAt.toDateString()
-                                                %></small
-                                            >
-                                        </div>
-                                        <div class="col-md-4 text-md-right">
-                                            <form
-                                                action="/deleteMessageForEmployer/<%= message._id %>"
-                                                method="POST"
-                                                style="display: inline"
-                                            >
-                                                <button
-                                                    type="submit"
-                                                    class="btn btn-danger btn-sm"
-                                                >
-                                                    Delete
-                                                </button>
-                                            </form>
-                                        </div>
-                                    </div>
+                                    <% }); %>
                                 </div>
-                                <% }); %>
-                            </div>
                             <% } else { %>
                             <p>No new messages.</p>
                             <% } %>
-                            <a
-                                href="/userAllMessages"
-                                class="btn btn-info"
-                                style="margin-top: 5px"
-                                >View More</a
-                            >
-                            <h3
-                                class="card-title"
-                                style="font-size: 24px; font-weight: bold"
-                            >
-                                Messages
-                            </h3>
+                            <h3 class="card-title" style="font-size: 24px; font-weight: bold; margin-top: 10px;">Messages</h3>
                             <p class="card-text">
-                                Total Messages:
-                                <span class="badge badge-primary"
-                                    ><%= messageCount %></span
-                                >
+                                Total Messages: <span class="badge badge-primary"><%= messageCount %></span>
                             </p>
-                            <a href="/viewMsg" class="btn btn-primary"
-                                >View Messages</a
-                            >
-                            <a href="/sentMsg" class="btn btn-primary"
-                                >Sent Messages</a
-                            >
+                            <a href="/viewMsg" class="btn btn-primary"><i class="fa fa-eye"></i> View Messages</a>
+                            <a href="/sentMsg" class="btn btn-primary"><i class="fa fa-paper-plane"></i> Sent Messages</a>
                         </div>
                     </div>
                 </div>
+                
+            </div>
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="card"
+                        style="border: 1px solid #ccc; border-radius: 8px; box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); padding: 20px; margin-bottom: 20px;">
+                        <div class="card-body">
+                            <h3 class="card-title" style="font-size: 24px; font-weight: bold">Posted Jobs</h3>
+                            <form action="/setEditJobId" method="post">
+                                <ul class="list-group">
+                                    <% if (jobs && jobs.length> 0) { %>
+                                        <% jobs.slice(0, 3).forEach(function(job, index) { %>
+                                            <li
+                                                class="list-group-item d-flex justify-content-between align-items-center">
+                                                <div>
+                                                    <strong>
+                                                        <%= job.jobTitle %>
+                                                    </strong> -
+                                                    <span
+                                                        class="<%= job.status === 'approved' ? 'text-success' : job.status === 'rejected' ? 'text-danger' : 'text-warning' %>">
+                                                        <%= job.status.charAt(0).toUpperCase() + job.status.slice(1) %>
+                                                    </span>
+                                                </div>
+                                                <div>
+                                                    <button type="button" class="btn btn-primary btn-sm"
+                                                        data-toggle="modal" data-target="#viewJobModal<%= index %>">
+                                                        <i class="fas fa-eye"></i>
+                                                    </button>
+                                                    <button type="submit" class="btn btn-warning btn-sm"
+                                                        formaction="/setEditJobId" name="jobId" value="<%= job._id %>">
+                                                        <i class="fas fa-edit"></i>
+                                                    </button>
+                                                    <a href="/setDeleteJobId/<%= job._id %>"
+                                                        class="btn btn-danger btn-sm">
+                                                        <i class="fas fa-trash-alt"></i>
+                                                    </a>
+                                                </div>
+                                            </li>
+
+
+                                            <div class="modal fade" id="viewJobModal<%= index %>" tabindex="-1"
+                                                role="dialog" aria-labelledby="viewJobModalLabel<%= index %>"
+                                                aria-hidden="true">
+                                                <div class="modal-dialog" role="document">
+                                                    <div class="modal-content">
+                                                        <div class="modal-header">
+                                                            <h5 class="modal-title" id="viewJobModalLabel<%= index %>">
+                                                                Job Details</h5>
+                                                            <button type="button" class="close" data-dismiss="modal"
+                                                                aria-label="Close">
+                                                                <span aria-hidden="true">&times;</span>
+                                                            </button>
+                                                        </div>
+                                                        <div class="modal-body">
+                                                            <p><strong>Job Title:</strong>
+                                                                <%= job.jobTitle %>
+                                                            </p>
+                                                            <p><strong>Posted on:</strong>
+                                                                <%= new Date(parseInt(job._id.toString().substring(0,8),
+                                                                    16)*1000).toDateString() %>
+                                                            </p>
+                                                            <p><strong>Sector:</strong>
+                                                                <%= job.sector %>
+                                                            </p>
+                                                            <p><strong>Description:</strong>
+                                                                <%= job.description %>
+                                                            </p>
+                                                            <p><strong>Location:</strong>
+                                                                <%= job.city %>, <%= job.province %>, <%= job.postalCode
+                                                                            %>
+                                                            </p>
+                                                            <p><strong>Salary:</strong>
+                                                                <%= job.salary %>
+                                                            </p>
+                                                            <p><strong>Status:</strong> <span
+                                                                    class="<%= job.status === 'approved' ? 'text-success' : job.status === 'rejected' ? 'text-danger' : 'text-warning' %>">
+                                                                    <%= job.status.charAt(0).toUpperCase() +
+                                                                        job.status.slice(1) %>
+                                                                </span></p>
+                                                        </div>
+                                                        <div class="modal-footer">
+                                                            <button type="button" class="btn btn-secondary"
+                                                                data-dismiss="modal">Close</button>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <% }); %>
+                                                <% } else { %>
+                                                    <p>No jobs posted yet.</p>
+                                                    <% } %>
+                                </ul>
+                            </form>
+                            <div class="d-flex justify-content-between align-items-center mt-3">
+                                <a href="/allJobs" class="btn btn-info" style="margin-top: 20px"><i class="fa fa-list"></i> View More</a>
+                                <a href="/listJob" class="btn btn-success" style="margin-top: 20px"><i class="fa fa-plus"></i> List a Job</a>
+                                    <span class="ml-2"><i class="fas fa-eye" style="margin-top: 20px"></i> View</span>
+                                    <span class="ml-2"><i class="fas fa-edit" style="margin-top: 20px"></i> Edit</span>
+                                    <span class="ml-2"><i class="fas fa-trash-alt" style="margin-top: 20px"></i> Delete</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-6">
+                    <div class="card"
+                        style="border: 1px solid #ccc; border-radius: 8px; box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); padding: 20px; margin-bottom: 20px;">
+                        <div class="card-body">
+                            <h3 class="card-title" style="font-size: 24px; font-weight: bold">New Applications</h3>
+                            <a href="/allApplications" class="btn btn-info mt-3"><i class="fa fa-list"></i> View More</a>
+                        </div>
+                    </div>
+                </div>
+
             </div>
         </div>
 
         <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
         <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.1/css/all.min.css">
     </body>
     <%- include('./partials/footer.ejs') %>
+
 </html>
