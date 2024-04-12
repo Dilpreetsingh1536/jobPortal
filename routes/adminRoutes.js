@@ -324,7 +324,7 @@ router.post('/sendMessageToUser', async (req, res) => {
     }
 });
 
-  router.post('/sendMessageToEmployer', async (req, res) => {
+router.post('/sendMessageToEmployer', async (req, res) => {
     const { employerId, message } = req.body;
     try {
         await employerModel.findByIdAndUpdate(employerId, {
@@ -337,5 +337,5 @@ router.post('/sendMessageToUser', async (req, res) => {
     }
 });
 
-  
-module.exports = router;
+
+  module.exports = router;

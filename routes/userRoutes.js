@@ -1388,10 +1388,10 @@ router.post('/unlikeJob/:jobId', async (req, res) => {
             user.likedJobs.splice(index, 1);
             await user.save();
             req.session.user.likedJobs = user.likedJobs;
-            res.redirect('/likedJobs');
+            res.redirect('/searchJob');
         } else {
             console.log(`Job ${jobId} was not found in the liked jobs of user ${userId}.`);
-            res.redirect('/likedJobs');
+            res.redirect('/searchJob');
         }
     } catch (error) {
         console.error(error);
