@@ -74,20 +74,20 @@ router.get('/searchJob', async (req, res) => {
             userAppliedJobs = userData.appliedJobs;
         }
 
-        res.render("searchJob", { user, employer, admin, jobs, uniqueSectors, uniqueCompanies, userAppliedJobs });
-        for (let job of jobs) {
+   for (let job of jobs) {
             const jobIdAsString = job._id.toString();
             job.isLikedByCurrentUser = user && user.likedJobs && user.likedJobs.includes(jobIdAsString);
         }
 
         res.render("searchJob", {
-            user, 
-            employer, 
-            admin, 
-            jobs, 
-            uniqueSectors, 
-            uniqueCompanies, 
-            selectedSector: sector
+            user,
+            employer,
+            admin,
+            jobs,
+            uniqueSectors,
+            uniqueCompanies,
+            selectedSector: sector,
+            userAppliedJobs
         });
     } catch (error) {
         console.error('Error fetching jobs with sector filter:', error);
@@ -96,7 +96,7 @@ router.get('/searchJob', async (req, res) => {
 });
 
 
-router.post('/searchJob', async(req, res) => {
+router.post('/searchJob', async (req, res) => {
     const user = req.session.user;
     const employer = req.session.employer;
     const admin = req.session.admin;
@@ -403,6 +403,8 @@ const upload = multer({ storage: storage });
 
 
 router.post('/submitApplication', upload.fields([{ name: 'resume', maxCount: 1 }, { name: 'coverLetter', maxCount: 1 }]), async (req, res) => {
+    let jobId;
+
     try {
         const { jobId } = req.body;
         const resumeFile = req.files['resume'][0];
@@ -452,9 +454,9 @@ router.post('/likeJob/:jobId', async (req, res) => {
         if (!user.likedJobs.includes(jobId)) {
             user.likedJobs.push(jobId);
             await user.save();
-            
+
             req.session.user.likedJobs = user.likedJobs;
-            
+
             console.log(`User ${userId} liked job ${jobId} successfully`);
         } else {
             console.log(`User ${userId} has already liked job ${jobId}.`);
@@ -499,8 +501,8 @@ router.post('/unlikeJob/:jobId', async (req, res) => {
     }
 });
 
-  
 
-  
+
+
 
 module.exports = router;

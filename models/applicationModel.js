@@ -33,6 +33,8 @@ const applicationSchema = new mongoose.Schema({
         type: String,
         required: true
     },
+    decision: { type: String, default: 'In Process' },
+
 });
 
 const applicationModel = mongoose.model('applicationModel', applicationSchema);

@@ -1,11 +1,16 @@
 <!DOCTYPE html>
 <html lang="en">
-
     <head>
         <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+        <meta
+            name="viewport"
+            content="width=device-width, initial-scale=1, shrink-to-fit=no"
+        />
         <title>Job Search</title>
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" />
+        <link
+            rel="stylesheet"
+            href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+        />
         <link rel="stylesheet" type="text/css" href="css/nav.css" />
         <link rel="stylesheet" type="text/css" href="css/footer.css" />
     </head>
@@ -19,15 +24,26 @@
                     <div class="col-md-6">
                         <div class="form-group">
                             <label for="job">Job:</label>
-                            <input type="text" class="form-control" id="job" name="job" placeholder="Enter job"
-                                required />
+                            <input
+                                type="text"
+                                class="form-control"
+                                id="job"
+                                name="job"
+                                placeholder="Enter job"
+                                required
+                            />
                         </div>
                     </div>
                     <div class="col-md-6">
                         <div class="form-group">
                             <label for="location">Location:</label>
-                            <input type="text" class="form-control" id="location" name="location"
-                                placeholder="Street/ City/ Province/ Postal Code" />
+                            <input
+                                type="text"
+                                class="form-control"
+                                id="location"
+                                name="location"
+                                placeholder="Street/ City/ Province/ Postal Code"
+                            />
                         </div>
                     </div>
                     <div class="col-md-12">
@@ -42,7 +58,11 @@
                     <div class="col-md-3">
                         <div class="form-group">
                             <label for="salary">Filter by Salary:</label>
-                            <select class="form-control" id="salary" name="salary">
+                            <select
+                                class="form-control"
+                                id="salary"
+                                name="salary"
+                            >
                                 <option value="">Select Salary Range</option>
                                 <option value="0-50000">$0 - $50,000</option>
                                 <option value="50001-100000">
@@ -57,7 +77,11 @@
                     <div class="col-md-3">
                         <div class="form-group">
                             <label for="sector">Filter by Sector:</label>
-                            <select class="form-control" id="sector" name="sector">
+                            <select
+                                class="form-control"
+                                id="sector"
+                                name="sector"
+                            >
                                 <option value="">Select Sector</option>
                                 <% uniqueSectors.forEach(sector=> { %>
                                 <option value="<%= sector %>">
@@ -70,7 +94,11 @@
                     <div class="col-md-3">
                         <div class="form-group">
                             <label for="company">Filter by Company:</label>
-                            <select class="form-control" id="company" name="company">
+                            <select
+                                class="form-control"
+                                id="company"
+                                name="company"
+                            >
                                 <option value="">Select Company</option>
                                 <% uniqueCompanies.forEach(company=> { %>
                                 <option value="<%= company %>">
@@ -94,16 +122,13 @@
                     <% jobs.forEach(job=> { %>
                     <li class="list-group-item mb-3">
                         <div class="d-flex w-100 justify-content-between">
-                                    <h5 class="mb-1">
-                                        <%= job.jobTitle %>
-                                    </h5>
-                                    <small>
-                                        <%= job.postedDate %>
-                                    </small>
+                            <h5 class="mb-1"><%= job.jobTitle %></h5>
+                            <small> <%= job.postedDate %> </small>
                         </div>
                         <p class="mb-1">
                             <strong>Company:</strong>
-                                    <%= job.employerId ? job.employerId.employerName : 'Unknown Employer' %>
+                            <%= job.employerId ? job.employerId.employerName :
+                            'Unknown Employer' %>
                         </p>
 
                         <p class="mb-1">
@@ -116,31 +141,51 @@
                         </p>
                         <p class="mb-1">
                             <strong>Location:</strong>
-                                    <%= job.street %>, <%= job.city %>, <%= job.province %>
-                                                <%= job.postalCode %>
+                            <%= job.street %>, <%= job.city %>, <%= job.province
+                            %> <%= job.postalCode %>
                         </p>
                         <p class="mb-1">
                             <strong>Description:</strong>
                             <%= job.description %>
                         </p>
-                                <a href="/applyJob/<%= job._id %>" class="btn btn-success">Apply</a>
-                                <% if (user) { %>
-                                    <% if (job.isLikedByCurrentUser) { %>
-                                        <form action="/unlikeJob/<%= job._id %>" method="post" style="display: inline;">
-                                            <button type="submit" class="btn btn-secondary">Unlike</button>
-                                        </form>
-                                    <% } else { %>
-                                        <form action="/likeJob/<%= job._id %>" method="post" style="display: inline;">
-                                            <button type="submit" class="btn btn-primary">Like</button>
-                                        </form>
-                                    <% } %>
-                                <% } %>
-                            </li>
-                            <% }); %>
-                    </ul>
-                    <% } else { %>
-                        <p class="text-muted text-center">No jobs posted yet.</p>
-                        <% } %>
+                        <% if (user && !userAppliedJobs.includes(job._id)) { %>
+                        <a
+                            href="/applyJob/<%= job._id %>"
+                            class="btn btn-success"
+                            >Apply</a
+                        >
+                        <% } else { %>
+                        <button class="btn btn-secondary" disabled>
+                            Applied
+                        </button>
+                        <% } %> <% if (user) { %> <% if
+                        (job.isLikedByCurrentUser) { %>
+                        <form
+                            action="/unlikeJob/<%= job._id %>"
+                            method="post"
+                            style="display: inline"
+                        >
+                            <button type="submit" class="btn btn-secondary">
+                                Unlike
+                            </button>
+                        </form>
+                        <% } else { %>
+                        <form
+                            action="/likeJob/<%= job._id %>"
+                            method="post"
+                            style="display: inline"
+                        >
+                            <button type="submit" class="btn btn-primary">
+                                Like
+                            </button>
+                        </form>
+                        <% } %> <% } %>
+                    </li>
+                    <% }); %>
+                </ul>
+                <% } else { %>
+                <p class="text-muted text-center">No jobs posted yet.</p>
+                <% } %>
             </div>
         </div>
 
@@ -149,5 +194,4 @@
         <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
     </body>
     <%- include('./partials/footer.ejs') %>
-
 </html>

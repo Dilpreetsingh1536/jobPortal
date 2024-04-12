@@ -1360,22 +1360,22 @@ router.get("/likedJobs", checkEmployerNotLoggedIn, checkAdminNotLoggedIn, checkL
 });
 
 
-router.get('/applyJob/:jobId', async (req, res) => {
-    if (!req.session.user) {
-        return res.redirect('/login');
-    }
-    try {
-        const { jobId } = req.params;
-        const job = await jobModel.findById(jobId).populate('employerId').exec();
-        if (!job) {
-            return res.status(404).send('Job not found');
-        }
-        res.render('job/applyJob', { job, user: req.session.user });
-    } catch (err) {
-        console.error(err);
-        res.status(500).send('Internal Server Error');
-    }
-});
+// router.get('/applyJob/:jobId', async (req, res) => {
+//     if (!req.session.user) {
+//         return res.redirect('/login');
+//     }
+//     try {
+//         const { jobId } = req.params;
+//         const job = await jobModel.findById(jobId).populate('employerId').exec();
+//         if (!job) {
+//             return res.status(404).send('Job not found');
+//         }
+//         res.render('job/applyJob', { job, user: req.session.user });
+//     } catch (err) {
+//         console.error(err);
+//         res.status(500).send('Internal Server Error');
+//     }
+// });
 
 router.post('/unlikeJob/:jobId', async (req, res) => {
     if (!req.session.user) {
