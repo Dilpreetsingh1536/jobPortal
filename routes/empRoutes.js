@@ -133,7 +133,7 @@ router.post('/deleteMessageForEmployer/:messageId', async (req, res) => {
 
 
 // Edit Emp Details On Dashboard
-router.get("/edit-emp-details", checkUserNotLoggedIn, checkAdminNotLoggedIn, async (req, res) => {
+router.get("/edit-emp-details", checkUserNotLoggedIn, checkAdminNotLoggedIn, checkLoggedIn, async (req, res) => {
     try {
         const employerData = await employerModel.findById(req.session.employer._id);
         const employer = {
@@ -178,7 +178,7 @@ router.post("/update-emp-details", checkUserNotLoggedIn, checkAdminNotLoggedIn, 
 });
 
 
-router.get("/empchangepassword", (req, res) => {
+router.get("/empchangepassword", checkUserNotLoggedIn, checkAdminNotLoggedIn, checkLoggedIn, (req, res) => {
     const user = req.session.user;
     const employer = req.session.employer;
     const admin = req.session.admin;
@@ -450,8 +450,18 @@ router.post("/emp-verify-code", checkUserNotLoggedIn, checkAdminNotLoggedIn, asy
 //---------------------------------------------------------------------//
 
 //Emp Password Update
+function checkEmployerVerification(req, res, next) {
+    // Check if verification flag is set in the session
+    if (req.session.isEmployerVerified) {
+        next();
+    } else {
+        // Redirect them to the verification code entry page if the flag isn't set
+        req.flash("error", "Please verify your code first.");
+        res.redirect("/emp-enter-code");
+    }
+}
 
-router.get("/emp-reset-password", checkUserNotLoggedIn, checkAdminNotLoggedIn, (req, res) => {
+router.get("/emp-reset-password", checkUserNotLoggedIn, checkAdminNotLoggedIn, checkEmployerVerification, (req, res) => {
     const savedEmail = req.cookies['emp_forgot_email'] || "";
     const user = req.session.user;
     const employer = req.session.employer;
@@ -494,7 +504,7 @@ router.post("/emp-update-password", checkUserNotLoggedIn, checkAdminNotLoggedIn,
 //------------------------------------------------------------//
 
 //Search Job Seekers 
-router.get('/jobSeekersPage', checkAdminNotLoggedIn, checkUserNotLoggedIn, async (req, res) => {
+router.get('/jobSeekersPage', checkAdminNotLoggedIn, checkUserNotLoggedIn, checkLoggedIn, async (req, res) => {
     try {
         const users = await userModel.find({}, 'name email logo');
 
@@ -519,7 +529,7 @@ router.post('/viewUsrProfile', (req, res) => {
 });
 
 // Render user profile page
-router.get('/jobSeekersProfile', checkAdminNotLoggedIn, checkUserNotLoggedIn, async (req, res) => {
+router.get('/jobSeekersProfile', checkAdminNotLoggedIn, checkUserNotLoggedIn,checkLoggedIn, async (req, res) => {
     try {
         const userId = req.session.userProfileId;
         const usr = await userModel.findById(userId);
@@ -544,7 +554,7 @@ router.get('/jobSeekersProfile', checkAdminNotLoggedIn, checkUserNotLoggedIn, as
 
 // Message send to job seeker
 
-router.get('/jobSeekerMsg', checkAdminNotLoggedIn, checkUserNotLoggedIn, async (req, res) => {
+router.get('/jobSeekerMsg', checkAdminNotLoggedIn, checkUserNotLoggedIn, checkLoggedIn, async (req, res) => {
     try {
         const userId = req.session.userProfileId;
         const { success, error } = req.query;
@@ -590,7 +600,7 @@ router.post('/sendEmpMessage', async (req, res) => {
 });
 
 //View Message
-router.get('/viewMsg', checkAdminNotLoggedIn, checkUserNotLoggedIn, async (req, res) => {
+router.get('/viewMsg', checkAdminNotLoggedIn, checkUserNotLoggedIn, checkLoggedIn, async (req, res) => {
     try {
         const senderName = req.params.senderName;
         const employerId = req.session.employer;
@@ -638,7 +648,7 @@ router.post('/replyMessage', async (req, res) => {
 
 
 //Sent Messages
-router.get('/sentMsg', checkAdminNotLoggedIn, checkUserNotLoggedIn, async (req, res) => {
+router.get('/sentMsg', checkAdminNotLoggedIn, checkUserNotLoggedIn, checkLoggedIn, async (req, res) => {
     try {
         const employerId = req.session.employer;
 
@@ -708,19 +718,19 @@ router.post('/deleteSentMsg/:id', async (req, res) => {
 });
 
 
-router.get("/allJobs", checkUserNotLoggedIn, checkAdminNotLoggedIn, async (req, res) => {
+router.get("/allJobs", checkUserNotLoggedIn, checkAdminNotLoggedIn, checkLoggedIn, async (req, res) => {
     try {
-        const page = parseInt(req.query.page) || 1; // Get the current page number from query parameter, default to 1 if not provided
-        const limit = 3; // Number of jobs to display per page
-        const skip = (page - 1) * limit; // Calculate the number of items to skip
+        const page = parseInt(req.query.page) || 1;
+        const limit = 3; 
+        const skip = (page - 1) * limit;
         
         const employerData = await employerModel.findById(req.session.employer._id);
         const totalJobs = await jobModel.countDocuments({ employerId: employerData._id });
-        const pageCount = Math.ceil(totalJobs / limit); // Calculate the total number of pages
+        const pageCount = Math.ceil(totalJobs / limit);
         
         const jobs = await jobModel.find({ employerId: employerData._id })
-                                   .skip(skip) // Skip items based on the current page
-                                   .limit(limit); // Limit the number of items per page
+                                   .skip(skip)
+                                   .limit(limit);
         
         res.render("allJobs", { jobs, user: req.session.user, admin: req.session.admin, employer: req.session.employer, pageCount, currentPage: page });
     } catch (error) {
@@ -731,7 +741,7 @@ router.get("/allJobs", checkUserNotLoggedIn, checkAdminNotLoggedIn, async (req, 
 });
 
 
-router.get("/allApplications", checkUserNotLoggedIn, checkAdminNotLoggedIn, async (req, res) => {
+router.get("/allApplications", checkUserNotLoggedIn, checkAdminNotLoggedIn, checkLoggedIn, async (req, res) => {
     try {
         const employer = req.session.employer;
         const user = req.session.user;
@@ -747,7 +757,7 @@ router.get("/allApplications", checkUserNotLoggedIn, checkAdminNotLoggedIn, asyn
         res.redirect("/empDashboard");
     }
 });
-router.get("/adminAllMessages", checkUserNotLoggedIn, checkAdminNotLoggedIn, async (req, res) => {
+router.get("/adminAllMessages", checkUserNotLoggedIn, checkAdminNotLoggedIn, checkLoggedIn, async (req, res) => {
     try {
         const page = parseInt(req.query.page) || 1;
         const pageSize = 10;
@@ -788,7 +798,7 @@ router.get("/adminAllMessages", checkUserNotLoggedIn, checkAdminNotLoggedIn, asy
     }
 });
 
-router.get("/empMembership", checkUserNotLoggedIn, checkAdminNotLoggedIn, (req, res) => {
+router.get("/empMembership", checkUserNotLoggedIn, checkAdminNotLoggedIn, checkLoggedIn, (req, res) => {
 
     const currentPlan = req.session.employer.membershipPlan;
 

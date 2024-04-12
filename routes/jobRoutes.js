@@ -419,7 +419,7 @@ router.post('/submitApplication', upload.fields([{ name: 'resume', maxCount: 1 }
 
 router.post('/likeJob/:jobId', async (req, res) => {
     if (!req.session.user) {
-        return res.status(401).send('User not logged in');
+        return res.redirect('/login');
     }
 
     try {
@@ -449,7 +449,7 @@ router.post('/likeJob/:jobId', async (req, res) => {
 
 router.post('/unlikeJob/:jobId', async (req, res) => {
     if (!req.session.user) {
-        return res.status(401).send('User not logged in');
+        return res.redirect('/login');
     }
 
     try {
