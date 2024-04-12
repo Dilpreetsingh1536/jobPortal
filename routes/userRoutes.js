@@ -66,6 +66,14 @@ const checkAdminNotLoggedIn = (req, res, next) => {
     }
 };
 
+const checkLoggedIn = (req, res, next) => {
+    if (req.session.user) {
+        next();
+    } else {
+        res.redirect('/login');
+    }
+};
+
 // If Education not in session route Restricted
 const checkEducationSession = (req, res, next) => {
     if (req.session.editEducationId) {
@@ -85,9 +93,13 @@ const checkExperienceSession = (req, res, next) => {
 };
 
 // User Dashboard
-router.get("/userDashboard", checkEmployerNotLoggedIn, checkAdminNotLoggedIn, async (req, res) => {
+router.get("/userDashboard", checkEmployerNotLoggedIn, checkAdminNotLoggedIn, checkLoggedIn, async(req, res) => {
     try {
         const userData = await userModel.findById(req.session.user._id);
+        const userId = req.session.user;
+
+        const employer = req.session.employer;
+        const admin = req.session.admin;
 
         const likedJobs = [];
         for (const jobId of userData.likedJobs) {
@@ -104,12 +116,10 @@ router.get("/userDashboard", checkEmployerNotLoggedIn, checkAdminNotLoggedIn, as
                 });
             }
         }
+
+
+    
         let adminDetails = await adminModel.findOne();
-        const employer = req.session.employer;
-        const admin = req.session.admin;
-
-        const userId = req.session.user;
-
         const messageCount = await messageModel.countDocuments({ recipientId: userId });
 
         const sortedMessages = userData.messages && Array.isArray(userData.messages) ? userData.messages
@@ -151,14 +161,12 @@ router.get("/userDashboard", checkEmployerNotLoggedIn, checkAdminNotLoggedIn, as
             sortedEducations,
             likedJobs,
             messages: sortedMessages,
-            admin: req.session.admin,
-            employer: req.session.employer,
-            messageCount,
-
+            admin,
+            employer,
+            messageCount
         });
     } catch (error) {
         console.error("Error fetching user dashboard:", error);
-        req.flash("error", "Internal Server Error");
         res.redirect("/userDashboard");
     }
 });
@@ -184,7 +192,7 @@ router.post('/deleteMessage/:messageId', async (req, res) => {
 });
 
 // Edit User Details On Dashboard
-router.get("/edit-user-details", checkEmployerNotLoggedIn, checkAdminNotLoggedIn, async (req, res) => {
+router.get("/edit-user-details", checkEmployerNotLoggedIn, checkAdminNotLoggedIn, checkLoggedIn, async(req, res) => {
     try {
         const userData = await userModel.findById(req.session.user._id);
         const user = {
@@ -225,7 +233,7 @@ router.post("/update-user-details", checkEmployerNotLoggedIn, checkAdminNotLogge
     }
 });
 
-router.get("/userchangepassword", (req, res) => {
+router.get("/userchangepassword",checkEmployerNotLoggedIn, checkAdminNotLoggedIn, checkLoggedIn, (req, res) => {
     const user = req.session.user;
     const employer = req.session.employer;
     const admin = req.session.admin;
@@ -464,7 +472,18 @@ router.post("/verify-code", checkEmployerNotLoggedIn, checkAdminNotLoggedIn, asy
 //----------------------------------------------------------------------------------//
 
 //User Password Update
-router.get("/reset-password", checkEmployerNotLoggedIn, checkAdminNotLoggedIn, (req, res) => {
+function checkOTPVerification(req, res, next) {
+    // Check if OTP verification has been completed
+    if (req.session.isOTPVerified) {
+        next();
+    } else {
+        req.flash("error", "Please verify your OTP first.");
+        res.redirect("/enter-code");
+    }
+}
+
+
+router.get("/reset-password", checkEmployerNotLoggedIn, checkAdminNotLoggedIn, checkOTPVerification, (req, res) => {
     const savedEmail = req.cookies['user_forgot_email'] || "";
     const user = req.session.user;
     const admin = req.session.admin;
@@ -499,7 +518,7 @@ router.post("/update-password", checkEmployerNotLoggedIn, checkAdminNotLoggedIn,
 
 // Add User Education
 
-router.get('/add-education-form', checkEmployerNotLoggedIn, checkAdminNotLoggedIn, (req, res) => {
+router.get('/add-education-form', checkEmployerNotLoggedIn, checkAdminNotLoggedIn, checkLoggedIn, (req, res) => {
     const { success, error } = req.query;
     const user = req.session.user;
     const employer = req.session.employer;
@@ -574,7 +593,7 @@ router.post('/add-education', checkEmployerNotLoggedIn, checkAdminNotLoggedIn, a
 
 // Add experience
 
-router.get('/experience-form', checkEmployerNotLoggedIn, checkAdminNotLoggedIn, (req, res) => {
+router.get('/experience-form', checkEmployerNotLoggedIn, checkAdminNotLoggedIn, checkLoggedIn, (req, res) => {
     const { success, error } = req.query;
     const user = req.session.user;
     const employer = req.session.employer;
@@ -650,7 +669,7 @@ router.post("/add-experience", checkEmployerNotLoggedIn, checkAdminNotLoggedIn, 
 
 //Edit Education
 
-router.get('/editEducation', checkEmployerNotLoggedIn, checkAdminNotLoggedIn, async (req, res) => {
+router.get('/editEducation', checkEmployerNotLoggedIn, checkAdminNotLoggedIn, checkLoggedIn, async(req, res) => {
     try {
         const educationId = req.query.educationId;
         req.session.editEducationId = educationId;
@@ -1008,7 +1027,7 @@ router.post('/contact', async (req, res) => {
 });
 
 //Search employer 
-router.get('/employerPage', checkAdminNotLoggedIn, checkEmployerNotLoggedIn, async (req, res) => {
+router.get('/employerPage', checkAdminNotLoggedIn, checkEmployerNotLoggedIn, checkLoggedIn, async (req, res) => {
     try {
         const employers = await employerModel.find({}, 'employerName registrationNumber logo');
 
@@ -1060,7 +1079,7 @@ router.get('/employerProfile', checkAdminNotLoggedIn, checkEmployerNotLoggedIn, 
 
 
 // Message send to employer
-router.get('/empMessage', checkAdminNotLoggedIn, checkEmployerNotLoggedIn, async (req, res) => {
+router.get('/empMessage', checkAdminNotLoggedIn, checkEmployerNotLoggedIn, checkLoggedIn, async (req, res) => {
     try {
         const employerId = req.session.employerId;
         const { success, error } = req.query;
@@ -1104,7 +1123,7 @@ router.post('/sendMessage', async (req, res) => {
 });
 
 //View Message
-router.get('/viewMessage', checkAdminNotLoggedIn, checkEmployerNotLoggedIn, async (req, res) => {
+router.get('/viewMessage', checkAdminNotLoggedIn, checkEmployerNotLoggedIn, checkLoggedIn, async (req, res) => {
     try {
         const userId = req.session.user;
 
@@ -1149,7 +1168,7 @@ router.post('/rplyMessage', async (req, res) => {
 
 
 //Sent Messages
-router.get('/sentMessage', checkAdminNotLoggedIn, checkEmployerNotLoggedIn, async (req, res) => {
+router.get('/sentMessage', checkAdminNotLoggedIn, checkEmployerNotLoggedIn, checkLoggedIn, async (req, res) => {
     try {
         const userId = req.session.user;
 
@@ -1202,7 +1221,7 @@ router.post('/deleteSentMessage/:id', async (req, res) => {
 
 
 
-router.get("/userAllMessages", checkEmployerNotLoggedIn, checkAdminNotLoggedIn, async (req, res) => {
+  router.get("/userAllMessages",checkEmployerNotLoggedIn, checkAdminNotLoggedIn, checkLoggedIn, async (req, res) => {
     try {
         const page = parseInt(req.query.page) || 1;
         const pageSize = 10;
@@ -1243,7 +1262,7 @@ router.get("/userAllMessages", checkEmployerNotLoggedIn, checkAdminNotLoggedIn, 
     }
 });
 
-router.get("/moreExperience", checkEmployerNotLoggedIn, checkAdminNotLoggedIn, async (req, res) => {
+router.get("/moreExperience",checkEmployerNotLoggedIn, checkAdminNotLoggedIn, checkLoggedIn, async (req, res) => {
     try {
         const user = await userModel.findById(req.session.user._id);
         if (!user || !user.experience) {
@@ -1263,7 +1282,7 @@ router.get("/moreExperience", checkEmployerNotLoggedIn, checkAdminNotLoggedIn, a
     }
 });
 
-router.get("/moreEducation", checkEmployerNotLoggedIn, checkAdminNotLoggedIn, async (req, res) => {
+router.get("/moreEducation",checkEmployerNotLoggedIn, checkAdminNotLoggedIn, checkLoggedIn, async (req, res) => {
     try {
         const user = await userModel.findById(req.session.user._id);
         if (!user || !user.education) {
@@ -1284,7 +1303,7 @@ router.get("/moreEducation", checkEmployerNotLoggedIn, checkAdminNotLoggedIn, as
 });
 
 
-router.get("/appliedJobs", checkEmployerNotLoggedIn, checkAdminNotLoggedIn, async (req, res) => {
+router.get("/appliedJobs", checkEmployerNotLoggedIn, checkAdminNotLoggedIn, checkLoggedIn, async (req, res) => {
     try {
         const appliedJobs = [];
         if (appliedJobs.length === 0) {
@@ -1303,10 +1322,10 @@ router.get("/appliedJobs", checkEmployerNotLoggedIn, checkAdminNotLoggedIn, asyn
     }
 });
 
-router.get("/likedJobs", checkEmployerNotLoggedIn, checkAdminNotLoggedIn, async (req, res) => {
+router.get("/likedJobs", checkEmployerNotLoggedIn, checkAdminNotLoggedIn, checkLoggedIn, async (req, res) => {
     try {
         const page = parseInt(req.query.page) || 1;
-        const limit = 10; // Number of liked jobs per page
+        const limit = 10;
         const skip = (page - 1) * limit;
 
         const user = await userModel.findById(req.session.user._id);
@@ -1316,29 +1335,19 @@ router.get("/likedJobs", checkEmployerNotLoggedIn, checkAdminNotLoggedIn, async 
             return res.redirect("/login");
         }
 
-        const likedJobsIds = user.likedJobs.slice(skip, skip + limit); // Get slice of likedJobs for current page
+        const likedJobsIds = user.likedJobs.slice(skip, skip + limit);
 
-        // Fetch detailed job information for the slice
         const likedJobs = await Promise.all(
             likedJobsIds.map(async (jobId) => {
-                const job = await jobModel.findById(jobId).populate('employerId', 'employerName').exec();
-                return job ? {
-                    jobTitle: job.jobTitle,
-                    employerName: job.employerId.employerName,
-                    sector: job.sector,
-                    city: job.city,
-                    province: job.province,
-                    salary: job.salary,
-                    street: job.street
-                } : null;
+                return await jobModel.findById(jobId).populate('employerId', 'employerName').exec();
             })
         );
 
         const totalLikedJobs = user.likedJobs.length;
         const totalPages = Math.ceil(totalLikedJobs / limit);
 
-        res.render("likedJobs", { // Make sure you have a likedJobs.ejs file in your views
-            likedJobs: likedJobs.filter(job => job !== null), // Filter out any nulls in case a job wasn't found
+        res.render("likedJobs", {
+            likedJobs: likedJobs.filter(job => job !== null),
             currentPage: page,
             totalPages: totalPages,
             user: req.session.user
@@ -1350,15 +1359,45 @@ router.get("/likedJobs", checkEmployerNotLoggedIn, checkAdminNotLoggedIn, async 
     }
 });
 
-//------------------------//
 
-// Route handler for rendering user dashboard
-router.get('/dashboard', async (req, res) => {
+router.get('/applyJob/:jobId', async (req, res) => {
+    if (!req.session.user) {
+        return res.redirect('/login');
+    }
     try {
-        const appliedJobs = await Application.find({ userId: req.user.id });
-        res.render('userDashboard', { appliedModel: appliedModel });
+        const { jobId } = req.params;
+        const job = await jobModel.findById(jobId).populate('employerId').exec();
+        if (!job) {
+            return res.status(404).send('Job not found');
+        }
+        res.render('job/applyJob', { job, user: req.session.user });
+    } catch (err) {
+        console.error(err);
+        res.status(500).send('Internal Server Error');
+    }
+});
+
+router.post('/unlikeJob/:jobId', async (req, res) => {
+    if (!req.session.user) {
+        return res.redirect('/login');
+    }
+    try {
+        const userId = req.session.user._id;
+        const { jobId } = req.params;
+        const user = await userModel.findById(userId);
+        const index = user.likedJobs.indexOf(jobId);
+        if (index > -1) {
+            user.likedJobs.splice(index, 1);
+            await user.save();
+            req.session.user.likedJobs = user.likedJobs;
+            res.redirect('/likedJobs');
+        } else {
+            console.log(`Job ${jobId} was not found in the liked jobs of user ${userId}.`);
+            res.redirect('/likedJobs');
+        }
     } catch (error) {
-        res.status(500).send('Error fetching dashboard data.');
+        console.error(error);
+        res.status(500).send('Internal Server Error');
     }
 });
 

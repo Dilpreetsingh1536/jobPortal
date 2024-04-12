@@ -23,18 +23,29 @@
                     <div class="card">
                         <div class="card-body">
                             <h5 class="card-title">Job Seeker Profile</h5>
+
+                            <% if (usr.logo) { %>
                             <img
-                                src="<%= usr.logo %>"
-                                class="card-img-top logo"
+                                src=" ../images/<%= usr.logo %>"
                                 alt="User Logo"
+                                class="card-img-top logo"
                             />
+                            <% } else { %>
+                            <img
+                                src="images/profile_logo.png"
+                                alt="User Logo"
+                                class="card-img-top logo"
+                            />
+                            <% } %>
                             <p class="card-text">
                                 <strong>Name:</strong> <%= usr.name %>
                             </p>
                             <p class="card-text">
                                 <strong>Email:</strong> <%= usr.email %>
                             </p>
-                            <a href="/jobSeekerMsg" class="btn btn-primary mt-3">Message</a>
+                            <a href="/jobSeekerMsg" class="btn btn-primary mt-3"
+                                >Message</a
+                            >
                         </div>
                     </div>
                 </div>

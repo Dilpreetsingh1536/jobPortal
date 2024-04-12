@@ -126,7 +126,11 @@ const userSchema = new mongoose.Schema({
   }],
   resume: {
     type: String
-  }
+  },
+  appliedJobs: [{
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'applicationModel'
+  }],
 });
 
 userSchema.statics.findById = async function (userId) {

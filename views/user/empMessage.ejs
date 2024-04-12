@@ -49,11 +49,22 @@
             <p class="error-message"><%= error %></p>
             <% } %>
             <div class="employer-info">
+                <% if (emp.logo ) { %>
+
                 <img
-                    src="<%= emp.logo %>"
+                    src="../images/<%= emp.logo %>"
                     class="employer-logo"
                     alt="Employer Logo"
                 />
+                <% } else { %>
+
+                <img
+                    src="images/profile_logo.png"
+                    class="employer-logo"
+                    alt="Employer Logo"
+                />
+
+                <% } %>
                 <div class="employer-name"><%= emp.employerName %></div>
             </div>
 

@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+    <title>Membership Plans</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" />
+    <link rel="stylesheet" type="text/css" href="css/nav.css" />
+    <link rel="stylesheet" type="text/css" href="css/footer.css" />
+    <link rel="stylesheet" type="text/css" href="css/main.css" />
+</head>
+
+<body>
+    <%- include('./partials/nav.ejs') %>
+
+        <div class="container mt-5">
+            <h1 class="mb-4">Explore Our Membership Plans</h1>
+
+            <div class="row justify-content-between align-items-center">
+                <!-- Display Current Membership Plan -->
+                <div class="col">
+                    <div class="alert alert-info" role="alert">
+                        Your Current Plan: <strong>
+                            <%= currentPlan %>
+                        </strong>
+                    </div>
+                </div>
+
+                <!-- Conditionally Display End Membership Button -->
+                <% if (['Pro', 'Ultimate' ].includes(currentPlan)) { %>
+                    <div class="col-auto">
+                        <button type="button" class="btn btn-lg btn-block btn-danger end-membership">End
+                            Membership</button>
+                    </div>
+                    <% } %>
+            </div>
+
+            <div class="row">
+                <% ['Starter', 'Pro' , 'Ultimate' ].forEach(function(plan) { %>
+                    <div class="col-md-4">
+                        <div class="card membership-plan-card mb-4 shadow">
+                            <div class="card-header">
+                                <h4 class="my-0 font-weight-normal">
+                                    <%= plan %> Plan
+                                </h4>
+                                <!-- Display checkmark for current plan -->
+                                <% if (plan===currentPlan) { %>
+                                    <span class="badge badge-success">Current Plan</span>
+                                    <% } %>
+                            </div>
+                            <div class="card-body">
+                                <h1 class="card-title pricing-card-title">$<%= plan==='Starter' ? 0 : plan==='Pro' ? 15.99 : 29.99 %><small class="text-muted">/ mo</small></h1>
+                                <ul class="list-unstyled mt-3 mb-4">
+                                    <li><i class="fas fa-check"></i> <%= plan==='Starter' ? "Post up to 1 job" : plan==='Pro' ? "Post up to 10 jobs" : "Unlimited job postings" %></li>
+                                    <li><i class="fas fa-check"></i> <%= plan==='Starter' ? "Basic access to candidate profiles" : plan==='Pro' ? "Advanced access to candidate profiles" : "Full access to candidate profiles with direct messaging" %></li>
+                                    <li><i class="fas fa-check"></i> Priority customer support</li>
+                                    <li><i class="fas fa-check"></i> <%= plan==='Starter' ? "Limited analytics on job postings" : plan==='Pro' ? "Advanced analytics on job postings" : "Comprehensive analytics and insights on job postings and profile views" %></li>
+                                </ul>
+                                <% if(plan !== 'Starter') { %>
+                                    <button type="button" class="btn btn-lg btn-block btn-primary select-plan" data-plan="<%= plan %>">Choose Plan</button>
+                                <% } %>
+                            </div>
+                            
+                            
+                        </div>
+                    </div>
+                    <% }); %>
+            </div>
+        </div>
+
+
+
+        <div class="modal fade" id="paymentModal" tabindex="-1" role="dialog" aria-labelledby="paymentModalLabel"
+            aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="paymentModalLabel">Secure Payment</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <div id="plan-details" class="mb-3"></div>
+                        <form id="payment-form">
+                            <div id="card-element" class="form-control"></div>
+                            <div id="card-errors" class="alert alert-danger mt-2" role="alert" style="display: none;">
+                            </div>
+                        </form>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                        <button type="submit" class="btn btn-primary" id="submit-payment">Confirm Payment</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <%- include('./partials/footer.ejs') %>
+
+            <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
+            <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
+            <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+            <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" rel="stylesheet">
+
+            <script src="https://js.stripe.com/v3/"></script>
+
+
+            <script>
+                var stripe = Stripe('pk_test_51P3kykCqjFE2iT0kefFlawJZu417FKvmuTFdFZwYilB2C9C9MIPWWbyUDDKPoMQ5abc7XzD3h8gAXMEdLSNftNiF00Jj3O9gL2');
+                var elements = stripe.elements();
+                var card = elements.create('card', { style: { base: { fontSize: '16px' } } });
+                card.mount('#card-element');
+
+                var selectedPlan = null;
+
+                card.on('change', function (event) {
+                    var displayError = document.getElementById('card-errors');
+                    if (event.error) {
+                        displayError.textContent = event.error.message;
+                        displayError.style.display = 'block';
+                    } else {
+                        displayError.textContent = '';
+                        displayError.style.display = 'none';
+                    }
+                });
+
+                document.querySelectorAll('.select-plan').forEach(function (button) {
+                    button.addEventListener('click', function () {
+                        selectedPlan = this.getAttribute('data-plan');
+                        document.getElementById('plan-details').innerHTML = `Selected Plan: <strong>${selectedPlan}</strong>`;
+                        if (selectedPlan !== 'Starter') {
+                            $('#paymentModal').modal('show');
+                        } else {
+                            alert('Starter plan selected. No payment needed.');
+                        }
+                    });
+                });
+
+                document.getElementById('submit-payment').addEventListener('click', function (ev) {
+                    ev.preventDefault();
+                    this.disabled = true;
+
+                    var displayError = document.getElementById('card-errors');
+                    displayError.className = 'alert alert-danger mt-2';
+                    displayError.style.display = 'none';
+
+                    if (selectedPlan === 'Starter') {
+                        alert('Starter plan selected. No payment needed.');
+                        this.disabled = false;
+                        return;
+                    }
+
+                    stripe.createPaymentMethod({
+                        type: 'card',
+                        card: card,
+                    }).then(function (result) {
+                        if (result.error) {
+                            displayError.textContent = result.error.message;
+                            displayError.style.display = 'block';
+                            document.getElementById('submit-payment').disabled = false;
+                        } else {
+                            fetch('/create-payment-intent', {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify({
+                                    paymentMethodId: result.paymentMethod.id,
+                                    plan: selectedPlan
+                                }),
+                            })
+                                .then(response => response.json())
+                                .then(data => {
+                                    if (data.error) {
+                                        throw new Error(data.error);
+                                    } else if (data.clientSecret) {
+                                        return stripe.confirmCardPayment(data.clientSecret, {
+                                            payment_method: result.paymentMethod.id,
+                                        });
+                                    } else {
+                                        throw new Error("Unexpected response data");
+                                    }
+                                })
+                                .then(result => {
+                                    if (result && result.paymentIntent && result.paymentIntent.status === 'succeeded') {
+                                        updateEmployerMembership(selectedPlan);
+                                    } else {
+                                        displayError.textContent = "Payment was unsuccessful. Please check details again.";
+                                        displayError.style.display = 'block';
+                                        document.getElementById('submit-payment').disabled = false;
+                                    }
+                                })
+                                .catch(error => {
+                                    displayError.textContent = error.message || "An error occurred with your payment.";
+                                    displayError.style.display = 'block';
+                                    document.getElementById('submit-payment').disabled = false;
+                                });
+                        }
+                    });
+                });
+                document.querySelector('.end-membership').addEventListener('click', function () {
+                    if (confirm('Are you sure you want to end your current membership and revert to the Starter plan?')) {
+                        updateEmployerMembership('Starter');
+                    }
+                });
+
+                function updateEmployerMembership(plan) {
+                    fetch('/update-membership-plan', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ plan: plan }),
+                    })
+                        .then(response => response.json())
+                        .then(data => {
+                            var displayError = document.getElementById('card-errors');
+                            if (data.success) {
+                                displayError.className = 'alert alert-success mt-2';
+                                displayError.textContent = "Payment Successful & Membership updated successfully!";
+                                displayError.style.display = 'block';
+
+                                setTimeout(() => {
+                                    window.location.reload(true);
+                                }, 2000);
+                            } else {
+                                throw new Error(data.message || "Failed to update membership.");
+                            }
+                        })
+                        .catch(error => {
+                            var displayError = document.getElementById('card-errors');
+                            displayError.className = 'alert alert-danger mt-2';
+                            displayError.textContent = error.message || "An error occurred.";
+                            displayError.style.display = 'block';
+                        });
+                }
+
+            </script>
+
+</body>
+
+</html>

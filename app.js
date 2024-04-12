@@ -9,7 +9,9 @@ const userRoutes = require("./routes/userRoutes");
 const empRoutes = require("./routes/empRoutes");
 const adminRoutes = require("./routes/adminRoutes");
 const jobRoutes = require("./routes/jobRoutes");
-
+const jobModel = require('./models/jobModel');
+const employerModel = require( './models/employerModel' );
+const multer = require('multer');
 
 
 
@@ -48,8 +50,6 @@ const accountSessionStore = MongoStore.create({
 });
 
 
-
-
 app.use(session({
     secret: "A secret key to sign the cookie",
     resave: false,
@@ -59,11 +59,52 @@ app.use(session({
 
 
 /* HOME */
-app.get("/home", (req, res) => {
-    const user = req.session.user;
-    const employer = req.session.employer;
-    const admin = req.session.admin;
-    res.render("home", { user, admin, employer });
+const fetchTopSectors = async () => {
+    try {
+        const sectors = await jobModel.aggregate([
+            { $group: { _id: "$sector" } },
+            { $sample: { size: 8 } }
+        ]);
+        return sectors.map(s => s._id);
+    } catch (error) {
+        console.log(error);
+        throw new Error('Error fetching sectors from the database');
+    }
+};
+
+const fetchFeaturedJobs = async (limit = 4) => {
+    try {
+        const jobs = await jobModel.aggregate([
+            { $match: { status: 'approved' } },
+            { $sample: { size: limit } }
+        ]);
+
+        for (let job of jobs) {
+            const employer = await employerModel.findById(job.employerId);
+            if (employer) {
+                job.employerName = employer.employerName;
+            } else {
+                job.employerName = "Unknown Employer";
+            }
+        }
+        return jobs;
+    } catch (error) {
+        console.error('Error fetching featured jobs from the database:', error);
+        throw new Error('Error fetching featured jobs from the database');
+    }
+};
+
+app.get("/home", async (req, res) => {
+    try {
+        const topSectors = await fetchTopSectors();
+        const featuredJobs = await fetchFeaturedJobs();
+        const user = req.session.user;
+        const employer = req.session.employer;
+        const admin = req.session.admin;
+        res.render("home", { user, admin, employer, topSectors, featuredJobs });
+    } catch (error) {
+        res.status(500).send(error.message);
+    }
 });
 
 /*User Search*/

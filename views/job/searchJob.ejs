@@ -1,15 +1,15 @@
 <!DOCTYPE html>
 <html lang="en">
 
-<head>
-    <meta charset="UTF-8" />
+    <head>
+        <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
-    <title>Job Search</title>
+        <title>Job Search</title>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" />
-    <link rel="stylesheet" type="text/css" href="css/nav.css" />
-    <link rel="stylesheet" type="text/css" href="css/footer.css" />
-</head>
-<%- include('./partials/nav.ejs') %>
+        <link rel="stylesheet" type="text/css" href="css/nav.css" />
+        <link rel="stylesheet" type="text/css" href="css/footer.css" />
+    </head>
+    <%- include('./partials/nav.ejs') %>
 
     <body style="background-color: #f8f9fa">
         <div class="container mt-5">
@@ -60,10 +60,10 @@
                             <select class="form-control" id="sector" name="sector">
                                 <option value="">Select Sector</option>
                                 <% uniqueSectors.forEach(sector=> { %>
-                                    <option value="<%= sector %>">
-                                        <%= sector %>
-                                    </option>
-                                    <% }); %>
+                                <option value="<%= sector %>">
+                                    <%= sector %>
+                                </option>
+                                <% }); %>
                             </select>
                         </div>
                     </div>
@@ -73,10 +73,10 @@
                             <select class="form-control" id="company" name="company">
                                 <option value="">Select Company</option>
                                 <% uniqueCompanies.forEach(company=> { %>
-                                    <option value="<%= company %>">
-                                        <%= company %>
-                                    </option>
-                                    <% }); %>
+                                <option value="<%= company %>">
+                                    <%= company %>
+                                </option>
+                                <% }); %>
                             </select>
                         </div>
                     </div>
@@ -90,51 +90,51 @@
 
             <div id="searchResults" class="mt-4">
                 <% if (jobs && jobs.length> 0) { %>
-                    <ul class="list-group">
-                        <% jobs.forEach(job=> { %>
-                            <li class="list-group-item mb-3">
-                                <div class="d-flex w-100 justify-content-between">
+                <ul class="list-group">
+                    <% jobs.forEach(job=> { %>
+                    <li class="list-group-item mb-3">
+                        <div class="d-flex w-100 justify-content-between">
                                     <h5 class="mb-1">
                                         <%= job.jobTitle %>
                                     </h5>
                                     <small>
                                         <%= job.postedDate %>
                                     </small>
-                                </div>
-                                <p class="mb-1">
-                                    <strong>Company:</strong>
+                        </div>
+                        <p class="mb-1">
+                            <strong>Company:</strong>
                                     <%= job.employerId ? job.employerId.employerName : 'Unknown Employer' %>
-                                </p>
+                        </p>
 
-                                <p class="mb-1">
-                                    <strong>Sector:</strong>
-                                    <%= job.sector %>
-                                </p>
-                                <p class="mb-1">
-                                    <strong>Salary:</strong>
-                                    <%= job.salary %>
-                                </p>
-                                <p class="mb-1">
-                                    <strong>Location:</strong>
+                        <p class="mb-1">
+                            <strong>Sector:</strong>
+                            <%= job.sector %>
+                        </p>
+                        <p class="mb-1">
+                            <strong>Salary:</strong>
+                            <%= job.salary %>
+                        </p>
+                        <p class="mb-1">
+                            <strong>Location:</strong>
                                     <%= job.street %>, <%= job.city %>, <%= job.province %>
                                                 <%= job.postalCode %>
-                                </p>
-                                <p class="mb-1">
-                                    <strong>Description:</strong>
-                                    <%= job.description %>
-                                </p>
+                        </p>
+                        <p class="mb-1">
+                            <strong>Description:</strong>
+                            <%= job.description %>
+                        </p>
                                 <a href="/applyJob/<%= job._id %>" class="btn btn-success">Apply</a>
                                 <% if (user) { %>
                                     <form action="/likeJob/<%= job._id %>" method="post" style="display: inline;">
                                       <button type="submit" class="btn btn-primary">Like</button>
-                                    </form>
-                                  <% } %>
-                            </li>
-                            <% }); %>
-                    </ul>
-                    <% } else { %>
-                        <p class="text-muted text-center">No jobs posted yet.</p>
+                        </form>
                         <% } %>
+                    </li>
+                    <% }); %>
+                </ul>
+                <% } else { %>
+                <p class="text-muted text-center">No jobs posted yet.</p>
+                <% } %>
             </div>
         </div>
 

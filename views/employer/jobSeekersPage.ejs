@@ -23,11 +23,20 @@
                 <% users.forEach(user => { %>
                 <div class="col-md-3 mb-4">
                     <div class="card">
+                        <% if (user.logo) { %>
                         <img
-                            src="<%= user.logo %>"
-                            class="card-img-top"
+                            src=" ../images/<%= user.logo %>"
                             alt="User Logo"
+                            class="card-img-top"
                         />
+                        <% } else { %>
+                        <img
+                            src="images/profile_logo.png"
+                            alt="User Logo"
+                            class="card-img-top"
+                        />
+                        <% } %>
+
                         <div class="card-body">
                             <h5 class="card-title"><%= user.name %></h5>
 

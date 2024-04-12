@@ -20,6 +20,11 @@ const applicationSchema = new mongoose.Schema({
         ref: './jobModel.js',
         required: true
     },
+    userId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: './userModel.js',
+        required: true
+    },
     resume: {
         type: String,
         required: true

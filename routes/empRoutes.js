@@ -10,6 +10,9 @@ const userModel = require("../models/userModel");
 const multer = require('multer');
 
 router.use(express.static(__dirname+ "/public")); 
+router.use("/public", express.static("public"));
+
+const stripe = require('stripe')('sk_test_51P3kykCqjFE2iT0kclnF74C7Rwz4QW85PSRx1CLrAKwI1lNfX3jQFr0L0wsSy4aW9YkwBNxEMocu95rn9t5TedlI00bag4Vj1H');
 
 // Code Send
 const sixDigitCode = Math.floor(100000 + Math.random() * 900000);
@@ -57,8 +60,16 @@ const checkAdminNotLoggedIn = (req, res, next) => {
     }
 };
 
+const checkLoggedIn = (req, res, next) => {
+    if (req.session.employer) {
+        next();
+    } else {
+        res.redirect('/empLogin');
+    }
+};
+
 //Employer Dashboard
-router.get("/empDashboard", checkUserNotLoggedIn, checkAdminNotLoggedIn, async (req, res) => {
+router.get("/empDashboard", checkUserNotLoggedIn, checkAdminNotLoggedIn, checkLoggedIn, async (req, res) => {
     try {
         const employerData = await employerModel.findById(req.session.employer._id);
         const employerId = req.session.employer;
@@ -77,6 +88,7 @@ router.get("/empDashboard", checkUserNotLoggedIn, checkAdminNotLoggedIn, async (
             employerName: employerData.employerName,
             employerId: employerData.employerId,
             email: employerData.email,
+            membership : employerData.membershipPlan,
         };
 
 
@@ -97,7 +109,6 @@ router.get("/empDashboard", checkUserNotLoggedIn, checkAdminNotLoggedIn, async (
         res.render("empDashboard", { user, admin, employer, jobs, error: error, success: success, messageCount, messages: sortedMessages });
     } catch (error) {
         console.error(error);
-        req.flash("error", "Internal Server Error");
         res.redirect("/empDashboard");
     }
 });
@@ -116,14 +127,13 @@ router.post('/deleteMessageForEmployer/:messageId', async (req, res) => {
         res.redirect('/empDashboard');
     } catch (error) {
         console.error('Failed to delete message for employer:', error);
-        req.flash('error', 'Failed to delete message.');
         res.redirect('/empDashboard');
     }
 });
 
 
 // Edit Emp Details On Dashboard
-router.get("/edit-emp-details", checkUserNotLoggedIn, checkAdminNotLoggedIn, async (req, res) => {
+router.get("/edit-emp-details", checkUserNotLoggedIn, checkAdminNotLoggedIn, checkLoggedIn, async (req, res) => {
     try {
         const employerData = await employerModel.findById(req.session.employer._id);
         const employer = {
@@ -137,7 +147,6 @@ router.get("/edit-emp-details", checkUserNotLoggedIn, checkAdminNotLoggedIn, asy
         res.render("editEmpDetails", { employer, admin, user });
     } catch (error) {
         console.error(error);
-        res.status(500).send("Internal Server Error");
     }
 });
 
@@ -163,12 +172,11 @@ router.post("/update-emp-details", checkUserNotLoggedIn, checkAdminNotLoggedIn, 
             return res.status(400).json({ error: "Employer ID or email already exists" });
         }
         console.error(error);
-        res.status(500).send("Internal Server Error");
     }
 });
 
 
-router.get("/empchangepassword", (req, res) => {
+router.get("/empchangepassword", checkUserNotLoggedIn, checkAdminNotLoggedIn, checkLoggedIn, (req, res) => {
     const user = req.session.user;
     const employer = req.session.employer;
     const admin = req.session.admin;
@@ -250,7 +258,6 @@ router.post("/empLogin_post", checkUserNotLoggedIn, checkAdminNotLoggedIn, async
         res.redirect("/empDashboard");
     } catch (error) {
         console.error(error);
-        req.flash("error", "Internal Server Error");
         res.redirect("/empLogin");
     }
 });
@@ -315,7 +322,6 @@ router.post("/emp-signup-post", checkUserNotLoggedIn, checkAdminNotLoggedIn, asy
         return res.redirect("/empSignup");
     } catch (error) {
         console.error(error);
-        req.flash("error", "Internal Server Error");
         return res.redirect("/empSignup");
     }
 });
@@ -337,7 +343,6 @@ router.post("/empLogin_post", checkUserNotLoggedIn, checkAdminNotLoggedIn, async
         res.redirect("/empDashboard");
     } catch (error) {
         console.error(error);
-        req.flash("error", "Internal Server Error");
         return res.redirect("/empsignup");
     }
 });
@@ -394,7 +399,6 @@ router.post("/emp-send-code", checkUserNotLoggedIn, checkAdminNotLoggedIn, async
         res.redirect(`/emp-enter-code?email=${encodeURIComponent(email)}`);
     } catch (error) {
         console.error(error);
-        req.flash("error", "Internal Server Error");
         return res.redirect("/emp-forgot-password");
     }
 });
@@ -432,7 +436,6 @@ router.post("/emp-verify-code", checkUserNotLoggedIn, checkAdminNotLoggedIn, asy
         res.redirect(`/emp-reset-password?email=${encodeURIComponent(email)}`);
     } catch (error) {
         console.error(error);
-        req.flash("error", "Internal Server Error");
         return res.redirect(`/emp-enter-code?email=${encodeURIComponent(email)}`);
     }
 });
@@ -440,8 +443,18 @@ router.post("/emp-verify-code", checkUserNotLoggedIn, checkAdminNotLoggedIn, asy
 //---------------------------------------------------------------------//
 
 //Emp Password Update
+function checkEmployerVerification(req, res, next) {
+    // Check if verification flag is set in the session
+    if (req.session.isEmployerVerified) {
+        next();
+    } else {
+        // Redirect them to the verification code entry page if the flag isn't set
+        req.flash("error", "Please verify your code first.");
+        res.redirect("/emp-enter-code");
+    }
+}
 
-router.get("/emp-reset-password", checkUserNotLoggedIn, checkAdminNotLoggedIn, (req, res) => {
+router.get("/emp-reset-password", checkUserNotLoggedIn, checkAdminNotLoggedIn, checkEmployerVerification, (req, res) => {
     const savedEmail = req.cookies['emp_forgot_email'] || "";
     const user = req.session.user;
     const employer = req.session.employer;
@@ -475,7 +488,6 @@ router.post("/emp-update-password", checkUserNotLoggedIn, checkAdminNotLoggedIn,
             return res.redirect("/empLogin");
         } catch (error) {
             console.error(error);
-            req.flash("error", "Internal Server Error");
             return res.redirect(`/emp-reset-password?email=${encodeURIComponent(email)}`);
         }
     }
@@ -484,7 +496,7 @@ router.post("/emp-update-password", checkUserNotLoggedIn, checkAdminNotLoggedIn,
 //------------------------------------------------------------//
 
 //Search Job Seekers 
-router.get('/jobSeekersPage', checkAdminNotLoggedIn, checkUserNotLoggedIn, async (req, res) => {
+router.get('/jobSeekersPage', checkAdminNotLoggedIn, checkUserNotLoggedIn, checkLoggedIn, async (req, res) => {
     try {
         const users = await userModel.find({}, 'name email logo');
 
@@ -496,7 +508,6 @@ router.get('/jobSeekersPage', checkAdminNotLoggedIn, checkUserNotLoggedIn, async
         res.render('jobSeekersPage', { users, user, employer, admin });
     } catch (error) {
         console.error(error);
-        req.flash('error', 'Internal Server Error');
         res.redirect('/jobSeekersPage');
     }
 });
@@ -509,7 +520,7 @@ router.post('/viewUsrProfile', (req, res) => {
 });
 
 // Render user profile page
-router.get('/jobSeekersProfile', checkAdminNotLoggedIn, checkUserNotLoggedIn, async (req, res) => {
+router.get('/jobSeekersProfile', checkAdminNotLoggedIn, checkUserNotLoggedIn,checkLoggedIn, async (req, res) => {
     try {
         const userId = req.session.userProfileId;
         const usr = await userModel.findById(userId);
@@ -526,7 +537,6 @@ router.get('/jobSeekersProfile', checkAdminNotLoggedIn, checkUserNotLoggedIn, as
         res.render('jobSeekersProfile', { usr, user, employer, admin });
     } catch (error) {
         console.error(error);
-        req.flash('error', 'Internal Server Error');
         res.redirect('/jobSeekersPage');
     }
 });
@@ -534,7 +544,7 @@ router.get('/jobSeekersProfile', checkAdminNotLoggedIn, checkUserNotLoggedIn, as
 
 // Message send to job seeker
 
-router.get('/jobSeekerMsg', checkAdminNotLoggedIn, checkUserNotLoggedIn, async (req, res) => {
+router.get('/jobSeekerMsg', checkAdminNotLoggedIn, checkUserNotLoggedIn, checkLoggedIn, async (req, res) => {
     try {
         const userId = req.session.userProfileId;
         const { success, error } = req.query;
@@ -549,7 +559,6 @@ router.get('/jobSeekerMsg', checkAdminNotLoggedIn, checkUserNotLoggedIn, async (
         res.render('jobSeekerMsg', { usr, user, employer, admin, success, error });
     } catch (error) {
         console.error(error);
-        req.flash('error', 'Internal Server Error');
         res.redirect('/jobSeekersProfile');
     }
 });
@@ -580,7 +589,7 @@ router.post('/sendEmpMessage', async (req, res) => {
 });
 
 //View Message
-router.get('/viewMsg', checkAdminNotLoggedIn, checkUserNotLoggedIn, async (req, res) => {
+router.get('/viewMsg', checkAdminNotLoggedIn, checkUserNotLoggedIn, checkLoggedIn, async (req, res) => {
     try {
         const senderName = req.params.senderName;
         const employerId = req.session.employer;
@@ -602,7 +611,6 @@ router.get('/viewMsg', checkAdminNotLoggedIn, checkUserNotLoggedIn, async (req, 
         res.render('viewMsg', { messages, senderName, user, admin, employer });
     } catch (error) {
         console.error(error);
-        req.flash('error', 'Internal Server Error');
         res.redirect('/empDashboard');
     }
 });
@@ -628,7 +636,7 @@ router.post('/replyMessage', async (req, res) => {
 
 
 //Sent Messages
-router.get('/sentMsg', checkAdminNotLoggedIn, checkUserNotLoggedIn, async (req, res) => {
+router.get('/sentMsg', checkAdminNotLoggedIn, checkUserNotLoggedIn, checkLoggedIn, async (req, res) => {
     try {
         const employerId = req.session.employer;
 
@@ -648,7 +656,6 @@ router.get('/sentMsg', checkAdminNotLoggedIn, checkUserNotLoggedIn, async (req, 
         res.render('sentMsg', { messages, user, admin, employer });
     } catch (error) {
         console.error(error);
-        req.flash('error', 'Internal Server Error');
         res.redirect('/empDashboard');
     }
 });
@@ -665,7 +672,6 @@ router.post('/deleteMessage/:id', async (req, res) => {
         res.redirect('/sentMsg');
     } catch (error) {
         console.error(error);
-        res.status(500).json({ error: 'Internal Server Error' });
     }
 });
 
@@ -680,7 +686,6 @@ router.post('/deleteMsg/:id', async (req, res) => {
         res.redirect('/viewMsg');
     } catch (error) {
         console.error(error);
-        res.status(500).json({ error: 'Internal Server Error' });
     }
 });
 
@@ -693,7 +698,6 @@ router.post('/deleteSentMsg/:id', async (req, res) => {
         res.redirect('/sentMsg');
     } catch (error) {
         console.error(error);
-        res.status(500).json({ error: 'Internal Server Error' });
     }
 });
 
@@ -751,6 +755,162 @@ router.post('/deleteEmpLogo', async (req, res) => {
     }
 });
 
+
+
+router.get("/allJobs", checkUserNotLoggedIn, checkAdminNotLoggedIn, checkLoggedIn, async (req, res) => {
+    try {
+        const page = parseInt(req.query.page) || 1;
+        const limit = 3; 
+        const skip = (page - 1) * limit;
+        
+        const employerData = await employerModel.findById(req.session.employer._id);
+        const totalJobs = await jobModel.countDocuments({ employerId: employerData._id });
+        const pageCount = Math.ceil(totalJobs / limit);
+        
+        const jobs = await jobModel.find({ employerId: employerData._id })
+                                   .skip(skip)
+                                   .limit(limit);
+        
+        res.render("allJobs", { jobs, user: req.session.user, admin: req.session.admin, employer: req.session.employer, pageCount, currentPage: page });
+    } catch (error) {
+        console.error("Error fetching all jobs:", error);
+        req.flash("error", "Internal Server Error");
+        return res.redirect("/empDashboard");
+    }
+});
+
+
+router.get("/allApplications", checkUserNotLoggedIn, checkAdminNotLoggedIn, checkLoggedIn, async (req, res) => {
+    try {
+        const employer = req.session.employer;
+        const user = req.session.user;
+        const admin = req.session.admin;
+
+        const employerData = await employerModel.findById(req.session.employer._id);
+        const jobs = await jobModel.find({ employerId: employerData._id });
+
+        res.render("allApplications", { jobs, user, admin, employer });
+    } catch (error) {
+        console.error(error);
+        req.flash("error", "Internal Server Error");
+        res.redirect("/empDashboard");
+    }
+});
+router.get("/adminAllMessages", checkUserNotLoggedIn, checkAdminNotLoggedIn, checkLoggedIn, async (req, res) => {
+    try {
+        const page = parseInt(req.query.page) || 1;
+        const pageSize = 10;
+        const employerId = req.session.employer._id;
+        
+        const employer = await employerModel.findById(employerId);
+        if (!employer || !employer.messages) {
+            req.flash("info", "No messages available.");
+            return res.redirect("/employerDashboard");
+        }
+        let adminDetails = await adminModel.findOne();
+        const skip = (page - 1) * pageSize; 
+
+        const totalMessages = employer.messages.length;
+        const totalPages = Math.ceil(totalMessages / pageSize);
+
+        const messages = employer.messages
+            .sort((a, b) => b.createdAt - a.createdAt)
+            .slice(skip, skip + pageSize)
+            .map(message => ({
+                ...message.toObject(),
+                adminUniqueId: adminDetails ? adminDetails.adminId : 'Admin not found',
+                createdAtFormatted: message.createdAt.toDateString(),
+            }));
+
+        res.render("adminAllMessages", {
+            messages,
+            currentPage: page,
+            totalPages,
+            user: req.session.user,
+            employer: req.session.employer,
+            admin: req.session.admin
+        });
+    } catch (error) {
+        console.error("Error fetching messages:", error);
+        req.flash("error", "Internal Server Error");
+        res.redirect("/employerDashboard");
+    }
+});
+
+router.get("/empMembership", checkUserNotLoggedIn, checkAdminNotLoggedIn, checkLoggedIn, (req, res) => {
+
+    const currentPlan = req.session.employer.membershipPlan;
+
+    res.render("empMembership", { 
+        user: req.session.user,
+        employer: req.session.employer,
+        admin: req.session.admin,
+        currentPlan: currentPlan, });
+});
+
+router.post('/create-payment-intent', async (req, res) => {
+    const { paymentMethodId, plan } = req.body;
+    let amount;
+
+    switch (plan) {
+        case 'Starter':
+            return res.json({ success: true, message: "Free plan selected, no payment needed." });
+        case 'Pro':
+            amount = 1599;
+            break;
+        case 'Ultimate':
+            amount = 2999;
+            break;
+        default:
+            return res.status(400).send({ error: 'Invalid plan selected.' });
+    }
+
+    try {
+        const paymentIntent = await stripe.paymentIntents.create({
+            amount: amount,
+            currency: 'cad',
+            description: `${plan} Membership Plan Payment`,
+            payment_method: paymentMethodId,
+            automatic_payment_methods: { enabled: true, allow_redirects: 'never' },
+        });
+        
+        res.json({ success: true, paymentIntentId: paymentIntent.id, clientSecret: paymentIntent.client_secret });
+    } catch (error) {
+        res.status(500).send({ error: error.message });
+    }
+});
+
+router.post('/update-membership-plan', async (req, res) => {
+    const employerId = req.session.employer._id;
+    const { plan } = req.body;
+
+    if (!['Starter', 'Pro', 'Ultimate'].includes(plan)) {
+        return res.status(400).json({ error: 'Invalid plan selected.' });
+    }
+
+    try {
+        const updatedEmployer = await employerModel.findByIdAndUpdate(employerId, {
+            $set: { membershipPlan: plan }
+        }, { new: true });
+
+        if (!updatedEmployer) {
+            return res.status(404).json({ error: 'Employer not found.' });
+        }
+
+        req.session.employer.membershipPlan = plan;
+
+        req.session.save(err => {
+            if (err) {
+                console.error("Session save error:", err);
+                return res.status(500).json({ error: 'Failed to update session.' });
+            }
+            res.json({ success: true, message: `Membership plan updated to ${plan}.` });
+        });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: 'Failed to update membership plan.' });
+    }
+});
 
 
 module.exports = router;
