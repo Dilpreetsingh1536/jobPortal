@@ -20,19 +20,19 @@
                 <span><strong><%= employee.employerName %></strong></span>
                 <div>
                     <!-- View Button -->
-                    <button type="button" class="btn btn-primary btn-sm" data-toggle="modal" data-target="#employerModal<%= index %>">
+                    <button type="button" class="btn btn-outline-primary btn-sm" data-toggle="modal" data-target="#employerModal<%= index %>">
                         <i class="fas fa-eye"></i> View
                     </button>
             
                     <!-- Send Message Button -->
-                    <button type="button" class="btn btn-secondary btn-sm" data-toggle="modal" data-target="#sendMessageModal<%= index %>">
+                    <button type="button" class="btn btn-outline-secondary btn-sm" data-toggle="modal" data-target="#sendMessageModal<%= index %>">
                         <i class="fas fa-envelope"></i> Message
                     </button>
 
                     <!-- Delete Button -->
                     <form action="/deleteEmployer" method="POST" style="display: inline;">
                         <input type="hidden" name="email" value="<%= employee.email %>">
-                        <button type="submit" class="btn btn-danger btn-sm">
+                        <button type="submit" class="btn btn-outline-danger btn-sm">
                             <i class="fas fa-trash-alt"></i> Delete
                         </button>
                     </form>
@@ -72,7 +72,7 @@
                                 </ul>
                             </div>
                             <div class="modal-footer">
-                                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                                <button type="button" class="btn btn-outline-secondary" data-dismiss="modal">Close</button>
                             </div>
                         </div>
                     </div>
@@ -94,11 +94,11 @@
                                         <label for="messageText<%= index %>">Message:</label>
                                         <textarea class="form-control" id="messageText<%= index %>" name="message" rows="3" required></textarea>
                                     </div>
-                                    <button type="submit" class="btn btn-primary">Send Message</button>
+                                    <button type="submit" class="btn btn-outline-primary">Send Message</button>
                                 </form>
                             </div>
                             <div class="modal-footer">
-                                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                                <button type="button" class="btn btn-outline-secondary" data-dismiss="modal">Close</button>
                             </div>
                         </div>
                     </div>

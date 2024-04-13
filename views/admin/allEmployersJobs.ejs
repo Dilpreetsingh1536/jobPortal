@@ -24,10 +24,10 @@
                     </span>
                 </div>
                 <div>
-                    <button type="button" class="btn btn-primary btn-sm" data-toggle="modal" data-target="#jobModal<%= index %>">
+                    <button type="button" class="btn btn-outline-primary btn-sm" data-toggle="modal" data-target="#jobModal<%= index %>">
                         <i class="fas fa-eye"></i> View
                     </button>
-                    <button type="button" class="btn btn-danger btn-sm" onclick="location.href='/deleteJob?jobId=<%= job._id %>'">
+                    <button type="button" class="btn btn-outline-danger btn-sm" onclick="location.href='/deleteJob?jobId=<%= job._id %>'">
                         <i class="fas fa-trash-alt"></i> Delete
                     </button>
                 </div>
@@ -60,14 +60,14 @@
                                 <form action="/admin/updateJobStatus" method="POST" class="mr-auto">
                                     <input type="hidden" name="jobId" value="<%= job._id %>">
                                     <input type="hidden" name="redirectPath" value="/allJobs">
-                                    <button type="submit" name="action" value="approved" class="btn btn-outline-success" <%= job.status === 'approved' ? 'disabled' : '' %>>
+                                    <button type="submit" name="action" value="approved" class="btn btn-outline-outline-success" <%= job.status === 'approved' ? 'disabled' : '' %>>
                                         <i class="fas fa-thumbs-up"></i> Approve
                                     </button>
-                                    <button type="submit" name="action" value="rejected" class="btn btn-outline-danger">
+                                    <button type="submit" name="action" value="rejected" class="btn btn-outline-outline-danger">
                                         <i class="fas fa-thumbs-down"></i> Reject
                                     </button>
                                 </form>
-                                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                                <button type="button" class="btn btn-outline-secondary" data-dismiss="modal">Close</button>
                             </div>
                         </div>
                     </div>
