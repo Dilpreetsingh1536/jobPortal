@@ -518,41 +518,143 @@
                             margin-bottom: 20px;
                         "
                     >
-                    <div class="card-body">
-                        <h3 class="card-title" style="font-size: 24px; font-weight: bold">Job Applications</h3>
-                        <ul class="list-group">
-                            <% appliedJobs.forEach((appliedJob, index) => { %>
-                                <li class="list-group-item d-flex justify-content-between align-items-center">
+                        <div class="card-body">
+                            <h3
+                                class="card-title"
+                                style="font-size: 24px; font-weight: bold"
+                            >
+                                Job Applications
+                            </h3>
+                            <ul class="list-group">
+                                <% appliedJobs.forEach((appliedJob, index) => {
+                                %>
+                                <li
+                                    class="list-group-item d-flex justify-content-between align-items-center"
+                                >
                                     <div>
-                                        <strong> <%= appliedJob.user.name %> </strong> -
-                                        <strong> <%= appliedJob.job.jobTitle %> </strong>
+                                        <strong>
+                                            <%= appliedJob.user.name %>
+                                        </strong>
+                                        -
+                                        <strong>
+                                            <%= appliedJob.job.jobTitle %>
+                                        </strong>
                                     </div>
                                     <div>
-                                        <button type="button" class="btn btn-primary btn-sm" data-toggle="modal" data-target="#jobModalDashboard<%= index %>">
+                                        <button
+                                            type="button"
+                                            class="btn btn-primary btn-sm"
+                                            data-toggle="modal"
+                                            data-target="#jobModalDashboard<%= index %>"
+                                        >
                                             <i class="fas fa-eye"></i>
                                         </button>
-                                        <button type="button" class="btn btn-danger btn-sm" onclick="location.href='/deleteApplication?appliedJobId=<%= appliedJob.applicationId %>'">
+                                        <button
+                                            type="button"
+                                            class="btn btn-danger btn-sm"
+                                            onclick="location.href='/deleteApplication?appliedJobId=<%= appliedJob.applicationId %>'"
+                                        >
                                             <i class="fas fa-trash-alt"></i>
                                         </button>
                                     </div>
                                 </li>
-                    
+
                                 <!-- Job Detail Modal -->
-                                <div class="modal fade" id="jobModalDashboard<%= index %>" tabindex="-1" role="dialog" aria-labelledby="jobModalLabelDashboard<%= index %>" aria-hidden="true">
-                                    <!-- Modal content -->
-                                    <!-- Please insert your modal content here -->
+                                <div
+                                    class="modal fade"
+                                    id="jobModalDashboard<%= index %>"
+                                    tabindex="-1"
+                                    role="dialog"
+                                    aria-labelledby="jobModalLabelDashboard<%= index %>"
+                                    aria-hidden="true"
+                                >
+                                    <div class="modal-dialog" role="document">
+                                        <div class="modal-content">
+                                            <div class="modal-header">
+                                                <h5
+                                                    class="modal-title"
+                                                    id="jobModalLabelDashboard<%= index %>"
+                                                >
+                                                    Application Details
+                                                </h5>
+                                                <button
+                                                    type="button"
+                                                    class="close"
+                                                    data-dismiss="modal"
+                                                    aria-label="Close"
+                                                >
+                                                    <span aria-hidden="true"
+                                                        >&times;</span
+                                                    >
+                                                </button>
+                                            </div>
+                                            <div class="modal-body">
+                                                <p>
+                                                    <strong>Job Seeker Name:</strong>
+                                                    <%= appliedJob.user.name %>
+                                                </p>
+                                               
+                                                <p>
+                                                    <strong>Job Title:</strong>
+                                                    <%= appliedJob.job.jobTitle %>
+                                                </p>
+                                                <p>
+                                                    <strong
+                                                        >Description:</strong
+                                                    >
+                                                    <%= appliedJob.job.description %>
+                                                </p>
+                                                <p>
+                                                    <strong>Location:</strong>
+                                                    <%= appliedJob.job.city %>, <%=
+                                                    appliedJob.job.province %>, <%=
+                                                    appliedJob.job.postalCode %>
+                                                </p>
+                                               
+                                                <p>
+                                                    <strong>Decision:</strong>
+                                                    <span
+                                                        class="<%= appliedJob.decision === 'approved' ? 'text-success' : appliedJob.decision === 'rejected' ? 'text-danger' : 'text-warning' %>"
+                                                    >
+                                                        <%=
+                                                        appliedJob.decision.charAt(0).toUpperCase()
+                                                        + appliedJob.decision.slice(1) %>
+                                                    </span>
+                                                </p>
+                                            </div>
+                                            <div class="modal-footer">
+                                                <button
+                                                    type="button"
+                                                    class="btn btn-secondary"
+                                                    data-dismiss="modal"
+                                                >
+                                                    Close
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
-                            <% }); %>
-                        </ul>
-                        <div class="d-flex justify-content-between align-items-center mt-3">
-                            <a href="/allApplications" class="btn btn-info mt-3"><i class="fa fa-list"></i> View More</a>
-                            <div>
-                                <span class="ml-2"><i class="fas fa-eye"></i> View</span>
-                                <span class="ml-2"><i class="fas fa-trash-alt"></i> Delete</span>
+                                <% }); %>
+                            </ul>
+                            <div
+                                class="d-flex justify-content-between align-items-center mt-3"
+                            >
+                                <a
+                                    href="/allApplications"
+                                    class="btn btn-info mt-3"
+                                    ><i class="fa fa-list"></i> View More</a
+                                >
+                                <div>
+                                    <span class="ml-2"
+                                        ><i class="fas fa-eye"></i> View</span
+                                    >
+                                    <span class="ml-2"
+                                        ><i class="fas fa-trash-alt"></i>
+                                        Delete</span
+                                    >
+                                </div>
                             </div>
                         </div>
-                    </div>
-                    
                     </div>
                 </div>
             </div>
