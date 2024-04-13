@@ -23,11 +23,23 @@
                 <% employers.forEach(employer => { %>
                 <div class="col-md-3 mb-4">
                     <div class="card">
+                        <% if (employer.logo ) { %>
+
                         <img
-                            src="<%= employer.logo %>"
+                            src="../images/<%= employer.logo %>"
                             class="card-img-top"
                             alt="Employer Logo"
                         />
+                        <% } else { %>
+
+                        <img
+                            src="images/profile_logo.png"
+                            class="card-img-top"
+                            alt="Employer Logo"
+                        />
+
+                        <% } %>
+
                         <div class="card-body">
                             <h5 class="card-title">
                                 <%= employer.employerName %>

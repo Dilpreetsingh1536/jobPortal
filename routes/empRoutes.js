@@ -10,8 +10,10 @@ const userModel = require("../models/userModel");
 const multer = require('multer');
 
 router.use(express.static(__dirname+ "/public")); 
+router.use("/public", express.static("public"));
 
 const stripe = require('stripe')('sk_test_51P3kykCqjFE2iT0kclnF74C7Rwz4QW85PSRx1CLrAKwI1lNfX3jQFr0L0wsSy4aW9YkwBNxEMocu95rn9t5TedlI00bag4Vj1H');
+
 
 // Code Send
 const sixDigitCode = Math.floor(100000 + Math.random() * 900000);
@@ -108,7 +110,6 @@ router.get("/empDashboard", checkUserNotLoggedIn, checkAdminNotLoggedIn, checkLo
         res.render("empDashboard", { user, admin, employer, jobs, error: error, success: success, messageCount, messages: sortedMessages });
     } catch (error) {
         console.error(error);
-        req.flash("error", "Internal Server Error");
         res.redirect("/empDashboard");
     }
 });
@@ -127,7 +128,6 @@ router.post('/deleteMessageForEmployer/:messageId', async (req, res) => {
         res.redirect('/empDashboard');
     } catch (error) {
         console.error('Failed to delete message for employer:', error);
-        req.flash('error', 'Failed to delete message.');
         res.redirect('/empDashboard');
     }
 });
@@ -148,7 +148,6 @@ router.get("/edit-emp-details", checkUserNotLoggedIn, checkAdminNotLoggedIn, che
         res.render("editEmpDetails", { employer, admin, user });
     } catch (error) {
         console.error(error);
-        res.status(500).send("Internal Server Error");
     }
 });
 
@@ -174,7 +173,6 @@ router.post("/update-emp-details", checkUserNotLoggedIn, checkAdminNotLoggedIn, 
             return res.status(400).json({ error: "Employer ID or email already exists" });
         }
         console.error(error);
-        res.status(500).send("Internal Server Error");
     }
 });
 
@@ -261,7 +259,6 @@ router.post("/empLogin_post", checkUserNotLoggedIn, checkAdminNotLoggedIn, async
         res.redirect("/empDashboard");
     } catch (error) {
         console.error(error);
-        req.flash("error", "Internal Server Error");
         res.redirect("/empLogin");
     }
 });
@@ -326,7 +323,6 @@ router.post("/emp-signup-post", checkUserNotLoggedIn, checkAdminNotLoggedIn, asy
         return res.redirect("/empSignup");
     } catch (error) {
         console.error(error);
-        req.flash("error", "Internal Server Error");
         return res.redirect("/empSignup");
     }
 });
@@ -348,7 +344,6 @@ router.post("/empLogin_post", checkUserNotLoggedIn, checkAdminNotLoggedIn, async
         res.redirect("/empDashboard");
     } catch (error) {
         console.error(error);
-        req.flash("error", "Internal Server Error");
         return res.redirect("/empsignup");
     }
 });
@@ -405,7 +400,6 @@ router.post("/emp-send-code", checkUserNotLoggedIn, checkAdminNotLoggedIn, async
         res.redirect(`/emp-enter-code?email=${encodeURIComponent(email)}`);
     } catch (error) {
         console.error(error);
-        req.flash("error", "Internal Server Error");
         return res.redirect("/emp-forgot-password");
     }
 });
@@ -443,7 +437,6 @@ router.post("/emp-verify-code", checkUserNotLoggedIn, checkAdminNotLoggedIn, asy
         res.redirect(`/emp-reset-password?email=${encodeURIComponent(email)}`);
     } catch (error) {
         console.error(error);
-        req.flash("error", "Internal Server Error");
         return res.redirect(`/emp-enter-code?email=${encodeURIComponent(email)}`);
     }
 });
@@ -496,7 +489,6 @@ router.post("/emp-update-password", checkUserNotLoggedIn, checkAdminNotLoggedIn,
             return res.redirect("/empLogin");
         } catch (error) {
             console.error(error);
-            req.flash("error", "Internal Server Error");
             return res.redirect(`/emp-reset-password?email=${encodeURIComponent(email)}`);
         }
     }
@@ -517,7 +509,6 @@ router.get('/jobSeekersPage', checkAdminNotLoggedIn, checkUserNotLoggedIn, check
         res.render('jobSeekersPage', { users, user, employer, admin });
     } catch (error) {
         console.error(error);
-        req.flash('error', 'Internal Server Error');
         res.redirect('/jobSeekersPage');
     }
 });
@@ -547,7 +538,6 @@ router.get('/jobSeekersProfile', checkAdminNotLoggedIn, checkUserNotLoggedIn,che
         res.render('jobSeekersProfile', { usr, user, employer, admin });
     } catch (error) {
         console.error(error);
-        req.flash('error', 'Internal Server Error');
         res.redirect('/jobSeekersPage');
     }
 });
@@ -570,7 +560,6 @@ router.get('/jobSeekerMsg', checkAdminNotLoggedIn, checkUserNotLoggedIn, checkLo
         res.render('jobSeekerMsg', { usr, user, employer, admin, success, error });
     } catch (error) {
         console.error(error);
-        req.flash('error', 'Internal Server Error');
         res.redirect('/jobSeekersProfile');
     }
 });
@@ -623,7 +612,6 @@ router.get('/viewMsg', checkAdminNotLoggedIn, checkUserNotLoggedIn, checkLoggedI
         res.render('viewMsg', { messages, senderName, user, admin, employer });
     } catch (error) {
         console.error(error);
-        req.flash('error', 'Internal Server Error');
         res.redirect('/empDashboard');
     }
 });
@@ -669,7 +657,6 @@ router.get('/sentMsg', checkAdminNotLoggedIn, checkUserNotLoggedIn, checkLoggedI
         res.render('sentMsg', { messages, user, admin, employer });
     } catch (error) {
         console.error(error);
-        req.flash('error', 'Internal Server Error');
         res.redirect('/empDashboard');
     }
 });
@@ -686,7 +673,6 @@ router.post('/deleteMessage/:id', async (req, res) => {
         res.redirect('/sentMsg');
     } catch (error) {
         console.error(error);
-        res.status(500).json({ error: 'Internal Server Error' });
     }
 });
 
@@ -701,7 +687,6 @@ router.post('/deleteMsg/:id', async (req, res) => {
         res.redirect('/viewMsg');
     } catch (error) {
         console.error(error);
-        res.status(500).json({ error: 'Internal Server Error' });
     }
 });
 
@@ -714,7 +699,6 @@ router.post('/deleteSentMsg/:id', async (req, res) => {
         res.redirect('/sentMsg');
     } catch (error) {
         console.error(error);
-        res.status(500).json({ error: 'Internal Server Error' });
     }
 });
 

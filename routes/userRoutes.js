@@ -116,6 +116,25 @@ router.get("/userDashboard", checkEmployerNotLoggedIn, checkAdminNotLoggedIn, ch
                 });
             }
         }
+
+        const appliedJobs = [];
+        for (const jobId of userData.appliedJobs) {
+            const job = await jobModel.findById(jobId).populate('employerId', 'employerName');
+            if (job) {
+                appliedJobs.push({
+                    jobTitle: job.jobTitle,
+                    employerName: job.employerId.employerName,
+                    sector: job.sector,
+                    city: job.city,
+                    province: job.province,
+                    salary: job.salary,
+                    street: job.street
+                });
+            }
+        }
+
+
+    
         let adminDetails = await adminModel.findOne();
         const messageCount = await messageModel.countDocuments({ recipientId: userId });
 
@@ -160,11 +179,11 @@ router.get("/userDashboard", checkEmployerNotLoggedIn, checkAdminNotLoggedIn, ch
             messages: sortedMessages,
             admin,
             employer,
-            messageCount
+            messageCount,
+            appliedJobs
         });
     } catch (error) {
         console.error("Error fetching user dashboard:", error);
-        req.flash("error", "Internal Server Error");
         res.redirect("/userDashboard");
     }
 });
@@ -1301,24 +1320,24 @@ router.get("/moreEducation",checkEmployerNotLoggedIn, checkAdminNotLoggedIn, che
 });
 
 
-router.get("/appliedJobs", checkEmployerNotLoggedIn, checkAdminNotLoggedIn, checkLoggedIn, async (req, res) => {
-    try {
-        const appliedJobs = [];
-        if (appliedJobs.length === 0) {
-            req.flash("info", "No applied jobs available.");
-        }
-        res.render("appliedJobs", {
-            appliedJobs,
-            user: req.session.user,
-            employer: req.session.employer,
-            admin: req.session.admin
-        });
-    } catch (error) {
-        console.error("Error fetching applied jobs:", error);
-        req.flash("error", "Internal Server Error");
-        res.redirect("/userDashboard");
-    }
-});
+// router.get("/appliedJobs", checkEmployerNotLoggedIn, checkAdminNotLoggedIn, checkLoggedIn, async (req, res) => {
+//     try {
+//         const appliedJobs = [];
+//         if (appliedJobs.length === 0) {
+//             req.flash("info", "No applied jobs available.");
+//         }
+//         res.render("appliedJobs", {
+//             appliedJobs,
+//             user: req.session.user,
+//             employer: req.session.employer,
+//             admin: req.session.admin
+//         });
+//     } catch (error) {
+//         console.error("Error fetching applied jobs:", error);
+//         req.flash("error", "Internal Server Error");
+//         res.redirect("/userDashboard");
+//     }
+// });
 
 router.get("/likedJobs", checkEmployerNotLoggedIn, checkAdminNotLoggedIn, checkLoggedIn, async (req, res) => {
     try {
@@ -1358,22 +1377,60 @@ router.get("/likedJobs", checkEmployerNotLoggedIn, checkAdminNotLoggedIn, checkL
 });
 
 
-router.get('/applyJob/:jobId', async (req, res) => {
-    if (!req.session.user) {
-        return res.redirect('/login');
-    }
+router.get("/appliedJobs", checkEmployerNotLoggedIn, checkAdminNotLoggedIn, checkLoggedIn, async (req, res) => {
     try {
-        const { jobId } = req.params;
-        const job = await jobModel.findById(jobId).populate('employerId').exec();
-        if (!job) {
-            return res.status(404).send('Job not found');
+        const page = parseInt(req.query.page) || 1;
+        const limit = 10;
+        const skip = (page - 1) * limit;
+
+        const user = await userModel.findById(req.session.user._id);
+
+        if (!user) {
+            req.flash("error", "User not found");
+            return res.redirect("/login");
         }
-        res.render('job/applyJob', { job, user: req.session.user });
-    } catch (err) {
-        console.error(err);
-        res.status(500).send('Internal Server Error');
+
+        const appliedJobsIds = user.appliedJobs.slice(skip, skip + limit);
+
+        const appliedJobs = await Promise.all(
+            appliedJobsIds.map(async (jobId) => {
+                return await jobModel.findById(jobId).populate('employerId', 'employerName').exec();
+            })
+        );
+
+        const totalappliedJobs = user.appliedJobs.length;
+        const totalPages = Math.ceil(totalappliedJobs / limit);
+
+        res.render("appliedJobs", {
+            appliedJobs: appliedJobs.filter(job => job !== null),
+            currentPage: page,
+            totalPages: totalPages,
+            user: req.session.user
+        });
+    } catch (error) {
+        console.error("Error fetching applied jobs:", error);
+        req.flash("error", "Internal Server Error");
+        return res.redirect("/userDashboard");
     }
 });
+
+
+// router.get('/applyJob/:jobId', async (req, res) => {
+//     if (!req.session.user) {
+//         return res.redirect('/login');
+//     }
+//     try {
+//         const { jobId } = req.params;
+//         const job = await jobModel.findById(jobId).populate('employerId').exec();
+//         if (!job) {
+//             return res.status(404).send('Job not found');
+//         }
+//         res.render('job/applyJob', { job, user: req.session.user });
+//     } catch (err) {
+//         console.error(err);
+//         res.status(500).send('Internal Server Error');
+//     }
+// });
 
 router.post('/unlikeJob/:jobId', async (req, res) => {
     if (!req.session.user) {

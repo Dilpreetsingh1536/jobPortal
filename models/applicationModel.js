@@ -20,6 +20,11 @@ const applicationSchema = new mongoose.Schema({
         ref: './jobModel.js',
         required: true
     },
+    userId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: './userModel.js',
+        required: true
+    },
     resume: {
         type: String,
         required: true
@@ -28,6 +33,8 @@ const applicationSchema = new mongoose.Schema({
         type: String,
         required: true
     },
+    decision: { type: String, default: 'In Process' },
+
 });
 
 const applicationModel = mongoose.model('applicationModel', applicationSchema);

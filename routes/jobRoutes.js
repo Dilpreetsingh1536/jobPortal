@@ -4,7 +4,8 @@ const jobModel = require("../models/jobModel");
 const employerModel = require("../models/employerModel");
 const multer = require('multer');
 const Application = require('../models/applicationModel');
-const userModel = require( "../models/userModel" );
+const userModel = require("../models/userModel");
+const path = require('path');
 
 // Update job function
 async function updateJobById(jobId, updatedFields) {
@@ -44,7 +45,7 @@ const checkUserNotLoggedIn = (req, res, next) => {
 };
 
 /*Job Search */
-router.get('/searchJob', async(req, res) => {
+router.get('/searchJob', async (req, res) => {
     try {
         const { sector, job, location } = req.query;
         const user = req.session.user;
@@ -67,19 +68,26 @@ router.get('/searchJob', async(req, res) => {
         const uniqueCompanies = await employerModel.distinct('employerName');
         const jobs = await jobModel.find(filter).populate('employerId', 'employerName sector').exec();
 
-        for (let job of jobs) {
+        let userAppliedJobs = [];
+        if (user) {
+            const userData = await userModel.findById(user._id);
+            userAppliedJobs = userData.appliedJobs;
+        }
+
+   for (let job of jobs) {
             const jobIdAsString = job._id.toString();
             job.isLikedByCurrentUser = user && user.likedJobs && user.likedJobs.includes(jobIdAsString);
         }
 
         res.render("searchJob", {
-            user, 
-            employer, 
-            admin, 
-            jobs, 
-            uniqueSectors, 
-            uniqueCompanies, 
-            selectedSector: sector
+            user,
+            employer,
+            admin,
+            jobs,
+            uniqueSectors,
+            uniqueCompanies,
+            selectedSector: sector,
+            userAppliedJobs
         });
     } catch (error) {
         console.error('Error fetching jobs with sector filter:', error);
@@ -88,7 +96,7 @@ router.get('/searchJob', async(req, res) => {
 });
 
 
-router.post('/searchJob', async(req, res) => {
+router.post('/searchJob', async (req, res) => {
     const user = req.session.user;
     const employer = req.session.employer;
     const admin = req.session.admin;
@@ -152,7 +160,6 @@ router.post('/searchJob', async(req, res) => {
         res.render('searchJob', { user, employer, admin, jobs, uniqueSectors, uniqueCompanies });
     } catch (error) {
         console.error(error);
-        req.flash('error', 'Internal Server Error');
         res.redirect('/searchJob');
     }
 });
@@ -166,27 +173,23 @@ router.get('/listJob', checkUserNotLoggedIn, checkAdminNotLoggedIn, (req, res) =
     res.render("listJob", { user, employer, admin, success, error });
 });
 
-router.post("/add-job", checkUserNotLoggedIn, checkAdminNotLoggedIn, async(req, res) => {
+router.post("/add-job", checkUserNotLoggedIn, checkAdminNotLoggedIn, async (req, res) => {
     const user = req.session.user;
     const employer = req.session.employer;
     const admin = req.session.admin;
     const { jobTitle, sector, salary, street, city, province, postalCode, description } = req.body;
 
-    // Validation regex
     const postalCodeRegex = /^[A-Za-z]\d[A-Za-z][ -]?\d[A-Za-z]\d$/;
     const provinceRegex = /^(AB|BC|MB|NB|NL|NS|NT|NU|ON|PE|QC|SK|YT)$/;
 
-    // Validate postal code
     if (!postalCodeRegex.test(postalCode)) {
         return res.render("listJob", { user, employer, admin, success: null, error: "Please enter a valid postal code. Eg: 'A1A 2B3'" });
     }
 
-    // Validate province
     if (!provinceRegex.test(province)) {
         return res.render("listJob", { user, employer, admin, success: null, error: "Please enter a valid province. Eg: 'ON, SK'" });
     }
 
-    // Validate salary
     if (isNaN(salary) || salary.trim() === '') {
         return res.render("listJob", { user, employer, admin, success: null, error: "Please enter a valid numeric salary." });
     }
@@ -212,7 +215,6 @@ router.post("/add-job", checkUserNotLoggedIn, checkAdminNotLoggedIn, async(req, 
         return res.render("listJob", { user, employer, admin, success: "Job added successfully!", error: null });
     } catch (error) {
         console.error(error);
-        // Render with error message
         return res.render("listJob", { user, employer, admin, success: null, error: "Internal Server Error" });
     }
 });
@@ -222,7 +224,7 @@ router.post("/add-job", checkUserNotLoggedIn, checkAdminNotLoggedIn, async(req, 
 
 //Edit Job
 
-router.get('/editJob', checkUserNotLoggedIn, checkAdminNotLoggedIn, checkJobSession, async(req, res) => {
+router.get('/editJob', checkUserNotLoggedIn, checkAdminNotLoggedIn, checkJobSession, async (req, res) => {
     try {
         const jobId = req.session.editJobId;
         const job = await jobModel.findById(jobId);
@@ -238,12 +240,11 @@ router.get('/editJob', checkUserNotLoggedIn, checkAdminNotLoggedIn, checkJobSess
         res.render("editJob", { jobId, user, admin, employer, job, success: req.flash("success"), error: req.flash("error") });
     } catch (error) {
         console.error(error);
-        req.flash("error", "Internal Server Error");
         res.redirect("/editJob");
     }
 });
 
-router.post('/edit-job', checkUserNotLoggedIn, checkAdminNotLoggedIn, checkJobSession, async(req, res) => {
+router.post('/edit-job', checkUserNotLoggedIn, checkAdminNotLoggedIn, checkJobSession, async (req, res) => {
     const jobId = req.session.editJobId;
     const { jobTitle, sector, salary, street, city, province, postalCode, description } = req.body;
 
@@ -283,13 +284,12 @@ router.post('/edit-job', checkUserNotLoggedIn, checkAdminNotLoggedIn, checkJobSe
         res.redirect("/editJob");
     } catch (error) {
         console.error(error);
-        req.flash('error', 'Internal Server Error');
         res.redirect("/editJob");
     }
 });
 
 //Delete Job
-router.get('/deleteJob', async(req, res) => {
+router.get('/deleteJob', async (req, res) => {
     const user = req.session.user;
     const employer = req.session.employer;
     const admin = req.session.admin;
@@ -305,7 +305,7 @@ router.get('/deleteJob', async(req, res) => {
     res.render('deleteJob', { user, employer, admin, jobId, success: null, error: null });
 });
 
-router.post('/deleteJob', async(req, res) => {
+router.post('/deleteJob', async (req, res) => {
     try {
         const { jobId } = req.body;
 
@@ -375,47 +375,70 @@ router.get('/applyJob/:jobId', async (req, res) => {
         }
 
         const { user, employer, admin } = req.session;
-        res.render('job/applyJob', { job, user, employer, admin });
+
+        const successMessage = req.flash('success')[0];
+        const errorMessage = req.flash('error')[0];
+        res.render('job/applyJob', { job, user, employer, admin, successMessage, errorMessage });
     } catch (err) {
         console.error(err);
-        res.status(500).send('Internal Server Error');
     }
 });
+
 
 //--------------//
 
 
 /* file upload */
 const storage = multer.diskStorage({
-    destination: function(req, file, cb) {
-        cb(null, './upload');
+    destination: function (req, file, cb) {
+        cb(null, './public/uploads');
     },
-    filename: function(req, file, cb) {
-        cb(null, file.originalname);
+    filename: function (req, file, cb) {
+        const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+        const ext = path.extname(file.originalname);
+        cb(null, file.fieldname + '-' + uniqueSuffix + ext);
     }
 });
 const upload = multer({ storage: storage });
 
 
-router.post('/submitApplication', upload.fields([{ name: 'resume', maxCount: 1 }, { name: 'coverLetter', maxCount: 1 }]), async(req, res) => {
+router.post('/submitApplication', upload.fields([{ name: 'resume', maxCount: 1 }, { name: 'coverLetter', maxCount: 1 }]), async (req, res) => {
+    let jobId;
+
     try {
         const { jobId } = req.body;
         const resumeFile = req.files['resume'][0];
         const coverLetterFile = req.files['coverLetter'][0];
 
+        const userId = req.session.user._id;
+
+        const appliedJobs = await userModel.findById(userId);
+        if (appliedJobs.appliedJobs.includes(jobId)) {
+            req.flash('error', 'You have already applied for this job');
+            return res.redirect(`/applyJob/${jobId}`);
+        }
+
         const application = new Application({
             jobId: jobId,
-            resume: resumeFile.path,
-            coverLetter: coverLetterFile.path,
+            userId: userId,
+            resume: resumeFile.filename,
+            coverLetter: coverLetterFile.filename,
         });
         await application.save();
 
-        res.status(200).send('Application submitted successfully.');
-    } catch (error) {
-        res.status(500).send('Error submitting application.');
-    }
+        appliedJobs.appliedJobs.push(jobId);
+        await appliedJobs.save();
 
+        req.flash('success', 'Application submitted successfully');
+        return res.redirect(`/applyJob/${jobId}`);
+    } catch (error) {
+        console.error(error);
+        req.flash('error', 'Error submitting application');
+        return res.redirect(`/applyJob/${jobId}`);
+    }
 });
+
+
 
 router.post('/likeJob/:jobId', async (req, res) => {
     if (!req.session.user) {
@@ -431,9 +454,9 @@ router.post('/likeJob/:jobId', async (req, res) => {
         if (!user.likedJobs.includes(jobId)) {
             user.likedJobs.push(jobId);
             await user.save();
-            
+
             req.session.user.likedJobs = user.likedJobs;
-            
+
             console.log(`User ${userId} liked job ${jobId} successfully`);
         } else {
             console.log(`User ${userId} has already liked job ${jobId}.`);
@@ -478,6 +501,8 @@ router.post('/unlikeJob/:jobId', async (req, res) => {
     }
 });
 
-  
+
+
+
 
 module.exports = router;

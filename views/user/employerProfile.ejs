@@ -25,19 +25,30 @@
                         <div class="card-body">
                             <h5 class="card-title">Employer Profile</h5>
 
+                            <% if (emp.logo ) { %>
+
                             <img
-                                src="<%= emp.logo %>"
+                                src="../images/<%= emp.logo %>"
                                 class="card-img-top logo"
                                 alt="Employer Logo"
                             />
-                            <h5 class="card-title">
-                                <%= emp.employerName %>
-                            </h5>
+                            <% } else { %>
+
+                            <img
+                                src="images/profile_logo.png"
+                                class="card-img-top logo"
+                                alt="Employer Logo"
+                            />
+
+                            <% } %>
+                            <h5 class="card-title"><%= emp.employerName %></h5>
                             <p class="card-text">
                                 Registration Number: <%=
                                 emp.registrationNumber.toUpperCase() %>
                             </p>
-                            <a href="/empMessage" class="btn btn-primary mt-3">Message</a>
+                            <a href="/empMessage" class="btn btn-primary mt-3"
+                                >Message</a
+                            >
                         </div>
                     </div>
                 </div>
