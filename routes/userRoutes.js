@@ -15,7 +15,7 @@ router.use("/public", express.static("public"));
 const bcrypt = require("bcrypt");
 const nodemailer = require('nodemailer');
 const ContactMessageModel = require('../models/contactMessageModel');
-const Application = require('../models/applicationModel');
+const applicationModel = require('../models/applicationModel');
 
 
 // Code Send
@@ -121,6 +121,11 @@ router.get("/userDashboard", checkEmployerNotLoggedIn, checkAdminNotLoggedIn, ch
         for (const jobId of userData.appliedJobs) {
             const job = await jobModel.findById(jobId).populate('employerId', 'employerName');
             if (job) {
+                const application = await applicationModel.findOne({ jobId: jobId, userId: userData._id });
+                let decision = 'In Process'; 
+                if (application) {
+                    decision = application.decision;
+                }
                 appliedJobs.push({
                     jobTitle: job.jobTitle,
                     employerName: job.employerId.employerName,
@@ -128,10 +133,12 @@ router.get("/userDashboard", checkEmployerNotLoggedIn, checkAdminNotLoggedIn, ch
                     city: job.city,
                     province: job.province,
                     salary: job.salary,
-                    street: job.street
+                    street: job.street,
+                    decision: decision 
                 });
             }
         }
+        
 
 
     
@@ -1394,7 +1401,18 @@ router.get("/appliedJobs", checkEmployerNotLoggedIn, checkAdminNotLoggedIn, chec
 
         const appliedJobs = await Promise.all(
             appliedJobsIds.map(async (jobId) => {
-                return await jobModel.findById(jobId).populate('employerId', 'employerName').exec();
+                const job = await jobModel.findById(jobId).populate('employerId', 'employerName').exec();
+                // Find application corresponding to the current user and job
+                const application = await applicationModel.findOne({ jobId: jobId, userId: user._id });
+                let decision = 'In Process'; // Default decision if application not found
+                if (application) {
+                    decision = application.decision;
+                }
+                // Return an object containing job details and decision
+                return {
+                    job: job,
+                    decision: decision
+                };
             })
         );
 
@@ -1413,6 +1431,7 @@ router.get("/appliedJobs", checkEmployerNotLoggedIn, checkAdminNotLoggedIn, chec
         return res.redirect("/userDashboard");
     }
 });
+
 
 
 // router.get('/applyJob/:jobId', async (req, res) => {

@@ -24,7 +24,7 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.set("view engine", "ejs");
 app.use(express.static("public"));
 
-app.listen(3001, () => {
+app.listen(3002, () => {
     console.log("Server is listening at port 3001");
 });
 

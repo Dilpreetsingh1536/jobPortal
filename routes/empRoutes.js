@@ -8,6 +8,7 @@ const bcrypt = require("bcrypt");
 const nodemailer = require('nodemailer');
 const userModel = require("../models/userModel");
 const multer = require('multer');
+const applicationModel = require("../models/applicationModel");
 
 router.use(express.static(__dirname+ "/public")); 
 router.use("/public", express.static("public"));
@@ -107,7 +108,36 @@ router.get("/empDashboard", checkUserNotLoggedIn, checkAdminNotLoggedIn, checkLo
 
         const jobs = await jobModel.find({ employerId: employerData._id });
 
-        res.render("empDashboard", { user, admin, employer, jobs, error: error, success: success, messageCount, messages: sortedMessages });
+
+        const appliedJobs = [];
+        for (const job of jobs) {
+            const applications = await applicationModel.find({ jobId: job._id } );
+
+            for (const application of applications) {
+                const user = await userModel.findById(application.userId);
+                appliedJobs.push({
+                    user: {
+                        name: user.name,
+                        email: user.email,
+                        educationTitle: user.educationTitle,
+                        major: user.major,
+                        institutionName: user.institutionName,
+                        startDate: user.startDate,
+                        endDate: user.endDate,
+                        jobTitle: user.jobTitle,
+                        company: user.company,
+                        description: user.description,
+                        expStartDate: user.expStartDate,
+                        expEndDate: user.expEndDate
+                    },
+                    job: job,
+                    decision: application.decision,
+                    applicationId: application._id
+                });
+            }
+        }
+
+        res.render("empDashboard", { user, admin, employer, jobs, error: error, success: success, messageCount, messages: sortedMessages,appliedJobs });
     } catch (error) {
         console.error(error);
         res.redirect("/empDashboard");
