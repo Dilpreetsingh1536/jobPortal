@@ -14,10 +14,11 @@
 <div class="container mt-5">
     <h1 class="mb-4">Applied Jobs</h1>
     <ul class="list-group">
-        <% appliedJobs.forEach((appliedJob, index) => { %>
+        <% if (appliedJobs && appliedJobs.length > 0) { %>
+            <% appliedJobs.forEach((job, index) => { %>
             <li class="list-group-item d-flex justify-content-between align-items-center">
                 <span>
-                    <strong><%= appliedJob.job.jobTitle %></strong> - <%= appliedJob.job.employerId.employerName %>
+                    <strong><%=job.jobTitle %></strong> - <%= job.employerName %>
                 </span>
                 <div>
                   
@@ -36,13 +37,14 @@
                                 </button>
                             </div>
                             <div class="modal-body">
-                                <p><strong>Job Title:</strong> <%= appliedJob.job.jobTitle %></p>
-                                <p><strong>Employer:</strong> <%= appliedJob.job.employerId.employerName %></p>
-                                <p><strong>Sector:</strong> <%= appliedJob.job.sector %></p>
-                                <p><strong>Location:</strong> <%= appliedJob.job.city %>, <%= appliedJob.job.province %></p>
-                                <p><strong>Salary:</strong> <%= appliedJob.job.salary %></p>
-                                <p><strong>Street:</strong> <%= appliedJob.job.street %></p>
-                                <p><strong>Decision:</strong> <%= appliedJob.decision %></p>
+                                <p><strong>Job Title:</strong> <%= job.jobTitle %></p>
+                                <p><strong>Employer:</strong> <%= job.employerName %></p>
+                                <p><strong>Sector:</strong> <%= job.sector %></p>
+                                <p><strong>Location:</strong>
+                                    <%= job.street %>, <%= job.city %>, <%= job.province %>, <%= job.postalCode %>
+                                </p>
+                                <p><strong>Salary:</strong> <%= job.salary %></p>
+                                <p><strong>Decision:</strong> <%= job.decision %></p>
                             </div>
                             <div class="modal-footer">
                                 <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
@@ -51,8 +53,11 @@
                     </div>
                 </div>
             </li>
-        <% }); %>        
-    </ul>
+            <% }); %>
+        </ul>
+    <% } else { %>
+        <p>You have not applied any jobs yet.</p>
+    <% } %>
     <nav aria-label="Page navigation example" class="mt-4" style="background-color: white;">
         <ul class="pagination">
             <% for(let i = 1; i <= totalPages; i++) { %>

@@ -14,8 +14,8 @@
 <div class="container mt-5">
     <h1 class="mb-4">All Applications</h1>
     <ul class="list-group">
-        <% appliedJobs.forEach((appliedJob, index) => {
-            %>
+        <% if (appliedJobs.length > 0) { %>
+            <% appliedJobs.forEach((appliedJob, index) => { %>
             <li class="list-group-item d-flex justify-content-between align-items-center">
                 <div>
                     <strong><%= appliedJob.user.name %></strong> - 
@@ -126,6 +126,11 @@
                 
             </li>
         <% }); %>
+        <% } else { %>
+            <li class="list-group-item">No applications posted.</li>
+        <% } %>
+        
+        
     </ul>
     <nav aria-label="Page navigation example" style="background-color: white;">
         <ul class="pagination justify-content-center">

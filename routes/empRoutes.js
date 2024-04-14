@@ -999,5 +999,43 @@ router.post("/employer/updateDecision", async (req, res) => {
     }
 });
 
+//Delete Application
+
+router.get("/deleteApplication", async (req, res) => {
+    try {
+        const { appliedJobId } = req.query;
+
+        const deletedApplication = await applicationModel.findByIdAndDelete(appliedJobId);
+
+        if (!deletedApplication) {
+            req.flash("error", "Application not found");
+            return res.redirect("/allApplications");
+        }
+
+        const userId = deletedApplication.userId;
+        const user = await userModel.findById(userId);
+
+        if (!user) {
+            req.flash("error", "User not found");
+            return res.redirect("/allApplications");
+        }
+
+        const jobIdIndex = user.appliedJobs.indexOf(deletedApplication.jobId);
+        if (jobIdIndex !== -1) {
+            user.appliedJobs.splice(jobIdIndex, 1);
+        }
+
+        await user.save();
+
+        req.flash("success", "Application deleted successfully");
+        res.redirect("/allApplications");
+    } catch (error) {
+        console.error(error);
+        req.flash("error", "Internal Server Error");
+        res.redirect("/allApplications");
+    }
+});
+
+
 
 module.exports = router;

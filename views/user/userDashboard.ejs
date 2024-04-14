@@ -1,96 +1,166 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
-    <title>User Account</title>
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" />
-    <link rel="stylesheet" type="text/css" href="css/nav.css" />
-    <link rel="stylesheet" type="text/css" href="css/footer.css" />
-    <link rel="stylesheet" type="text/css" href="css/main.css" />
-    <style>
-        .card-container {
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: space-around;
-            margin-bottom: 20px;
-        }
-
-        .card {
-            margin: 10px;
-            flex-grow: 1;
-            flex-basis: calc(50% - 20px);
-        }
-
-        @media (max-width: 768px) {
-            .card {
-                width: 100%;
+    <head>
+        <meta charset="UTF-8" />
+        <meta
+            name="viewport"
+            content="width=device-width, initial-scale=1, shrink-to-fit=no"
+        />
+        <title>User Account</title>
+        <link
+            rel="stylesheet"
+            href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+        />
+        <link rel="stylesheet" type="text/css" href="css/nav.css" />
+        <link rel="stylesheet" type="text/css" href="css/footer.css" />
+        <link rel="stylesheet" type="text/css" href="css/main.css" />
+        <style>
+            .card-container {
+                display: flex;
+                flex-wrap: wrap;
+                justify-content: space-around;
+                margin-bottom: 20px;
             }
-        }
-    </style>
-</head>
 
-<body style="background-color: #f8f9fa">
-    <%- include('./partials/nav.ejs') %>
+            .card {
+                margin: 10px;
+                flex-grow: 1;
+                flex-basis: calc(50% - 20px);
+            }
+
+            @media (max-width: 768px) {
+                .card {
+                    width: 100%;
+                }
+            }
+        </style>
+    </head>
+
+    <body style="background-color: #f8f9fa">
+        <%- include('./partials/nav.ejs') %>
         <div class="container mt-5">
             <h1 class="mb-4">User Account</h1>
 
             <!-- User Account Details -->
             <div class="row">
                 <div class="col-md-6">
-                    <div class="card"
-                        style="border: 1px solid #ccc; border-radius: 8px; box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); padding: 20px; margin-bottom: 20px;">
+                    <div
+                        class="card"
+                        style="
+                            border: 1px solid #ccc;
+                            border-radius: 8px;
+                            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+                            padding: 20px;
+                            margin-bottom: 20px;
+                        "
+                    >
                         <div class="card-body">
-                            <h3 class="card-title" style="font-size: 24px; font-weight: bold">User Account</h3>
+                            <h3
+                                class="card-title"
+                                style="font-size: 24px; font-weight: bold"
+                            >
+                                User Account
+                            </h3>
                             <div class="logoContainer">
                                 <% if (user.logo) { %>
-                                    <img src=" ../images/<%= user.logo %>" alt="User Logo" class="logo"
-                                        id="user-logo" />
-                                    <% } else { %>
-                                        <img src="images/profile_logo.png" alt="User Logo" class="logo"
-                                            id="user-logo" />
-                                        <% } %>
+                                <img
+                                    src=" ../images/<%= user.logo %>"
+                                    alt="User Logo"
+                                    class="logo"
+                                    id="user-logo"
+                                />
+                                <% } else { %>
+                                <img
+                                    src="images/profile_logo.png"
+                                    alt="User Logo"
+                                    class="logo"
+                                    id="user-logo"
+                                />
+                                <% } %>
                             </div>
                             <div class="row">
                                 <div class="col-md-12 mb-3">
-                                    <button class="btn btn-primary mr-2" data-toggle="modal"
-                                        data-target="#editLogoModal">
+                                    <button
+                                        class="btn btn-primary mr-2"
+                                        data-toggle="modal"
+                                        data-target="#editLogoModal"
+                                    >
                                         <i class="fa fa-edit"></i> Edit Logo
                                     </button>
 
                                     <% if (user.logo) { %>
-                                        <form action="/deleteLogo" method="POST" style="display: inline;">
-                                            <input type="hidden" name="userId" value="<%= user._id %>" />
-                                            <button type="submit" class="btn btn-danger">
-                                                <i class="fa fa-trash"></i> Delete Logo
-                                            </button>
-                                        </form>
-                                        <% } %>
+                                    <form
+                                        action="/deleteLogo"
+                                        method="POST"
+                                        style="display: inline"
+                                    >
+                                        <input
+                                            type="hidden"
+                                            name="userId"
+                                            value="<%= user._id %>"
+                                        />
+                                        <button
+                                            type="submit"
+                                            class="btn btn-danger"
+                                        >
+                                            <i class="fa fa-trash"></i> Delete
+                                            Logo
+                                        </button>
+                                    </form>
+                                    <% } %>
                                 </div>
                             </div>
 
-
                             <!-- Upload logo -->
-                            <div class="modal fade" id="editLogoModal" tabindex="-1" role="dialog"
-                                aria-labelledby="editLogoModalLabel" aria-hidden="true">
+                            <div
+                                class="modal fade"
+                                id="editLogoModal"
+                                tabindex="-1"
+                                role="dialog"
+                                aria-labelledby="editLogoModalLabel"
+                                aria-hidden="true"
+                            >
                                 <div class="modal-dialog" role="document">
                                     <div class="modal-content">
                                         <div class="modal-header">
-                                            <h5 class="modal-title" id="editLogoModalLabel">
+                                            <h5
+                                                class="modal-title"
+                                                id="editLogoModalLabel"
+                                            >
                                                 Edit Logo
                                             </h5>
-                                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                                                <span aria-hidden="true">&times;</span>
+                                            <button
+                                                type="button"
+                                                class="close"
+                                                data-dismiss="modal"
+                                                aria-label="Close"
+                                            >
+                                                <span aria-hidden="true"
+                                                    >&times;</span
+                                                >
                                             </button>
                                         </div>
                                         <div class="modal-body">
-                                            <form method="post" action="uploadLogo" enctype="multipart/form-data">
+                                            <form
+                                                method="post"
+                                                action="uploadLogo"
+                                                enctype="multipart/form-data"
+                                            >
                                                 <div class="form-group">
-                                                    <label for="logoInput">Choose Logo:</label>
-                                                    <input type="file" class="form-control-file" id="logoInput"
-                                                        name="logo" />
+                                                    <label for="logoInput"
+                                                        >Choose Logo:</label
+                                                    >
+                                                    <input
+                                                        type="file"
+                                                        class="form-control-file"
+                                                        id="logoInput"
+                                                        name="logo"
+                                                    />
                                                 </div>
-                                                <button type="submit" class="btn btn-primary">
+                                                <button
+                                                    type="submit"
+                                                    class="btn btn-primary"
+                                                >
                                                     Upload
                                                 </button>
                                             </form>
@@ -99,70 +169,152 @@
                                 </div>
                             </div>
 
-                            <h5 class="card-subtitle mb-3 text-muted" style="font-size: 18px">Name: <%= user.name %>
+                            <h5
+                                class="card-subtitle mb-3 text-muted"
+                                style="font-size: 18px"
+                            >
+                                Name: <%= user.name %>
                             </h5>
-                            <h5 class="card-subtitle mb-3 text-muted" style="font-size: 18px">Username: <%=
-                                    user.username %>
+                            <h5
+                                class="card-subtitle mb-3 text-muted"
+                                style="font-size: 18px"
+                            >
+                                Username: <%= user.username %>
                             </h5>
-                            <p class="card-text" style="font-size: 16px; margin-top: 10px">Email: <%= user.email %>
+                            <p
+                                class="card-text"
+                                style="font-size: 16px; margin-top: 10px"
+                            >
+                                Email: <%= user.email %>
                             </p>
-                            <a href="/edit-user-details" class="btn btn-success" style="margin-top: 20px"> <i
-                                    class="fa fa-edit"></i> Edit Details</a>
-                            <a href="/userChangePassword" class="btn btn-info" style="margin-top: 20px"><i
-                                    class="fa fa-key"></i> Change Password</a>
+                            <a
+                                href="/edit-user-details"
+                                class="btn btn-success"
+                                style="margin-top: 20px"
+                            >
+                                <i class="fa fa-edit"></i> Edit Details</a
+                            >
+                            <a
+                                href="/userChangePassword"
+                                class="btn btn-info"
+                                style="margin-top: 20px"
+                                ><i class="fa fa-key"></i> Change Password</a
+                            >
                         </div>
                     </div>
                 </div>
                 <div class="col-md-6">
-                    <div class="card"
-                        style="border: 1px solid #ccc; border-radius: 8px; box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); padding: 20px; margin-bottom: 20px;">
+                    <div
+                        class="card"
+                        style="
+                            border: 1px solid #ccc;
+                            border-radius: 8px;
+                            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+                            padding: 20px;
+                            margin-bottom: 20px;
+                        "
+                    >
                         <div class="card-body">
-                            <h3 class="card-title" style="font-size: 24px; font-weight: bold">Upload Resume</h3>
+                            <h3
+                                class="card-title"
+                                style="font-size: 24px; font-weight: bold"
+                            >
+                                Upload Resume
+                            </h3>
                             <div class="row align-items-center">
                                 <div class="col-md-4">
-                                    <form action="/uploadResume" method="POST" enctype="multipart/form-data"
-                                        class="form-inline">
+                                    <form
+                                        action="/uploadResume"
+                                        method="POST"
+                                        enctype="multipart/form-data"
+                                        class="form-inline"
+                                    >
                                         <div class="form-group mb-2">
-                                            <input type="file" class="form-control-file" id="resume" name="resume" />
+                                            <input
+                                                type="file"
+                                                class="form-control-file"
+                                                id="resume"
+                                                name="resume"
+                                            />
                                         </div>
-                                        <button type="submit" class="btn btn-primary mb-2">
+                                        <button
+                                            type="submit"
+                                            class="btn btn-primary mb-2"
+                                        >
                                             <i class="fa fa-upload"></i> Upload
                                         </button>
                                     </form>
                                 </div>
                                 <% if (user.resume) { %>
-                                    <div class="col-md-4" style="margin-top: 40px;">
-                                        <a href="<%= user.resume %>" class="btn btn-primary mb-2">
-                                            <i class="fa fa-download"></i> Download
-                                        </a>
-                                    </div>
-                                    <div class="col-md-4" style="margin-top: 40px;">
-                                        <form action="/deleteResume" method="POST" class="form-inline">
-                                            <input type="hidden" name="userId" value="<%= user._id %>" />
-                                            <button type="submit" class="btn btn-danger mb-2">
-                                                <i class="fa fa-trash"></i> Delete
-                                            </button>
-                                        </form>
-                                    </div>
-                                    <% } else { %>
-                                        <div class="col-md-8 text-center" style="margin-top: 40px;">
-                                            <small class="text-muted">No resume uploaded. Upload to enable more
-                                                options.</small>
-                                        </div>
-                                        <% } %>
+                                <div class="col-md-4" style="margin-top: 40px">
+                                    <a
+                                        href="<%= user.resume %>"
+                                        class="btn btn-primary mb-2"
+                                    >
+                                        <i class="fa fa-download"></i> Download
+                                    </a>
+                                </div>
+                                <div class="col-md-4" style="margin-top: 40px">
+                                    <form
+                                        action="/deleteResume"
+                                        method="POST"
+                                        class="form-inline"
+                                    >
+                                        <input
+                                            type="hidden"
+                                            name="userId"
+                                            value="<%= user._id %>"
+                                        />
+                                        <button
+                                            type="submit"
+                                            class="btn btn-danger mb-2"
+                                        >
+                                            <i class="fa fa-trash"></i> Delete
+                                        </button>
+                                    </form>
+                                </div>
+                                <% } else { %>
+                                <div
+                                    class="col-md-8 text-center"
+                                    style="margin-top: 40px"
+                                >
+                                    <small class="text-muted"
+                                        >No resume uploaded. Upload to enable
+                                        more options.</small
+                                    >
+                                </div>
+                                <% } %>
                             </div>
-
                         </div>
-                        <div class="card-body" style="border-top: 1px solid #eee; padding-top: 20px; margin-top: 20px;">
-                            <h3 class="card-title" style="font-size: 24px; font-weight: bold; margin-bottom: 20px;">
+                        <div
+                            class="card-body"
+                            style="
+                                border-top: 1px solid #eee;
+                                padding-top: 20px;
+                                margin-top: 20px;
+                            "
+                        >
+                            <h3
+                                class="card-title"
+                                style="
+                                    font-size: 24px;
+                                    font-weight: bold;
+                                    margin-bottom: 20px;
+                                "
+                            >
                                 Messages
                             </h3>
-                            <p class="card-text" style="margin-bottom: 20px;">Total Messages: 
+                            <p class="card-text" style="margin-bottom: 20px">
+                                Total Messages:
                                 <span class="badge badge-primary">
                                     <%= messageCount %>
                                 </span>
                             </p>
-                            <a href="/viewMessage" class="btn btn-primary" style="margin-right: 10px;">
+                            <a
+                                href="/viewMessage"
+                                class="btn btn-primary"
+                                style="margin-right: 10px"
+                            >
                                 <i class="fa fa-eye"></i> View Messages
                             </a>
                             <a href="/sentMessage" class="btn btn-primary">
@@ -170,43 +322,65 @@
                             </a>
                         </div>
                         <div class="card-body">
-                            <h3 class="card-title" style="font-size: 24px; font-weight: bold">Admin Messages</h3>
+                            <h3
+                                class="card-title"
+                                style="font-size: 24px; font-weight: bold"
+                            >
+                                Admin Messages
+                            </h3>
                             <% if (messages && messages.length > 0) { %>
-                                <div class="list-group">
-                                    <% messages.forEach(function(message) { %>
-                                        <div class="list-group-item list-group-item-action">
-                                            <div class="row">
-                                                <div class="col-12">
-                                                    <p class="mb-1"><strong>Message:</strong>
-                                                        <%= message.message %>
-                                                    </p>
-                                                </div>
-                                            </div>
-                                            <div class="row align-items-center">
-                                                <div class="col-md-6">
-                                                    <small><strong>Sent:</strong>
-                                                        <%= message.createdAt.toDateString() %>
-                                                    </small>
-                                                </div>
-                                                <div class="col-md-6 text-md-right">
-                                                    <form action="/deleteMessage/<%= message._id %>" method="POST" style="display: inline;">
-                                                        <button type="submit" class="btn btn-danger btn-sm">
-                                                            <i class="fa fa-trash"></i> Delete
-                                                        </button>
-                                                    </form>
-                                                </div>
-                                            </div>
+                            <div class="list-group">
+                                <% messages.forEach(function(message) { %>
+                                <div
+                                    class="list-group-item list-group-item-action"
+                                >
+                                    <div class="row">
+                                        <div class="col-12">
+                                            <p class="mb-1">
+                                                <strong>Message:</strong>
+                                                <%= message.message %>
+                                            </p>
                                         </div>
-                                    <% }); %>
+                                    </div>
+                                    <div class="row align-items-center">
+                                        <div class="col-md-6">
+                                            <small
+                                                ><strong>Sent:</strong>
+                                                <%=
+                                                message.createdAt.toDateString()
+                                                %>
+                                            </small>
+                                        </div>
+                                        <div class="col-md-6 text-md-right">
+                                            <form
+                                                action="/deleteMessage/<%= message._id %>"
+                                                method="POST"
+                                                style="display: inline"
+                                            >
+                                                <button
+                                                    type="submit"
+                                                    class="btn btn-danger btn-sm"
+                                                >
+                                                    <i class="fa fa-trash"></i>
+                                                    Delete
+                                                </button>
+                                            </form>
+                                        </div>
+                                    </div>
                                 </div>
+                                <% }); %>
+                            </div>
                             <% } else { %>
-                                <p>No new messages.</p>
+                            <p>No new messages.</p>
                             <% } %>
-                            <a href="/userAllMessages" class="btn btn-info" style="margin-top: 5px">
+                            <a
+                                href="/userAllMessages"
+                                class="btn btn-info"
+                                style="margin-top: 5px"
+                            >
                                 <i class="fa fa-arrow-right"></i> View More
                             </a>
                         </div>
-                        
                     </div>
                 </div>
             </div>
@@ -215,210 +389,377 @@
             <div class="card-container">
                 <div class="card">
                     <div class="card-body">
-                        <h3 class="card-title" style="font-size: 24px; font-weight: bold">Experience</h3>
+                        <h3
+                            class="card-title"
+                            style="font-size: 24px; font-weight: bold"
+                        >
+                            Experience
+                        </h3>
                         <form action="/setEditExperienceId" method="post">
                             <% if (sortedExperiences.length === 0) { %>
-                                <h2>No experience posted.</h2>
+                            <h2>No experience posted.</h2>
                             <% } else { %>
-                                <div class="list-group">
-                                    <% sortedExperiences.slice(0, 3).forEach(exp => { %>
-                                        <div class="list-group-item" style="margin-top: 0.5em">
-                                            <h5 class="mb-1"><%= exp.jobTitle %></h5>
-                                            <p class="mb-1"><%= exp.company %></p>
-                                            <small><%= exp.expStartDate.toLocaleDateString('en-CA') %> - 
-                                                <%= exp.expEndDate ? exp.expEndDate.toLocaleDateString('en-CA') : 'Present' %>
-                                            </small>
-                                            <p class="mb-1"><%= exp.description %></p>
-                                            <div style="margin-top: 0.5em">
-                                                <a href="/editExperience?experienceId=<%= exp._id %>" class="btn btn-primary btn-sm">
-                                                    <i class="fa fa-edit"></i> Edit
-                                                </a>
-                                                <a href="/setDeleteExpId/<%= exp._id %>" class="btn btn-danger btn-sm">
-                                                    <i class="fa fa-trash"></i> Delete
-                                                </a>
-                                            </div>
-                                        </div>
-                                    <% }); %>
+                            <div class="list-group">
+                                <% sortedExperiences.slice(0, 3).forEach(exp =>
+                                { %>
+                                <div
+                                    class="list-group-item"
+                                    style="margin-top: 0.5em"
+                                >
+                                    <h5 class="mb-1"><%= exp.jobTitle %></h5>
+                                    <p class="mb-1"><%= exp.company %></p>
+                                    <small
+                                        ><%=
+                                        exp.expStartDate.toLocaleDateString('en-CA')
+                                        %> - <%= exp.expEndDate ?
+                                        exp.expEndDate.toLocaleDateString('en-CA')
+                                        : 'Present' %>
+                                    </small>
+                                    <p class="mb-1"><%= exp.description %></p>
+                                    <div style="margin-top: 0.5em">
+                                        <a
+                                            href="/editExperience?experienceId=<%= exp._id %>"
+                                            class="btn btn-primary btn-sm"
+                                        >
+                                            <i class="fa fa-edit"></i> Edit
+                                        </a>
+                                        <a
+                                            href="/setDeleteExpId/<%= exp._id %>"
+                                            class="btn btn-danger btn-sm"
+                                        >
+                                            <i class="fa fa-trash"></i> Delete
+                                        </a>
+                                    </div>
                                 </div>
+                                <% }); %>
+                            </div>
                             <% } %>
-                            <a href="/experience-form" style="margin-top: 20px" class="btn btn-success">
+                            <a
+                                href="/experience-form"
+                                style="margin-top: 20px"
+                                class="btn btn-success"
+                            >
                                 <i class="fa fa-plus"></i> Add
                             </a>
-                            <a href="/moreExperience" class="btn btn-info" style="margin-top: 20px">
+                            <a
+                                href="/moreExperience"
+                                class="btn btn-info"
+                                style="margin-top: 20px"
+                            >
                                 <i class="fa fa-arrow-right"></i> View More
                             </a>
                         </form>
                     </div>
                 </div>
-            
+
                 <div class="card">
                     <div class="card-body">
-                        <h3 class="card-title" style="font-size: 24px; font-weight: bold">Education</h3>
+                        <h3
+                            class="card-title"
+                            style="font-size: 24px; font-weight: bold"
+                        >
+                            Education
+                        </h3>
                         <form action="/setEditEducationId" method="post">
                             <% if (sortedEducations.length === 0) { %>
-                                <h2>No education posted.</h2>
+                            <h2>No education posted.</h2>
                             <% } else { %>
-                                <div class="list-group">
-                                    <% sortedEducations.slice(0, 3).forEach(edu => { %>
-                                        <div class="list-group-item" style="margin-top: 0.5em">
-                                            <h5 class="mb-1"><%= edu.educationTitle %></h5>
-                                            <p class="mb-1"><%= edu.major %></p>
-                                            <p class="mb-1"><%= edu.institutionName %></p>
-                                            <small><% if (edu.startDate) { %>
-                                                <%= edu.startDate.toLocaleDateString('en-CA') %>
-                                            <% } %> - <% if (edu.endDate) { %>
-                                                <%= edu.endDate.toLocaleDateString('en-CA') %>
-                                            <% } else { %> Present <% } %></small>
-                                            <div style="margin-top: 0.5em">
-                                                <a href="/editEducation?educationId=<%= edu._id %>" class="btn btn-primary btn-sm">
-                                                    <i class="fa fa-edit"></i> Edit
-                                                </a>
-                                                <a href="/setDeleteEduId/<%= edu._id %>" class="btn btn-danger btn-sm">
-                                                    <i class="fa fa-trash"></i> Delete
-                                                </a>
-                                            </div>
-                                        </div>
-                                    <% }); %>
+                            <div class="list-group">
+                                <% sortedEducations.slice(0, 3).forEach(edu => {
+                                %>
+                                <div
+                                    class="list-group-item"
+                                    style="margin-top: 0.5em"
+                                >
+                                    <h5 class="mb-1">
+                                        <%= edu.educationTitle %>
+                                    </h5>
+                                    <p class="mb-1"><%= edu.major %></p>
+                                    <p class="mb-1">
+                                        <%= edu.institutionName %>
+                                    </p>
+                                    <small
+                                        ><% if (edu.startDate) { %> <%=
+                                        edu.startDate.toLocaleDateString('en-CA')
+                                        %> <% } %> - <% if (edu.endDate) { %>
+                                        <%=
+                                        edu.endDate.toLocaleDateString('en-CA')
+                                        %> <% } else { %> Present <% } %></small
+                                    >
+                                    <div style="margin-top: 0.5em">
+                                        <a
+                                            href="/editEducation?educationId=<%= edu._id %>"
+                                            class="btn btn-primary btn-sm"
+                                        >
+                                            <i class="fa fa-edit"></i> Edit
+                                        </a>
+                                        <a
+                                            href="/setDeleteEduId/<%= edu._id %>"
+                                            class="btn btn-danger btn-sm"
+                                        >
+                                            <i class="fa fa-trash"></i> Delete
+                                        </a>
+                                    </div>
                                 </div>
+                                <% }); %>
+                            </div>
                             <% } %>
-                            <a href="/add-education-form" style="margin-top: 20px" class="btn btn-success">
+                            <a
+                                href="/add-education-form"
+                                style="margin-top: 20px"
+                                class="btn btn-success"
+                            >
                                 <i class="fa fa-plus"></i> Add
                             </a>
-                            <a href="/moreEducation" class="btn btn-info" style="margin-top: 20px">
+                            <a
+                                href="/moreEducation"
+                                class="btn btn-info"
+                                style="margin-top: 20px"
+                            >
                                 <i class="fa fa-arrow-right"></i> View More
                             </a>
                         </form>
                     </div>
                 </div>
             </div>
-            
-
 
             <!-- Applied Jobs and Liked Jobs -->
             <div class="card-container">
                 <div class="card">
                     <div class="card-body">
-                        <h3 class="card-title" style="font-size: 24px; font-weight: bold">
+                        <h3
+                            class="card-title"
+                            style="font-size: 24px; font-weight: bold"
+                        >
                             Applied Jobs
                         </h3>
                         <% if (appliedJobs && appliedJobs.length > 0) { %>
-                            <ul class="list-group">
-                                <% appliedJobs.slice(0, 3).forEach((job, index) => { %>
-                                    <li class="list-group-item d-flex justify-content-between align-items-center">
-                                        <span>
-                                            <strong><%= job.jobTitle %></strong> - <%= job.employerName %>
-                                        </span>
-                                        <button type="button" class="btn btn-primary btn-sm" data-toggle="modal"
-                                            data-target="#likedJobModal<%= index %>">
-                                            <i class="fa fa-eye"></i> View
-                                        </button>
-            
-                                        <!-- Job Detail Modal -->
-                                        <div class="modal fade" id="likedJobModal<%= index %>" tabindex="-1"
-                                            role="dialog" aria-labelledby="likedJobModalLabel<%= index %>"
-                                            aria-hidden="true">
-                                            <div class="modal-dialog" role="document">
-                                                <div class="modal-content">
-                                                    <div class="modal-header">
-                                                        <h5 class="modal-title" id="likedJobModalLabel<%= index %>">Job Details</h5>
-                                                        <button type="button" class="close" data-dismiss="modal"
-                                                            aria-label="Close">
-                                                            <span aria-hidden="true">&times;</span>
-                                                        </button>
-                                                    </div>
-                                                    <div class="modal-body">
-                                                        <p><strong>Job Title:</strong> <%= job.jobTitle %></p>
-                                                        <p><strong>Employer Name:</strong> <%= job.employerName %></p>
-                                                        <p><strong>Sector:</strong> <%= job.sector %></p>
-                                                        <p><strong>Location:</strong>
-                                                            <%= job.street %>, <%= job.city %>, <%= job.province %>, <%= job.postalCode %>
-                                                        </p>
-                                                        <p><strong>Salary:</strong> <%= job.salary %></p>
-                                                        <p><strong>Decision:</strong> <%= job.decision %></p>
-                                                    </div>
-                                                    <div class="modal-footer">
-                                                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                                                    </div>
-                                                </div>
+                        <ul class="list-group">
+                            <% appliedJobs.slice(0, 3).forEach((job, index) => {
+                            %>
+                            <li
+                                class="list-group-item d-flex justify-content-between align-items-center"
+                            >
+                                <span>
+                                    <strong><%= job.jobTitle %></strong> - <%=
+                                    job.employerName %>
+                                </span>
+                                <button
+                                    type="button"
+                                    class="btn btn-primary btn-sm"
+                                    data-toggle="modal"
+                                    data-target="#likedJobModal<%= index %>"
+                                >
+                                    <i class="fa fa-eye"></i> View
+                                </button>
+
+                                <!-- Job Detail Modal -->
+                                <div
+                                    class="modal fade"
+                                    id="likedJobModal<%= index %>"
+                                    tabindex="-1"
+                                    role="dialog"
+                                    aria-labelledby="likedJobModalLabel<%= index %>"
+                                    aria-hidden="true"
+                                >
+                                    <div class="modal-dialog" role="document">
+                                        <div class="modal-content">
+                                            <div class="modal-header">
+                                                <h5
+                                                    class="modal-title"
+                                                    id="likedJobModalLabel<%= index %>"
+                                                >
+                                                    Job Details
+                                                </h5>
+                                                <button
+                                                    type="button"
+                                                    class="close"
+                                                    data-dismiss="modal"
+                                                    aria-label="Close"
+                                                >
+                                                    <span aria-hidden="true"
+                                                        >&times;</span
+                                                    >
+                                                </button>
+                                            </div>
+                                            <div class="modal-body">
+                                                <p>
+                                                    <strong>Job Title:</strong>
+                                                    <%= job.jobTitle %>
+                                                </p>
+                                                <p>
+                                                    <strong>Employer:</strong>
+                                                    <%= job.employerName %>
+                                                </p>
+                                                <p>
+                                                    <strong>Sector:</strong> <%=
+                                                    job.sector %>
+                                                </p>
+                                                <p>
+                                                    <strong>Location:</strong>
+                                                    <%= job.street %>, <%=
+                                                    job.city %>, <%=
+                                                    job.province %>, <%=
+                                                    job.postalCode %>
+                                                </p>
+                                                <p>
+                                                    <strong>Salary:</strong> <%=
+                                                    job.salary %>
+                                                </p>
+                                                <p>
+                                                    <strong>Decision:</strong>
+                                                    <%= job.decision %>
+                                                </p>
+                                            </div>
+                                            <div class="modal-footer">
+                                                <button
+                                                    type="button"
+                                                    class="btn btn-secondary"
+                                                    data-dismiss="modal"
+                                                >
+                                                    Close
+                                                </button>
                                             </div>
                                         </div>
-                                    </li>
-                                <% }); %>
-                            </ul>
+                                    </div>
+                                </div>
+                            </li>
+                            <% }); %>
+                        </ul>
                         <% } else { %>
-                            <p>You have not applied any jobs yet.</p>
+                        <p>You have not applied any jobs yet.</p>
                         <% } %>
-                        <a href="/appliedJobs" class="btn btn-info" style="margin-top: 20px">
+                        <a
+                            href="/appliedJobs"
+                            class="btn btn-info"
+                            style="margin-top: 20px"
+                        >
                             <i class="fa fa-arrow-right"></i> View More
                         </a>
                     </div>
                 </div>
-            
+
                 <div class="card">
                     <div class="card-body">
-                        <h3 class="card-title" style="font-size: 24px; font-weight: bold">
+                        <h3
+                            class="card-title"
+                            style="font-size: 24px; font-weight: bold"
+                        >
                             Liked Jobs
                         </h3>
                         <% if (likedJobs && likedJobs.length > 0) { %>
-                            <ul class="list-group">
-                                <% likedJobs.slice(0, 3).forEach((job, index) => { %>
-                                    <li class="list-group-item d-flex justify-content-between align-items-center">
-                                        <span>
-                                            <strong><%= job.jobTitle %></strong> - <%= job.employerName %>
-                                        </span>
-                                        <button type="button" class="btn btn-primary btn-sm" data-toggle="modal"
-                                            data-target="#likedJobModal<%= index %>">
-                                            <i class="fa fa-eye"></i> View
-                                        </button>
-            
-                                        <!-- Job Detail Modal -->
-                                        <div class="modal fade" id="likedJobModal<%= index %>" tabindex="-1"
-                                            role="dialog" aria-labelledby="likedJobModalLabel<%= index %>"
-                                            aria-hidden="true">
-                                            <div class="modal-dialog" role="document">
-                                                <div class="modal-content">
-                                                    <div class="modal-header">
-                                                        <h5 class="modal-title" id="likedJobModalLabel<%= index %>">Job Details</h5>
-                                                        <button type="button" class="close" data-dismiss="modal"
-                                                            aria-label="Close">
-                                                            <span aria-hidden="true">&times;</span>
-                                                        </button>
-                                                    </div>
-                                                    <div class="modal-body">
-                                                        <p><strong>Job Title:</strong> <%= job.jobTitle %></p>
-                                                        <p><strong>Employer Name:</strong> <%= job.employerName %></p>
-                                                        <p><strong>Sector:</strong> <%= job.sector %></p>
-                                                        <p><strong>Location:</strong>
-                                                            <%= job.street %>, <%= job.city %>, <%= job.province %>, <%= job.postalCode %>
-                                                        </p>
-                                                        <p><strong>Salary:</strong> <%= job.salary %></p>
-                                                    </div>
-                                                    <div class="modal-footer">
-                                                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                                                    </div>
-                                                </div>
+                        <ul class="list-group">
+                            <% likedJobs.slice(0, 3).forEach((job, index) => {
+                            %>
+                            <li
+                                class="list-group-item d-flex justify-content-between align-items-center"
+                            >
+                                <span>
+                                    <strong><%= job.jobTitle %></strong> - <%=
+                                    job.employerName %>
+                                </span>
+                                <button
+                                    type="button"
+                                    class="btn btn-primary btn-sm"
+                                    data-toggle="modal"
+                                    data-target="#likedJobModal<%= index %>"
+                                >
+                                    <i class="fa fa-eye"></i> View
+                                </button>
+
+                                <!-- Job Detail Modal -->
+                                <div
+                                    class="modal fade"
+                                    id="likedJobModal<%= index %>"
+                                    tabindex="-1"
+                                    role="dialog"
+                                    aria-labelledby="likedJobModalLabel<%= index %>"
+                                    aria-hidden="true"
+                                >
+                                    <div class="modal-dialog" role="document">
+                                        <div class="modal-content">
+                                            <div class="modal-header">
+                                                <h5
+                                                    class="modal-title"
+                                                    id="likedJobModalLabel<%= index %>"
+                                                >
+                                                    Job Details
+                                                </h5>
+                                                <button
+                                                    type="button"
+                                                    class="close"
+                                                    data-dismiss="modal"
+                                                    aria-label="Close"
+                                                >
+                                                    <span aria-hidden="true"
+                                                        >&times;</span
+                                                    >
+                                                </button>
+                                            </div>
+                                            <div class="modal-body">
+                                                <p>
+                                                    <strong>Job Title:</strong>
+                                                    <%= job.jobTitle %>
+                                                </p>
+                                                <p>
+                                                    <strong
+                                                        >Employer Name:</strong
+                                                    >
+                                                    <%= job.employerName %>
+                                                </p>
+                                                <p>
+                                                    <strong>Sector:</strong> <%=
+                                                    job.sector %>
+                                                </p>
+                                                <p>
+                                                    <strong>Location:</strong>
+                                                    <%= job.street %>, <%=
+                                                    job.city %>, <%=
+                                                    job.province %>, <%=
+                                                    job.postalCode %>
+                                                </p>
+                                                <p>
+                                                    <strong>Salary:</strong> <%=
+                                                    job.salary %>
+                                                </p>
+                                            </div>
+                                            <div class="modal-footer">
+                                                <button
+                                                    type="button"
+                                                    class="btn btn-secondary"
+                                                    data-dismiss="modal"
+                                                >
+                                                    Close
+                                                </button>
                                             </div>
                                         </div>
-                                    </li>
-                                <% }); %>
-                            </ul>
+                                    </div>
+                                </div>
+                            </li>
+                            <% }); %>
+                        </ul>
                         <% } else { %>
-                            <p>You have not liked any jobs yet.</p>
+                        <p>You have not liked any jobs yet.</p>
                         <% } %>
-                        <a href="/likedJobs" class="btn btn-info" style="margin-top: 20px">
+                        <a
+                            href="/likedJobs"
+                            class="btn btn-info"
+                            style="margin-top: 20px"
+                        >
                             <i class="fa fa-arrow-right"></i> View More
                         </a>
                     </div>
                 </div>
             </div>
-            
         </div>
 
         <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
         <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
-        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.1/css/all.min.css">
-</body>
-<%- include('./partials/footer.ejs') %>
-
+        <link
+            rel="stylesheet"
+            href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.1/css/all.min.css"
+        />
+    </body>
+    <%- include('./partials/footer.ejs') %>
 </html>
