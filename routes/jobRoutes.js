@@ -105,7 +105,6 @@ router.get('/searchJob', async (req, res) => {
     }
 });
 
-
 router.post('/searchJob', async (req, res) => {
     const user = req.session.user;
     const employer = req.session.employer;
@@ -143,29 +142,29 @@ router.post('/searchJob', async (req, res) => {
 
         const jobs = await jobModel.find(filter).populate('employerId', 'employerName').exec();
 
-for (let job of jobs) {
-    const jobIdAsString = job._id.toString();
-    job.isLikedByCurrentUser = user && user.likedJobs && user.likedJobs.includes(jobIdAsString);
-}
+        for (let job of jobs) {
+            const jobIdAsString = job._id.toString();
+            job.isLikedByCurrentUser = user && user.likedJobs && user.likedJobs.includes(jobIdAsString);
+        }
 
-let queryParams = {};
-if (jobs.length > 0) {
-    queryParams.jobs = JSON.stringify(jobs.map(job => ({
-        ...job.toObject(),
-        isLikedByCurrentUser: job.isLikedByCurrentUser
-    })));
-}
-if (job) queryParams.job = job;
-if (location) queryParams.location = location;
-if (salary) queryParams.salary = salary;
-if (sector) queryParams.sector = sector;
-if (company) queryParams.company = company;
+        let queryParams = {};
+        if (jobs.length > 0) {
+            queryParams.jobs = JSON.stringify(jobs.map(job => ({
+                ...job.toObject(),
+                isLikedByCurrentUser: job.isLikedByCurrentUser
+            })));
+        }
+        if (job) queryParams.job = job;
+        if (location) queryParams.location = location;
+        if (salary) queryParams.salary = salary;
+        if (sector) queryParams.sector = sector;
+        if (company) queryParams.company = company;
 
-res.redirect('/searchJob?' + new URLSearchParams(queryParams).toString());
+        res.redirect('/searchJob?' + new URLSearchParams(queryParams).toString());
 
-    } catch (error) {
-        console.error('Error in posting job search:', error);
-        res.redirect('/searchJob');
+            } catch (error) {
+                console.error('Error in posting job search:', error);
+                res.redirect('/searchJob');
     }
 });
 
