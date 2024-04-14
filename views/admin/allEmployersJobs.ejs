@@ -60,10 +60,10 @@
                                 <form action="/admin/updateJobStatus" method="POST" class="mr-auto">
                                     <input type="hidden" name="jobId" value="<%= job._id %>">
                                     <input type="hidden" name="redirectPath" value="/allJobs">
-                                    <button type="submit" name="action" value="approved" class="btn btn-outline-outline-success" <%= job.status === 'approved' ? 'disabled' : '' %>>
+                                    <button type="submit" name="action" value="approved" class="btn btn-outline-success" <%= job.status === 'approved' ? 'disabled' : '' %>>
                                         <i class="fas fa-thumbs-up"></i> Approve
                                     </button>
-                                    <button type="submit" name="action" value="rejected" class="btn btn-outline-outline-danger">
+                                    <button type="submit" name="action" value="rejected" class="btn btn-outline-danger">
                                         <i class="fas fa-thumbs-down"></i> Reject
                                     </button>
                                 </form>

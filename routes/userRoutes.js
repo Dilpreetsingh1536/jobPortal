@@ -118,18 +118,25 @@ router.get("/userDashboard", checkEmployerNotLoggedIn, checkAdminNotLoggedIn, ch
         }
 
         const appliedJobs = [];
+        const userAppliedJobs = [];
         for (const jobId of userData.appliedJobs) {
-            const job = await jobModel.findById(jobId).populate('employerId', 'employerName');
-            if (job) {
+            const application = await Application.findOne({ jobId: jobId, userId: req.session.user._id })
+                                    .populate({
+                                        path: 'jobId',
+                                        populate: { path: 'employerId', select: 'employerName' }
+                                    });
+            if (application && application.jobId) {
                 appliedJobs.push({
-                    jobTitle: job.jobTitle,
-                    employerName: job.employerId.employerName,
-                    sector: job.sector,
-                    city: job.city,
-                    province: job.province,
-                    salary: job.salary,
-                    street: job.street
+                    jobTitle: application.jobId.jobTitle,
+                    employerName: application.jobId.employerId.employerName,
+                    sector: application.jobId.sector,
+                    city: application.jobId.city,
+                    province: application.jobId.province,
+                    salary: application.jobId.salary,
+                    street: application.jobId.street,
+                    decision: application.decision 
                 });
+                userAppliedJobs.push(application.jobId._id.toString());
             }
         }
 

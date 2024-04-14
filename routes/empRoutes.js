@@ -8,6 +8,7 @@ const bcrypt = require("bcrypt");
 const nodemailer = require('nodemailer');
 const userModel = require("../models/userModel");
 const multer = require('multer');
+const Application = require('../models/applicationModel');
 
 router.use(express.static(__dirname+ "/public")); 
 router.use("/public", express.static("public"));
@@ -82,6 +83,17 @@ router.get("/empDashboard", checkUserNotLoggedIn, checkAdminNotLoggedIn, checkLo
         const admin = req.session.admin;
         const error = req.flash("error");
         const success = req.flash("success");
+        const jobs = await jobModel.find({ employerId: employerData._id });
+        const jobIds = jobs.map(job => job._id);
+
+        const applications = await Application.find({ 
+            jobId: { $in: jobIds },
+            decision: { $ne: 'Rejected' }
+        })
+        .populate('userId', 'name email')
+        .populate('jobId', 'jobTitle');
+
+        console.log("Fetched Applications: ", applications);
 
 
         const employer = {
@@ -91,7 +103,6 @@ router.get("/empDashboard", checkUserNotLoggedIn, checkAdminNotLoggedIn, checkLo
             email: employerData.email,
             membership : employerData.membershipPlan,
         };
-
 
         let adminDetails = await adminModel.findOne();
 
@@ -103,11 +114,8 @@ router.get("/empDashboard", checkUserNotLoggedIn, checkAdminNotLoggedIn, checkLo
                 adminUniqueId: adminDetails ? adminDetails.adminId : 'Admin not found',
             })) : [];
 
-        console.log(sortedMessages);
 
-        const jobs = await jobModel.find({ employerId: employerData._id });
-
-        res.render("empDashboard", { user, admin, employer, jobs, error: error, success: success, messageCount, messages: sortedMessages });
+        res.render("empDashboard", { user, admin, employer, jobs, error: error, success: success, messageCount, messages: sortedMessages, applications });
     } catch (error) {
         console.error(error);
         res.redirect("/empDashboard");
@@ -910,6 +918,51 @@ router.post('/update-membership-plan', async (req, res) => {
     } catch (error) {
         console.error(error);
         res.status(500).json({ error: 'Failed to update membership plan.' });
+    }
+});
+
+router.get('/viewDocument/:appId/:type', async (req, res) => {
+    const { appId, type } = req.params;
+
+    try {
+        const application = await Application.findById(appId);
+        if (!application) {
+            return res.status(404).send('Application not found');
+        }
+
+        if (application.decision !== 'Viewed') {
+            await Application.findByIdAndUpdate(appId, { decision: 'Viewed' });
+        }
+
+        const filePath = type === 'resume' ? application.resume : application.coverLetter;
+        if (!filePath) {
+            return res.status(404).send('Document not found');
+        }
+
+        res.redirect('/public/uploads/' + filePath);
+    } catch (error) {
+        console.error('Failed to update application status or retrieve document:', error);
+        res.status(500).send('Error updating application status or retrieving document');
+    }
+});
+
+
+router.post('/updateApplicationDecision', async (req, res) => {
+    const { applicationId, decision } = req.body;
+    try {
+        const application = await Application.findByIdAndUpdate(applicationId, {
+            decision: decision
+        }, { new: true });
+        if (!application) {
+            req.flash('error', 'Application not found');
+            return res.redirect('/empDashboard');
+        }
+        req.flash('success', `Application status updated to ${decision}.`);
+        res.redirect('/empDashboard');
+    } catch (error) {
+        console.error('Failed to update application decision:', error);
+        req.flash('error', 'Failed to update application decision');
+        res.redirect('/empDashboard');
     }
 });
 

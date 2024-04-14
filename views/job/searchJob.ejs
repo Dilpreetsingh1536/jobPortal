@@ -148,17 +148,16 @@
                             <strong>Description:</strong>
                             <%= job.description %>
                         </p>
-                        <% if (user && !userAppliedJobs.includes(job._id)) { %>
-                        <a
-                            href="/applyJob/<%= job._id %>"
-                            class="btn btn-success"
-                            >Apply</a
-                        >
+                        <% if (user) { %>
+                            <% if (!userAppliedJobs.includes(job._id.toString())) { %>
+                                <a href="/applyJob/<%= job._id %>" class="btn btn-success">Apply</a>
+                            <% } else { %>
+                                <button class="btn btn-secondary" disabled>Applied</button>
+                            <% } %>
                         <% } else { %>
-                        <button class="btn btn-secondary" disabled>
-                            Applied
-                        </button>
-                        <% } %> <% if (user) { %> <% if
+                            <a href="/login" class="btn btn-success">Apply</a>
+                        <% } %>
+                         <% if (user) { %> <% if
                         (job.isLikedByCurrentUser) { %>
                         <form
                             action="/unlikeJob/<%= job._id %>"

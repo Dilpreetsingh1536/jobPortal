@@ -207,7 +207,64 @@
                     <div class="card" style="border: none; border-radius: 10px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05); padding: 20px; margin-bottom: 20px;">
                         <div class="card-body">
                             <h3 class="card-title" style="font-size: 24px; font-weight: bold">New Applications</h3>
-                            <a href="/allApplications" class="btn btn-outline-info mt-3"><i class="fa fa-arrow-right"></i> View More</a>
+                            <form action="/setEditJobId" method="post">
+                                <ul class="list-group">
+                                    <% applications.slice(0, 3).forEach(function(app, index) { %>
+                                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                                            <div>
+                                                <strong>Job: <%= app.jobId.jobTitle %></strong> - <span><strong>Email:</strong> <%= app.userId.email %></span>
+                                            </div>
+                                            <div>
+                                                <button type="button" class="btn btn-outline-primary btn-sm" data-toggle="modal" data-target="#viewApplicationModal<%= index %>">
+                                                    <i class="fas fa-eye"></i>
+                                                </button>
+                                            </div>
+                                        </li>
+                                        <div class="modal fade" id="viewApplicationModal<%= index %>" tabindex="-1" role="dialog" aria-labelledby="viewApplicationModalLabel<%= index %>" aria-hidden="true">
+                                            <div class="modal-dialog" role="document">
+                                                <div class="modal-content">
+                                                    <div class="modal-header">
+                                                        <h5 class="modal-title" id="viewApplicationModalLabel<%= index %>">Application Details</h5>
+                                                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                                            <span aria-hidden="true">&times;</span>
+                                                        </button>
+                                                    </div>
+                                                    <div class="modal-body">
+                                                        <p><strong>Applicant Name:</strong> <%= app.userId.name %></p>
+                                                        <p><strong>Email:</strong> <%= app.userId.email %></p>
+                                                        <p><strong>Resume:</strong> <a href="/viewDocument/<%= app._id %>/resume">View Resume</a></p>
+                                                        <p><strong>Cover Letter:</strong> <a href="/viewDocument/<%= app._id %>/coverLetter">View Cover Letter</a></p>
+
+                                                        <p><strong>Job Applied:</strong> <%= app.jobId.jobTitle %></p>
+                                                        <p><strong>Current Status:</strong> <%= app.decision %></p>
+                                                       
+                                                    </div>
+                                                    <div class="modal-footer">
+                                                        <form action="/updateApplicationDecision" method="POST" class="mr-auto">
+                                                            <input type="hidden" name="applicationId" value="<%= app._id %>">
+                                                            <button type="submit" name="decision" value="Interviewed" class="btn btn-outline-success" <%= app.decision === 'Interviewed' ? 'disabled' : '' %>>
+                                                                <i class="fas fa-user-check"></i> Mark as Interviewed
+                                                            </button>
+                                                            <button type="submit" name="decision" value="Hired" class="btn btn-outline-primary" <%= app.decision === 'Hired' ? 'disabled' : '' %>>
+                                                                <i class="fas fa-handshake"></i> Hire
+                                                            </button>
+                                                            <button type="submit" name="decision" value="Rejected" class="btn btn-outline-danger" <%= app.decision === 'Rejected' ? 'disabled' : '' %>>
+                                                                <i class="fas fa-times-circle"></i> Reject
+                                                            </button>
+                                                        </form>
+                                                        <button type="button" class="btn btn-outline-secondary" data-dismiss="modal">Close</button>
+                                                    </div>
+                                                    
+                                                    
+                                                </div>
+                                            </div>
+                                        </div>
+                                    <% }); %>
+                                </ul>
+                            </form>
+                            <div class="d-flex justify-content-between align-items-center mt-3">
+                                <a href="/allApplications" class="btn btn-outline-info" style="margin-top: 20px"><i class="fa fa-arrow-right"></i> View More</a>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -224,7 +281,8 @@
                 var fileName = input.files[0].name;
                 document.querySelector('label[for="logoInput"]').textContent = fileName;
             }
-        </script>
+        </script>          
+            
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.1/css/all.min.css">
     </body>
     <%- include('./partials/footer.ejs') %>

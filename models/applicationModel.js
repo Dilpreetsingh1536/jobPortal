@@ -17,12 +17,12 @@ mongoose
 const applicationSchema = new mongoose.Schema({
     jobId: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: './jobModel.js',
+        ref: 'jobModel',
         required: true
     },
     userId: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: './userModel.js',
+        ref: 'userModel',
         required: true
     },
     resume: {
