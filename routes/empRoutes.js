@@ -820,7 +820,36 @@ router.get("/allApplications", checkUserNotLoggedIn, checkAdminNotLoggedIn, chec
         const employerData = await employerModel.findById(req.session.employer._id);
         const jobs = await jobModel.find({ employerId: employerData._id });
 
-        res.render("allApplications", { jobs, user, admin, employer });
+        const appliedJobs = [];
+        for (const job of jobs) {
+            const applications = await applicationModel.find({ jobId: job._id } );
+
+            for (const application of applications) {
+                const user = await userModel.findById(application.userId);
+                appliedJobs.push({
+                    user: {
+                        name: user.name,
+                        email: user.email,
+                        educationTitle: user.educationTitle,
+                        major: user.major,
+                        institutionName: user.institutionName,
+                        startDate: user.startDate,
+                        endDate: user.endDate,
+                        jobTitle: user.jobTitle,
+                        company: user.company,
+                        description: user.description,
+                        expStartDate: user.expStartDate,
+                        expEndDate: user.expEndDate
+                    },
+                    job: job,
+                    decision: application.decision,
+                    applicationId: application._id
+                });
+            }
+        }
+
+
+        res.render("allApplications", { jobs, user, admin, employer,appliedJobs });
     } catch (error) {
         console.error(error);
         req.flash("error", "Internal Server Error");
@@ -940,6 +969,33 @@ router.post('/update-membership-plan', async (req, res) => {
     } catch (error) {
         console.error(error);
         res.status(500).json({ error: 'Failed to update membership plan.' });
+    }
+});
+
+
+//Update Job Application Decision
+
+router.post("/employer/updateDecision", async (req, res) => {
+    try {
+        const { applicationId, action } = req.body;
+
+        const application = await applicationModel.findById(applicationId);
+
+        if (!application) {
+            req.flash("error", "Application not found");
+            return res.redirect("/empDashboard");
+        }
+
+        application.decision = action;
+
+        await application.save();
+
+        req.flash("success", "Decision updated successfully");
+        res.redirect("/empDashboard");
+    } catch (error) {
+        console.error(error);
+        req.flash("error", "Internal Server Error");
+        res.redirect("/empDashboard");
     }
 });
 

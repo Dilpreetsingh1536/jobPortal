@@ -536,9 +536,9 @@
                                             <%= appliedJob.user.name %>
                                         </strong>
                                         -
-                                        <strong>
+                                        <span>
                                             <%= appliedJob.job.jobTitle %>
-                                        </strong>
+                                        </span>
                                     </div>
                                     <div>
                                         <button
@@ -635,16 +635,13 @@
                                             </div>
 
                                             <div class="modal-footer">
-                                                <form action="/admin/updateJobStatus" method="POST" class="mr-auto">
-                                                    <input type="hidden" name="applicationId" value="">
-                                                    <input type="hidden" name="redirectPath"
-                                                        value="/adminDashboard">
-                                                    <button type="submit" name="action" value="approved"
-                                                        class="btn btn-outline-success" <%=appliedJob.decision==='approved'
-                                                        ? 'disabled' : '' %>>Approve</button>
-                                                    <button type="submit" name="action" value="rejected"
-                                                        class="btn btn-outline-danger">Reject</button>
+                                                <form action="/employer/updateDecision" method="POST" class="mr-auto">
+                                                    <input type="hidden" name="applicationId" value="<%= appliedJob.applicationId %>">
+                                                    <input type="hidden" name="redirectPath" value="/empDashboard">
+                                                    <button type="submit" name="action" value="Approved" class="btn btn-outline-success" <%= appliedJob.decision === 'Approved' ? 'disabled' : '' %>>Approve</button>
+                                                    <button type="submit" name="action" value="Rejected" class="btn btn-outline-danger" <%= appliedJob.decision === 'Rejected' ? 'disabled' : '' %>>Reject</button>
                                                 </form>
+                                                
                                                 <button
                                                     type="button"
                                                     class="btn btn-secondary"

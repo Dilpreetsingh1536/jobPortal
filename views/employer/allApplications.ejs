@@ -3,21 +3,141 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
-    <title>all Applications</title>
+    <title>All Jobs</title>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" />
-    <link rel="stylesheet" type="text/css" href="css/nav.css" />
-    <link rel="stylesheet" type="text/css" href="css/footer.css" />
-    <link rel="stylesheet" type="text/css" href="css/main.css" />
+    <link rel="stylesheet" type="text/css" href="/css/nav.css" />
+    <link rel="stylesheet" type="text/css" href="/css/footer.css" />
 </head>
 <body>
 <%- include('./partials/nav.ejs') %>
 
+<div class="container mt-5">
+    <h1 class="mb-4">All Applications</h1>
+    <ul class="list-group">
+        <% appliedJobs.forEach((appliedJob, index) => {
+            %>
+            <li class="list-group-item d-flex justify-content-between align-items-center">
+                <div>
+                    <strong><%= appliedJob.user.name %></strong> - 
+                    
+                    <span>
+                        <%= appliedJob.job.jobTitle %>
+                    </span>
+                </div>
+                <div>
+                    <button type="button" class="btn btn-primary btn-sm" data-toggle="modal" data-target="#jobModalDashboard<%= index %>">View</button>
+                    <button type="button" class="btn btn-danger btn-sm" onclick="location.href='/deleteApplication?appliedJobId=<%= appliedJob.applicationId %>'">Delete</button>
+                </div>
 
+                <!-- Job Detail Modal -->
+                <div
+                class="modal fade"
+                id="jobModalDashboard<%= index %>"
+                tabindex="-1"
+                role="dialog"
+                aria-labelledby="jobModalLabelDashboard<%= index %>"
+                aria-hidden="true"
+            >
+                <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5
+                                class="modal-title"
+                                id="jobModalLabelDashboard<%= index %>"
+                            >
+                                Application Details
+                            </h5>
+                            <button
+                                type="button"
+                                class="close"
+                                data-dismiss="modal"
+                                aria-label="Close"
+                            >
+                                <span aria-hidden="true"
+                                    >&times;</span
+                                >
+                            </button>
+                        </div>
+                        <div class="modal-body">
+                            <p>
+                                <strong> Name:</strong>
+                                <%= appliedJob.user.name %>
+                            </p>
 
-<%- include('./partials/footer.ejs') %>
+                            <p>
+                                <strong> Email:</strong>
+                                <%= appliedJob.user.email %>
+                            </p>
+
+                            <p>
+                                <strong>Job Title:</strong>
+                                <%= appliedJob.job.jobTitle
+                                %>
+                            </p>
+                            <p>
+                                <strong
+                                    >Description:</strong
+                                >
+                                <%=
+                                appliedJob.job.description
+                                %>
+                            </p>
+                            <p>
+                                <strong>Location:</strong>
+                                <%= appliedJob.job.city %>,
+                                <%= appliedJob.job.province
+                                %>, <%=
+                                appliedJob.job.postalCode %>
+                            </p>
+
+                            <p>
+                                <strong>Decision:</strong>
+                                <span
+                                    class="<%= appliedJob.decision === 'approved' ? 'text-success' : appliedJob.decision === 'rejected' ? 'text-danger' : 'text-warning' %>"
+                                >
+                                    <%=
+                                    appliedJob.decision.charAt(0).toUpperCase()
+                                    +
+                                    appliedJob.decision.slice(1)
+                                    %>
+                                </span>
+                            </p>
+                        </div>
+
+                        <div class="modal-footer">
+                            <form action="/employer/updateDecision" method="POST" class="mr-auto">
+                                <input type="hidden" name="applicationId" value="<%= appliedJob.applicationId %>">
+                                <input type="hidden" name="redirectPath" value="/empDashboard">
+                                <button type="submit" name="action" value="Approved" class="btn btn-outline-success" <%= appliedJob.decision === 'Approved' ? 'disabled' : '' %>>Approve</button>
+                                <button type="submit" name="action" value="Rejected" class="btn btn-outline-danger" <%= appliedJob.decision === 'Rejected' ? 'disabled' : '' %>>Reject</button>
+                            </form>
+                            
+                            <button
+                                type="button"
+                                class="btn btn-secondary"
+                                data-dismiss="modal"
+                            >
+                                Close
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+                
+            </li>
+        <% }); %>
+    </ul>
+    <nav aria-label="Page navigation example" style="background-color: white;">
+        <ul class="pagination justify-content-center">
+       
+        </ul>
+    </nav>
+</div>
 
 <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+
+<%- include('./partials/footer.ejs') %>
 </body>
 </html>
