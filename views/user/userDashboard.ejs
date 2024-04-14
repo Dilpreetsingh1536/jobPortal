@@ -176,7 +176,9 @@
                                     <% }); %>
                                 </div>
                             <% } else { %>
-                                <p>No new messages.</p>
+                                <div class="alert alert-info" role="alert">
+                                    No new messages.
+                                </div>
                             <% } %>
                         </div>
                         
@@ -343,7 +345,6 @@
                                                             <%= job.street %>, <%= job.city %>, <%= job.province %>, <%= job.postalCode %>
                                                         </p>
                                                         <p><strong>Salary:</strong> <%= job.salary %></p>
-                                                        <p><strong>Decision:</strong> <%= job.decision %></p>
                                                     </div>
                                                     <div class="modal-footer">
                                                         <button type="button" class="btn btn-outline-secondary" data-dismiss="modal">Close</button>
@@ -355,7 +356,9 @@
                                 <% }); %>
                             </ul>
                         <% } else { %>
-                            <p>You have not applied any jobs yet.</p>
+                            <div class="alert alert-info" role="alert">
+                                You have not applied any jobs yet.
+                            </div>
                         <% } %>
                         <a href="/appliedJobs" class="btn btn-outline-info" style="margin-top: 20px">
                             <i class="fa fa-arrow-right"></i> View More
@@ -413,7 +416,9 @@
                                 <% }); %>
                             </ul>
                         <% } else { %>
-                            <p>No liked jobs yet.</p>
+                            <div class="alert alert-info" role="alert">
+                                No liked jobs yet
+                            </div>
                         <% } %>
                                                 <a href="/likedJobs" class="btn btn-outline-info" style="margin-top: 20px">
                             <i class="fa fa-arrow-right"></i> View More

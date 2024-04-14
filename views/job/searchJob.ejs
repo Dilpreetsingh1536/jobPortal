@@ -1,196 +1,163 @@
 <!DOCTYPE html>
 <html lang="en">
-    <head>
-        <meta charset="UTF-8" />
-        <meta
-            name="viewport"
-            content="width=device-width, initial-scale=1, shrink-to-fit=no"
-        />
-        <title>Job Search</title>
-        <link
-            rel="stylesheet"
-            href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
-        />
-        <link rel="stylesheet" type="text/css" href="css/nav.css" />
-        <link rel="stylesheet" type="text/css" href="css/footer.css" />
-    </head>
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+    <title>Job Search</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+    <link rel="stylesheet" type="text/css" href="css/nav.css" />
+    <link rel="stylesheet" type="text/css" href="css/footer.css" />
+    <style>
+        .filter-form, .search-results {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            margin-top: 20px;
+        }
+
+    </style>
+</head>
+<body style="background-color: #f8f9fa">
     <%- include('./partials/nav.ejs') %>
 
-    <body style="background-color: #f8f9fa">
-        <div class="container mt-5">
+    <div class="container mt-5">
+        <!-- Search Form -->
+        <div class="filter-form">
+            <h1 class="mb-4">Job Search</h1>
             <form id="searchForm" method="post" action="/searchJob">
-                <h1>Job Search</h1>
                 <div class="row">
                     <div class="col-md-6">
                         <div class="form-group">
                             <label for="job">Job:</label>
-                            <input
-                                type="text"
-                                class="form-control"
-                                id="job"
-                                name="job"
-                                placeholder="Enter job"
-                                required
-                            />
+                            <input type="text" class="form-control" id="job" name="job" placeholder="Enter job title or keywords" value="<%= jobFilters.job || '' %>" required>
+
+
                         </div>
                     </div>
                     <div class="col-md-6">
                         <div class="form-group">
                             <label for="location">Location:</label>
-                            <input
-                                type="text"
-                                class="form-control"
-                                id="location"
-                                name="location"
-                                placeholder="Street/ City/ Province/ Postal Code"
-                            />
+                            <input type="text" class="form-control" id="location" name="location" placeholder="City, State or Zip" value="<%= jobFilters.location || '' %>">
                         </div>
                     </div>
-                    <div class="col-md-12">
-                        <button type="submit" class="btn btn-success">
-                            Search
+                    <div class="col-md-12 text-right">
+                        <button type="submit" class="btn btn-outline-success">
+                            <i class="fas fa-search"></i> Search
                         </button>
                     </div>
                 </div>
             </form>
-            <form id="searchForm" method="post" action="/searchJob">
-                <div class="row mt-4">
-                    <div class="col-md-3">
-                        <div class="form-group">
-                            <label for="salary">Filter by Salary:</label>
-                            <select
-                                class="form-control"
-                                id="salary"
-                                name="salary"
-                            >
-                                <option value="">Select Salary Range</option>
-                                <option value="0-50000">$0 - $50,000</option>
-                                <option value="50001-100000">
-                                    $50,001 - $100,000
-                                </option>
-                                <option value="100001-150000">
-                                    $100,001 - $150,000
-                                </option>
-                            </select>
-                        </div>
-                    </div>
-                    <div class="col-md-3">
-                        <div class="form-group">
-                            <label for="sector">Filter by Sector:</label>
-                            <select
-                                class="form-control"
-                                id="sector"
-                                name="sector"
-                            >
-                                <option value="">Select Sector</option>
-                                <% uniqueSectors.forEach(sector=> { %>
-                                <option value="<%= sector %>">
-                                    <%= sector %>
-                                </option>
-                                <% }); %>
-                            </select>
-                        </div>
-                    </div>
-                    <div class="col-md-3">
-                        <div class="form-group">
-                            <label for="company">Filter by Company:</label>
-                            <select
-                                class="form-control"
-                                id="company"
-                                name="company"
-                            >
-                                <option value="">Select Company</option>
-                                <% uniqueCompanies.forEach(company=> { %>
-                                <option value="<%= company %>">
-                                    <%= company %>
-                                </option>
-                                <% }); %>
-                            </select>
-                        </div>
-                    </div>
-                    <div class="col-md-12">
-                        <button type="submit" class="btn btn-success">
-                            Apply Filter
-                        </button>
-                    </div>
-                </div>
-            </form>
-
-            <div id="searchResults" class="mt-4">
-                <% if (jobs && jobs.length> 0) { %>
-                <ul class="list-group">
-                    <% jobs.forEach(job=> { %>
-                    <li class="list-group-item mb-3">
-                        <div class="d-flex w-100 justify-content-between">
-                            <h5 class="mb-1"><%= job.jobTitle %></h5>
-                            <small> <%= job.postedDate %> </small>
-                        </div>
-                        <p class="mb-1">
-                            <strong>Company:</strong>
-                            <%= job.employerId ? job.employerId.employerName :
-                            'Unknown Employer' %>
-                        </p>
-
-                        <p class="mb-1">
-                            <strong>Sector:</strong>
-                            <%= job.sector %>
-                        </p>
-                        <p class="mb-1">
-                            <strong>Salary:</strong>
-                            <%= job.salary %>
-                        </p>
-                        <p class="mb-1">
-                            <strong>Location:</strong>
-                            <%= job.street %>, <%= job.city %>, <%= job.province
-                            %> <%= job.postalCode %>
-                        </p>
-                        <p class="mb-1">
-                            <strong>Description:</strong>
-                            <%= job.description %>
-                        </p>
-                        <% if (user) { %>
-                            <% if (!userAppliedJobs.includes(job._id.toString())) { %>
-                                <a href="/applyJob/<%= job._id %>" class="btn btn-success">Apply</a>
-                            <% } else { %>
-                                <button class="btn btn-secondary" disabled>Applied</button>
-                            <% } %>
-                        <% } else { %>
-                            <a href="/login" class="btn btn-success">Apply</a>
-                        <% } %>
-                         <% if (user) { %> <% if
-                        (job.isLikedByCurrentUser) { %>
-                        <form
-                            action="/unlikeJob/<%= job._id %>"
-                            method="post"
-                            style="display: inline"
-                        >
-                            <button type="submit" class="btn btn-secondary">
-                                Unlike
-                            </button>
-                        </form>
-                        <% } else { %>
-                        <form
-                            action="/likeJob/<%= job._id %>"
-                            method="post"
-                            style="display: inline"
-                        >
-                            <button type="submit" class="btn btn-primary">
-                                Like
-                            </button>
-                        </form>
-                        <% } %> <% } %>
-                    </li>
-                    <% }); %>
-                </ul>
-                <% } else { %>
-                <p class="text-muted text-center">No jobs posted yet.</p>
-                <% } %>
-            </div>
         </div>
 
-        <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
-        <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
-    </body>
-    <%- include('./partials/footer.ejs') %>
+        <!-- Filters Form -->
+        <div class="filter-form">
+            <h3 class="mb-3">Filters</h3>
+            <form id="filterForm" method="post" action="/searchJob">
+                <div class="row">
+                    <div class="col-md-3">
+                        <div class="form-group">
+                            <label for="salary">Salary Range:</label>
+                            <select class="form-control" id="salary" name="salary">
+                                <option value="">Select Salary Range</option>
+                                <option value="0-50000" <%= jobFilters.salary === "0-50000" ? 'selected' : '' %>>$0 - $50,000</option>
+                                <option value="50001-100000" <%= jobFilters.salary === "50001-100000" ? 'selected' : '' %>>$50,001 - $100,000</option>
+                                <option value="100001-150000" <%= jobFilters.salary === "100001-150000" ? 'selected' : '' %>>$100,001 - $150,000</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="form-group">
+                            <label for="sector">Sector:</label>
+                            <select class="form-control" id="sector" name="sector">
+                                <option value="">All Sectors</option>
+                                <% uniqueSectors.forEach(sector => { %>
+                                    <option value="<%= sector %>" <%= jobFilters.sector === sector ? 'selected' : '' %>><%= sector %></option>
+                                <% }); %>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="form-group">
+                            <label for="company">Company:</label>
+                            <select class="form-control" id="company" name="company">
+                                <option value="">All Companies</option>
+                                <% uniqueCompanies.forEach(company => { %>
+                                    <option value="<%= company %>" <%= jobFilters.company === company ? 'selected' : '' %>><%= company %></option>
+                                <% }); %>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-md-3 d-flex align-items-end">
+                        <div class="btn-group w-100">
+                            <button type="submit" class="btn btn-outline-success">
+                                <i class="fas fa-filter"></i> Apply
+                            </button>
+                            <button type="button" class="btn btn-outline-secondary" onclick="window.location.href='/searchJob';">
+                                <i class="fas fa-times-circle"></i> Clear
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+
+        <!-- Search Results -->
+        <div class="search-results" style="background-color: #f9f2f4;">
+            <h3 class="mb-3">Search Results</h3>
+            <% if (jobs && jobs.length > 0) { %>
+                <ul class="list-group">
+                    <% jobs.forEach(job => { %>
+                        <li class="list-group-item mb-3" style="background-color: #ffffff;">
+                            <div class="d-flex justify-content-between">
+                                <h5 class="mb-1"><%= job.jobTitle %></h5>
+                                <small><%= job.postedDate %></small>
+                            </div>
+                            <p><strong>Company:</strong> <%= job.employerId ? job.employerId.employerName : 'Unknown Employer' %></p>
+                            <p><strong>Sector:</strong> <%= job.sector %></p>
+                            <p><strong>Salary:</strong> <%= job.salary %></p>
+                            <p><strong>Location:</strong> <%= job.street %>, <%= job.city %>, <%= job.province %>, <%= job.postalCode %></p>
+                            <p><strong>Description:</strong> <%= job.description %></p>
+                            <% if (user) { %>
+                                <% if (!userAppliedJobs.includes(job._id.toString())) { %>
+                                    <a href="/applyJob/<%= job._id %>" class="btn btn-outline-success"><i class="fas fa-check"></i> Apply</a>
+                                <% } else { %>
+                                    <button class="btn btn-outline-info" disabled><i class="fas fa-check"></i> Applied</button>
+                                <% } %>
+                            <% } else { %>
+                                <a href="/login" class="btn btn-outline-success"><i class="fas fa-check"></i> Apply</a>
+                            <% } %>
+                            <% if (user) { %>
+                                <% if (job.isLikedByCurrentUser) { %>
+                                    <form action="/unlikeJob/<%= job._id %>" method="post" style="display: inline">
+                                        <button type="submit" class="btn btn-danger like-btn"><i class="fas fa-heart"></i> Liked</button>
+                                    </form>
+                                <% } else { %>
+                                    <form action="/likeJob/<%= job._id %>" method="post" style="display: inline">
+                                        <button type="submit" class="btn btn-outline-primary like-btn"><i class="far fa-heart"></i> Like</button>
+                                    </form>
+                                <% } %>
+                            <% } %>
+                        </li>
+                    <% }); %>
+                </ul>
+            <% } else { %>
+                <p class="text-muted text-center">No jobs found.</p>
+            <% } %>
+        </div>
+        
+        
+        
+        
+        
+    </div>
+    </div>
+
+
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+</body>
+<%- include('./partials/footer.ejs') %>
 </html>
