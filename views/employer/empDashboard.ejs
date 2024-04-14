@@ -590,27 +590,36 @@
                                             </div>
                                             <div class="modal-body">
                                                 <p>
-                                                    <strong>Job Seeker Name:</strong>
+                                                    <strong> Name:</strong>
                                                     <%= appliedJob.user.name %>
                                                 </p>
-                                               
+
+                                                <p>
+                                                    <strong> Email:</strong>
+                                                    <%= appliedJob.user.email %>
+                                                </p>
+
                                                 <p>
                                                     <strong>Job Title:</strong>
-                                                    <%= appliedJob.job.jobTitle %>
+                                                    <%= appliedJob.job.jobTitle
+                                                    %>
                                                 </p>
                                                 <p>
                                                     <strong
                                                         >Description:</strong
                                                     >
-                                                    <%= appliedJob.job.description %>
+                                                    <%=
+                                                    appliedJob.job.description
+                                                    %>
                                                 </p>
                                                 <p>
                                                     <strong>Location:</strong>
-                                                    <%= appliedJob.job.city %>, <%=
-                                                    appliedJob.job.province %>, <%=
+                                                    <%= appliedJob.job.city %>,
+                                                    <%= appliedJob.job.province
+                                                    %>, <%=
                                                     appliedJob.job.postalCode %>
                                                 </p>
-                                               
+
                                                 <p>
                                                     <strong>Decision:</strong>
                                                     <span
@@ -618,11 +627,24 @@
                                                     >
                                                         <%=
                                                         appliedJob.decision.charAt(0).toUpperCase()
-                                                        + appliedJob.decision.slice(1) %>
+                                                        +
+                                                        appliedJob.decision.slice(1)
+                                                        %>
                                                     </span>
                                                 </p>
                                             </div>
+
                                             <div class="modal-footer">
+                                                <form action="/admin/updateJobStatus" method="POST" class="mr-auto">
+                                                    <input type="hidden" name="applicationId" value="">
+                                                    <input type="hidden" name="redirectPath"
+                                                        value="/adminDashboard">
+                                                    <button type="submit" name="action" value="approved"
+                                                        class="btn btn-outline-success" <%=appliedJob.decision==='approved'
+                                                        ? 'disabled' : '' %>>Approve</button>
+                                                    <button type="submit" name="action" value="rejected"
+                                                        class="btn btn-outline-danger">Reject</button>
+                                                </form>
                                                 <button
                                                     type="button"
                                                     class="btn btn-secondary"
