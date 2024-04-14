@@ -376,18 +376,18 @@
                                             <strong><%= job.jobTitle %></strong> - <%= job.employerName %>
                                         </span>
                                         <button type="button" class="btn btn-outline-primary btn-sm" data-toggle="modal"
-                                                data-target="#likedJobModal<%= index %>">
+                                                data-target="#likedJobModalUnique<%= index %>">
                                             <i class="fa fa-eye"></i> View
                                         </button>
-            
+                        
                                         <!-- Job Detail Modal -->
-                                        <div class="modal fade" id="likedJobModal<%= index %>" tabindex="-1"
-                                             role="dialog" aria-labelledby="likedJobModalLabel<%= index %>"
+                                        <div class="modal fade" id="likedJobModalUnique<%= index %>" tabindex="-1"
+                                             role="dialog" aria-labelledby="likedJobModalLabelUnique<%= index %>"
                                              aria-hidden="true">
                                             <div class="modal-dialog" role="document">
                                                 <div class="modal-content">
                                                     <div class="modal-header">
-                                                        <h5 class="modal-title" id="likedJobModalLabel<%= index %>">Job Details</h5>
+                                                        <h5 class="modal-title" id="likedJobModalLabelUnique<%= index %>">Job Details</h5>
                                                         <button type="button" class="close" data-dismiss="modal"
                                                                 aria-label="Close">
                                                             <span aria-hidden="true">&times;</span>
@@ -415,7 +415,7 @@
                         <% } else { %>
                             <p>No liked jobs yet.</p>
                         <% } %>
-                        <a href="/likedJobs" class="btn btn-outline-info" style="margin-top: 20px">
+                                                <a href="/likedJobs" class="btn btn-outline-info" style="margin-top: 20px">
                             <i class="fa fa-arrow-right"></i> View More
                         </a>
                     </div>

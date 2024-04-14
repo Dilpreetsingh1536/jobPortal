@@ -93,8 +93,6 @@ router.get("/empDashboard", checkUserNotLoggedIn, checkAdminNotLoggedIn, checkLo
         .populate('userId', 'name email')
         .populate('jobId', 'jobTitle');
 
-        console.log("Fetched Applications: ", applications);
-
 
         const employer = {
             logo: employerData.logo,
@@ -954,17 +952,13 @@ router.post('/updateApplicationDecision', async (req, res) => {
             decision: decision
         }, { new: true });
         if (!application) {
-            req.flash('error', 'Application not found');
-            return res.redirect('/empDashboard');
+            return res.status(404).send('Application not found');
         }
-        req.flash('success', `Application status updated to ${decision}.`);
-        res.redirect('/empDashboard');
+        res.send('Application status updated to ' + decision);
     } catch (error) {
         console.error('Failed to update application decision:', error);
-        req.flash('error', 'Failed to update application decision');
-        res.redirect('/empDashboard');
+        res.status(500).send('Failed to update application decision');
     }
 });
-
 
 module.exports = router;
