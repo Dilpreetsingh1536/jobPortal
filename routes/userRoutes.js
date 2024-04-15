@@ -5,6 +5,7 @@ const jobModel = require("../models/jobModel");
 const adminModel = require("../models/adminModel");
 const messageModel = require("../models/messageModel");
 const employerModel = require("../models/employerModel");
+const Application = require("../models/applicationModel")
 const multer = require('multer');
 const fs = require('fs');
 
@@ -93,7 +94,7 @@ const checkExperienceSession = (req, res, next) => {
 };
 
 // User Dashboard
-router.get("/userDashboard", checkEmployerNotLoggedIn, checkAdminNotLoggedIn, checkLoggedIn, async(req, res) => {
+router.get("/userDashboard", checkEmployerNotLoggedIn, checkAdminNotLoggedIn, checkLoggedIn, async (req, res) => {
     try {
         const userData = await userModel.findById(req.session.user._id);
         const userId = req.session.user;
@@ -102,31 +103,32 @@ router.get("/userDashboard", checkEmployerNotLoggedIn, checkAdminNotLoggedIn, ch
         const admin = req.session.admin;
 
         const likedJobs = [];
-for (const jobId of userData.likedJobs) {
-    const job = await jobModel.findById(jobId).populate('employerId', 'employerName');
-    const applied = userData.appliedJobs.includes(jobId);
-    if (job) {
-        likedJobs.push({
-            _id: job._id,
-            employerName: job.employerId.employerName,
-            sector: job.sector,
-            city: job.city,
-            province: job.province,
-            salary: job.salary,
-            street: job.street,
-            applied: applied
-        });
-    }
-}
+        for (const jobId of userData.likedJobs) {
+            const job = await jobModel.findById(jobId).populate('employerId', 'employerName');
+            const applied = userData.appliedJobs.includes(jobId);
+            if (job) {
+                likedJobs.push({
+                    _id: job._id,
+                    jobTitle: job.jobTitle,
+                    employerName: job.employerId.employerName,
+                    sector: job.sector,
+                    city: job.city,
+                    province: job.province,
+                    salary: job.salary,
+                    street: job.street,
+                    applied: applied
+                });
+            }
+        }
 
         const appliedJobs = [];
         const userAppliedJobs = [];
         for (const jobId of userData.appliedJobs) {
             const application = await Application.findOne({ jobId: jobId, userId: req.session.user._id })
-                                    .populate({
-                                        path: 'jobId',
-                                        populate: { path: 'employerId', select: 'employerName' }
-                                    });
+                .populate({
+                    path: 'jobId',
+                    populate: { path: 'employerId', select: 'employerName' }
+                });
             if (application && application.jobId) {
                 appliedJobs.push({
                     jobTitle: application.jobId.jobTitle,
@@ -136,15 +138,15 @@ for (const jobId of userData.likedJobs) {
                     province: application.jobId.province,
                     salary: application.jobId.salary,
                     street: application.jobId.street,
-                    decision: application.decision 
+                    decision: application.decision
                 });
                 userAppliedJobs.push(application.jobId._id.toString());
             }
         }
-        
 
 
-    
+
+
         let adminDetails = await adminModel.findOne();
         const messageCount = await messageModel.countDocuments({ recipientId: userId });
 
@@ -219,7 +221,7 @@ router.post('/deleteMessage/:messageId', async (req, res) => {
 });
 
 // Edit User Details On Dashboard
-router.get("/edit-user-details", checkEmployerNotLoggedIn, checkAdminNotLoggedIn, checkLoggedIn, async(req, res) => {
+router.get("/edit-user-details", checkEmployerNotLoggedIn, checkAdminNotLoggedIn, checkLoggedIn, async (req, res) => {
     try {
         const userData = await userModel.findById(req.session.user._id);
         const user = {
@@ -260,7 +262,7 @@ router.post("/update-user-details", checkEmployerNotLoggedIn, checkAdminNotLogge
     }
 });
 
-router.get("/userchangepassword",checkEmployerNotLoggedIn, checkAdminNotLoggedIn, checkLoggedIn, (req, res) => {
+router.get("/userchangepassword", checkEmployerNotLoggedIn, checkAdminNotLoggedIn, checkLoggedIn, (req, res) => {
     const user = req.session.user;
     const employer = req.session.employer;
     const admin = req.session.admin;
@@ -696,7 +698,7 @@ router.post("/add-experience", checkEmployerNotLoggedIn, checkAdminNotLoggedIn, 
 
 //Edit Education
 
-router.get('/editEducation', checkEmployerNotLoggedIn, checkAdminNotLoggedIn, checkLoggedIn, async(req, res) => {
+router.get('/editEducation', checkEmployerNotLoggedIn, checkAdminNotLoggedIn, checkLoggedIn, async (req, res) => {
     try {
         const educationId = req.query.educationId;
         req.session.editEducationId = educationId;
@@ -1248,7 +1250,7 @@ router.post('/deleteSentMessage/:id', async (req, res) => {
 
 
 
-  router.get("/userAllMessages",checkEmployerNotLoggedIn, checkAdminNotLoggedIn, checkLoggedIn, async (req, res) => {
+router.get("/userAllMessages", checkEmployerNotLoggedIn, checkAdminNotLoggedIn, checkLoggedIn, async (req, res) => {
     try {
         const page = parseInt(req.query.page) || 1;
         const pageSize = 10;
@@ -1289,7 +1291,7 @@ router.post('/deleteSentMessage/:id', async (req, res) => {
     }
 });
 
-router.get("/moreExperience",checkEmployerNotLoggedIn, checkAdminNotLoggedIn, checkLoggedIn, async (req, res) => {
+router.get("/moreExperience", checkEmployerNotLoggedIn, checkAdminNotLoggedIn, checkLoggedIn, async (req, res) => {
     try {
         const user = await userModel.findById(req.session.user._id);
         if (!user || !user.experience) {
@@ -1309,7 +1311,7 @@ router.get("/moreExperience",checkEmployerNotLoggedIn, checkAdminNotLoggedIn, ch
     }
 });
 
-router.get("/moreEducation",checkEmployerNotLoggedIn, checkAdminNotLoggedIn, checkLoggedIn, async (req, res) => {
+router.get("/moreEducation", checkEmployerNotLoggedIn, checkAdminNotLoggedIn, checkLoggedIn, async (req, res) => {
     try {
         const user = await userModel.findById(req.session.user._id);
         if (!user || !user.education) {
@@ -1426,7 +1428,7 @@ router.get("/appliedJobs", checkEmployerNotLoggedIn, checkAdminNotLoggedIn, chec
             const job = await jobModel.findById(jobId).populate('employerId', 'employerName');
             if (job) {
                 const application = await applicationModel.findOne({ jobId: jobId, userId: userData._id });
-                let decision = 'In Process'; 
+                let decision = 'In Process';
                 if (application) {
                     decision = application.decision;
                 }
@@ -1438,7 +1440,7 @@ router.get("/appliedJobs", checkEmployerNotLoggedIn, checkAdminNotLoggedIn, chec
                     province: job.province,
                     salary: job.salary,
                     street: job.street,
-                    decision: decision 
+                    decision: decision
                 });
             }
         }
@@ -1609,9 +1611,6 @@ router.post('/deleteLogo', async (req, res) => {
         res.redirect("/userDashboard");
     }
 });
-
-
-
 
 
 module.exports = router;
