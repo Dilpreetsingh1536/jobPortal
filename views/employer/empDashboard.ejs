@@ -1,16 +1,21 @@
 <!DOCTYPE html>
 <html lang="en">
-
-<head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
-    <title>Employer Dashboard</title>
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" />
-    <link rel="stylesheet" type="text/css" href="css/nav.css" />
-    <link rel="stylesheet" type="text/css" href="css/footer.css" />
-    <link rel="stylesheet" type="text/css" href="css/main.css" />
-</head>
-<%- include('./partials/nav.ejs') %>
+    <head>
+        <meta charset="UTF-8" />
+        <meta
+            name="viewport"
+            content="width=device-width, initial-scale=1, shrink-to-fit=no"
+        />
+        <title>Employer Dashboard</title>
+        <link
+            rel="stylesheet"
+            href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+        />
+        <link rel="stylesheet" type="text/css" href="css/nav.css" />
+        <link rel="stylesheet" type="text/css" href="css/footer.css" />
+        <link rel="stylesheet" type="text/css" href="css/main.css" />
+    </head>
+    <%- include('./partials/nav.ejs') %>
 
     <body style="background-color: #f8f9fa">
         <div class="container mt-5">
@@ -52,7 +57,11 @@
                                             </button>
                                         </div>
                                         <div class="modal-body">
-                                            <form method="post" action="uploadEmpLogo" enctype="multipart/form-data">
+                                            <form
+                                                method="post"
+                                                action="uploadEmpLogo"
+                                                enctype="multipart/form-data"
+                                            >
                                                 <div class="form-group">
                                                     <label for="logoInput" class="d-block">Choose Logo:</label>
                                                     <div class="custom-file">
@@ -133,7 +142,12 @@
                 <div class="col-md-6">
                     <div class="card" style="border: none; border-radius: 10px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05); padding: 20px; margin-bottom: 20px;">
                         <div class="card-body">
-                            <h3 class="card-title" style="font-size: 24px; font-weight: bold">Posted Jobs</h3>
+                            <h3
+                                class="card-title"
+                                style="font-size: 24px; font-weight: bold"
+                            >
+                                Posted Jobs
+                            </h3>
                             <form action="/setEditJobId" method="post">
                                 <ul class="list-group">
                                     <% if (jobs && jobs.length > 0) { %>
@@ -304,5 +318,4 @@
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.1/css/all.min.css">
     </body>
     <%- include('./partials/footer.ejs') %>
-
 </html>

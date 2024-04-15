@@ -1,62 +1,127 @@
 <!DOCTYPE html>
 <html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta
+            name="viewport"
+            content="width=device-width, initial-scale=1, shrink-to-fit=no"
+        />
+        <title>About Us</title>
+        <link
+            rel="stylesheet"
+            href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+        />
+        <link
+            rel="stylesheet"
+            href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
+        />
+        <link rel="stylesheet" type="text/css" href="css/nav.css" />
+        <link rel="stylesheet" type="text/css" href="css/footer.css" />
+        <link rel="stylesheet" type="text/css" href="css/aboutUs.css" />
+    </head>
 
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <title>About Us</title>
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
-    <link rel="stylesheet" type="text/css" href="css/nav.css" />
-    <link rel="stylesheet" type="text/css" href="css/footer.css" />
-    <link rel="stylesheet" type="text/css" href="css/aboutUs.css" />
-</head>
+    <body>
+        <%- include('./partials/nav.ejs') %>
 
-<body>
-
-    <%- include('./partials/nav.ejs') %>
+        <div class="font-size-controls">
+            <button id="decrease-font-size">
+                <i class="fas fa-minus"></i>
+            </button>
+            <button id="increase-font-size"><i class="fas fa-plus"></i></button>
+        </div>
 
         <section class="about-us-section section-pad-t30">
             <div class="container">
                 <div class="row">
                     <div class="col-lg-12">
                         <div class="section-title text-center">
-                            <h1 style="margin: 10px;">About Us</h1>
+                            <h1 style="margin: 10px">About Us</h1>
                         </div>
                     </div>
                 </div>
                 <div class="row">
-
                     <div class="row">
                         <div class="col-lg-4">
-                            <img src="assets/imgs/about image.jpeg" alt="About Us" class="about-us-img">
+                            <img
+                                src="assets/imgs/about image.jpeg"
+                                alt="About Us"
+                                class="about-us-img"
+                            />
                         </div>
                         <div class="col-lg-8 about-us-text">
                             <p>
-                                <strong>Career Connect</strong> is a dynamic online job platform designed to bridge the gap between job seekers and employers across various sectors. Our mission is to simplify the job search process and make career advancements
-                                accessible to everyone.</p>
-                            <p>We understand that finding the right job can be a daunting task. That’s why we’ve created a user-friendly platform that allows you to search and apply for jobs with ease. Whether you’re just starting your career journey or
-                                looking for a change, we’ve got you covered.</p>
-                            <p>Our platform hosts a wide range of job opportunities from numerous sectors. This diversity ensures that no matter your skills, experience, or career aspirations, you’ll find opportunities that align with your goals.</p>
-                            <p>At <strong>Career Connect</strong>, we believe in the power of connection. We strive to connect talented individuals with companies that value their skills and offer opportunities for growth. Our team is dedicated to providing
-                                a seamless and efficient online job application experience.</p>
-                            <p>Join us today and let’s connect you with your dream job!</p>
+                                <strong>Career Connect</strong> is a dynamic
+                                online job platform designed to bridge the gap
+                                between job seekers and employers across various
+                                sectors. Our mission is to simplify the job
+                                search process and make career advancements
+                                accessible to everyone.
+                            </p>
+                            <p>
+                                We understand that finding the right job can be
+                                a daunting task. That’s why we’ve created a
+                                user-friendly platform that allows you to search
+                                and apply for jobs with ease. Whether you’re
+                                just starting your career journey or looking for
+                                a change, we’ve got you covered.
+                            </p>
+                            <p>
+                                Our platform hosts a wide range of job
+                                opportunities from numerous sectors. This
+                                diversity ensures that no matter your skills,
+                                experience, or career aspirations, you’ll find
+                                opportunities that align with your goals.
+                            </p>
+                            <p>
+                                At <strong>Career Connect</strong>, we believe
+                                in the power of connection. We strive to connect
+                                talented individuals with companies that value
+                                their skills and offer opportunities for growth.
+                                Our team is dedicated to providing a seamless
+                                and efficient online job application experience.
+                            </p>
+                            <p>
+                                Join us today and let’s connect you with your
+                                dream job!
+                            </p>
                         </div>
                     </div>
-
-
-
                 </div>
             </div>
         </section>
 
         <%- include('./partials/footer.ejs') %>
 
-            <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
-            <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
-            <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+        <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
+        <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
 
+        <script>
+            // Get the elements
+            const decreaseFontSizeBtn =
+                document.getElementById("decrease-font-size");
+            const increaseFontSizeBtn =
+                document.getElementById("increase-font-size");
+            const aboutUsText = document.querySelector(".about-us-text");
 
+            // Set the initial font size
+            let fontSize = 16;
 
-</body>
+            // Function to decrease the font size
+            function decreaseFontSize() {
+                fontSize -= 2;
+                aboutUsText.style.fontSize = `${fontSize}px`;
+            }
 
+            // Function to increase the font size
+            function increaseFontSize() {
+                fontSize += 2;
+                aboutUsText.style.fontSize = `${fontSize}px`;
+            }
+
+            // Add event listeners to the buttons
+            decreaseFontSizeBtn.addEventListener("click", decreaseFontSize);
+            increaseFontSizeBtn.addEventListener("click", increaseFontSize);
+        </script>
+    </body>
 </html>

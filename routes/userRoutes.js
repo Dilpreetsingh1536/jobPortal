@@ -15,7 +15,7 @@ router.use("/public", express.static("public"));
 const bcrypt = require("bcrypt");
 const nodemailer = require('nodemailer');
 const ContactMessageModel = require('../models/contactMessageModel');
-const Application = require('../models/applicationModel');
+const applicationModel = require('../models/applicationModel');
 
 
 // Code Send
@@ -141,6 +141,7 @@ for (const jobId of userData.likedJobs) {
                 userAppliedJobs.push(application.jobId._id.toString());
             }
         }
+        
 
 
     
@@ -1392,6 +1393,8 @@ router.get("/appliedJobs", checkEmployerNotLoggedIn, checkAdminNotLoggedIn, chec
         const limit = 10;
         const skip = (page - 1) * limit;
 
+        const userData = await userModel.findById(req.session.user._id);
+
         const user = await userModel.findById(req.session.user._id);
 
         if (!user) {
@@ -1399,13 +1402,46 @@ router.get("/appliedJobs", checkEmployerNotLoggedIn, checkAdminNotLoggedIn, chec
             return res.redirect("/login");
         }
 
-        const appliedJobsIds = user.appliedJobs.slice(skip, skip + limit);
+        // const appliedJobsIds = user.appliedJobs.slice(skip, skip + limit);
 
-        const appliedJobs = await Promise.all(
-            appliedJobsIds.map(async (jobId) => {
-                return await jobModel.findById(jobId).populate('employerId', 'employerName').exec();
-            })
-        );
+        // const appliedJobs = await Promise.all(
+        //     appliedJobsIds.map(async (jobId) => {
+        //         const job = await jobModel.findById(jobId).populate('employerId', 'employerName').exec();
+        //         // Find application corresponding to the current user and job
+        //         const application = await applicationModel.findOne({ jobId: jobId, userId: user._id });
+        //         let decision = 'In Process'; // Default decision if application not found
+        //         if (application) {
+        //             decision = application.decision;
+        //         }
+        //         // Return an object containing job details and decision
+        //         return {
+        //             job: job,
+        //             decision: decision
+        //         };
+        //     })
+        // );
+
+        const appliedJobs = [];
+        for (const jobId of userData.appliedJobs) {
+            const job = await jobModel.findById(jobId).populate('employerId', 'employerName');
+            if (job) {
+                const application = await applicationModel.findOne({ jobId: jobId, userId: userData._id });
+                let decision = 'In Process'; 
+                if (application) {
+                    decision = application.decision;
+                }
+                appliedJobs.push({
+                    jobTitle: job.jobTitle,
+                    employerName: job.employerId.employerName,
+                    sector: job.sector,
+                    city: job.city,
+                    province: job.province,
+                    salary: job.salary,
+                    street: job.street,
+                    decision: decision 
+                });
+            }
+        }
 
         const totalappliedJobs = user.appliedJobs.length;
         const totalPages = Math.ceil(totalappliedJobs / limit);
@@ -1414,7 +1450,8 @@ router.get("/appliedJobs", checkEmployerNotLoggedIn, checkAdminNotLoggedIn, chec
             appliedJobs: appliedJobs.filter(job => job !== null),
             currentPage: page,
             totalPages: totalPages,
-            user: req.session.user
+            user: req.session.user,
+            userData
         });
     } catch (error) {
         console.error("Error fetching applied jobs:", error);
@@ -1422,6 +1459,7 @@ router.get("/appliedJobs", checkEmployerNotLoggedIn, checkAdminNotLoggedIn, chec
         return res.redirect("/userDashboard");
     }
 });
+
 
 
 // router.get('/applyJob/:jobId', async (req, res) => {

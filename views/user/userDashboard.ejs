@@ -1,26 +1,32 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
-    <title>User Account</title>
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" />
-    <link rel="stylesheet" type="text/css" href="css/nav.css" />
-    <link rel="stylesheet" type="text/css" href="css/footer.css" />
-    <link rel="stylesheet" type="text/css" href="css/main.css" />
-    <style>
-        .card-container {
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: space-around;
-            margin-bottom: 20px;
-        }
+    <head>
+        <meta charset="UTF-8" />
+        <meta
+            name="viewport"
+            content="width=device-width, initial-scale=1, shrink-to-fit=no"
+        />
+        <title>User Account</title>
+        <link
+            rel="stylesheet"
+            href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+        />
+        <link rel="stylesheet" type="text/css" href="css/nav.css" />
+        <link rel="stylesheet" type="text/css" href="css/footer.css" />
+        <link rel="stylesheet" type="text/css" href="css/main.css" />
+        <style>
+            .card-container {
+                display: flex;
+                flex-wrap: wrap;
+                justify-content: space-around;
+                margin-bottom: 20px;
+            }
 
-        .card {
-            margin: 10px;
-            flex-grow: 1;
-            flex-basis: calc(50% - 20px);
-        }
+            .card {
+                margin: 10px;
+                flex-grow: 1;
+                flex-basis: calc(50% - 20px);
+            }
 
         @media (max-width: 768px) {
             .card {
@@ -35,8 +41,8 @@
     </style>
 </head>
 
-<body style="background-color: #f8f9fa">
-    <%- include('./partials/nav.ejs') %>
+    <body style="background-color: #f8f9fa">
+        <%- include('./partials/nav.ejs') %>
         <div class="container mt-5">
             <h1 class="mb-4">User Account</h1>
 
@@ -76,7 +82,11 @@
                                             </button>
                                         </div>
                                         <div class="modal-body">
-                                            <form method="post" action="uploadLogo" enctype="multipart/form-data">
+                                            <form
+                                                method="post"
+                                                action="uploadLogo"
+                                                enctype="multipart/form-data"
+                                            >
                                                 <div class="form-group">
                                                     <label for="logoInput" class="d-block">Choose Logo:</label>
                                                     <div class="custom-file">
@@ -112,12 +122,22 @@
                 <div class="col-md-6">
                     <div class="card" style="border: none; border-radius: 10px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); padding: 20px; margin-bottom: 20px;">
                         <div class="card-body">
-                            <h3 class="card-title" style="font-size: 24px; font-weight: bold">Upload Resume</h3>
+                            <h3
+                                class="card-title"
+                                style="font-size: 24px; font-weight: bold"
+                            >
+                                Upload Resume
+                            </h3>
                             <div class="row align-items-center">
                                 <div class="col-md-4">
                                     <form action="/uploadResume" method="POST" enctype="multipart/form-data" class="form-inline">
                                         <div class="form-group mb-2">
-                                            <input type="file" class="form-control-file" id="resume" name="resume" />
+                                            <input
+                                                type="file"
+                                                class="form-control-file"
+                                                id="resume"
+                                                name="resume"
+                                            />
                                         </div>
                                         <button type="submit" class="btn btn-outline-primary mb-2">
                                             <i class="fa fa-upload"></i> Upload
@@ -186,7 +206,6 @@
                                 </div>
                             <% } %>
                         </div>
-                        
                     </div>
                 </div>
             </div>
@@ -195,7 +214,12 @@
             <div class="card-container">
                 <div class="card" style="border: none; border-radius: 10px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); padding: 20px;">
                     <div class="card-body">
-                        <h3 class="card-title" style="font-size: 24px; font-weight: bold">Experience</h3>
+                        <h3
+                            class="card-title"
+                            style="font-size: 24px; font-weight: bold"
+                        >
+                            Experience
+                        </h3>
                         <form action="/setEditExperienceId" method="post">
                             <% if (sortedExperiences.length === 0) { %>
                                 <div class="alert alert-info" role="alert">
@@ -252,7 +276,12 @@
             
                 <div class="card" style="border: none; border-radius: 10px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); padding: 20px;">
                     <div class="card-body">
-                        <h3 class="card-title" style="font-size: 24px; font-weight: bold">Education</h3>
+                        <h3
+                            class="card-title"
+                            style="font-size: 24px; font-weight: bold"
+                        >
+                            Education
+                        </h3>
                         <form action="/setEditEducationId" method="post">
                             <% if (sortedEducations.length === 0) { %>
                                 <div class="alert alert-info" role="alert">
@@ -312,7 +341,10 @@
             <div class="card-container">
                 <div class="card" style="border: none; border-radius: 10px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); padding: 20px;">
                     <div class="card-body">
-                        <h3 class="card-title" style="font-size: 24px; font-weight: bold">
+                        <h3
+                            class="card-title"
+                            style="font-size: 24px; font-weight: bold"
+                        >
                             Applied Jobs
                         </h3>
                         <% if (appliedJobs && appliedJobs.length > 0) { %>
@@ -372,7 +404,10 @@
             
                 <div class="card" style="border: none; border-radius: 10px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); padding: 20px;">
                     <div class="card-body">
-                        <h3 class="card-title" style="font-size: 24px; font-weight: bold">
+                        <h3
+                            class="card-title"
+                            style="font-size: 24px; font-weight: bold"
+                        >
                             Liked Jobs
                         </h3>
                         <% if (likedJobs && likedJobs.length > 0) { %>
@@ -443,8 +478,10 @@
         <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
         <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
-        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.1/css/all.min.css">
-</body>
-<%- include('./partials/footer.ejs') %>
-
+        <link
+            rel="stylesheet"
+            href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.1/css/all.min.css"
+        />
+    </body>
+    <%- include('./partials/footer.ejs') %>
 </html>
