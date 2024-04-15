@@ -27,6 +27,11 @@
                 width: 100%;
             }
         }
+        .decision-text.viewed { color: blue; }
+        .decision-text.interviewed { color: orange; }
+        .decision-text.hired { color: green; }
+        .decision-text.rejected { color: red; }
+        .decision-text.inprocess { color: purple; }
     </style>
 </head>
 
@@ -303,8 +308,6 @@
                 
             </div>
             
-
-
             <!-- Applied Jobs and Liked Jobs -->
             <div class="card-container">
                 <div class="card" style="border: none; border-radius: 10px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); padding: 20px;">
@@ -347,8 +350,9 @@
                                                         <p><strong>Salary:</strong> <%= job.salary %></p>
                                                     </div>
                                                     <div class="modal-footer">
+                                                        <div class="decision-text <%= job.decision.toLowerCase().replace(' ', '') %> mr-auto"> <%= job.decision %></div>
                                                         <button type="button" class="btn btn-outline-secondary" data-dismiss="modal">Close</button>
-                                                    </div>
+                                                    </div> 
                                                 </div>
                                             </div>
                                         </div>
@@ -356,7 +360,7 @@
                                 <% }); %>
                             </ul>
                         <% } else { %>
-                            <div class="alert alert-info" role="alert">
+                            <div class="alert alert-info" role="alert"> 
                                 You have not applied any jobs yet.
                             </div>
                         <% } %>
@@ -404,11 +408,17 @@
                                                             <%= job.street %>, <%= job.city %>, <%= job.province %>, <%= job.postalCode %>
                                                         </p>
                                                         <p><strong>Salary:</strong> <%= job.salary %></p>
-                                                        <p><strong>Decision:</strong> <%= job.decision %></p>
                                                     </div>
-                                                    <div class="modal-footer">
-                                                        <button type="button" class="btn  btn-outline-secondary" data-dismiss="modal">Close</button>
-                                                    </div>
+                                                    <div class="modal-footer justify-content-between">
+                                                        <div>
+                                                            <% if (!job.applied) { %>
+                                                                <a href="/applyJob/<%= job._id %>" class="btn btn-outline-success">Apply</a>
+                                                            <% } else { %>
+                                                                <button class="btn btn-outline-secondary" disabled>Applied</button>
+                                                            <% } %>
+                                                        </div>
+                                                        <button type="button" class="btn btn-outline-secondary" data-dismiss="modal">Close</button>
+                                                    </div>                                                    
                                                 </div>
                                             </div>
                                         </div>
