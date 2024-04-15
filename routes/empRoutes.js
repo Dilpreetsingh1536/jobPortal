@@ -789,20 +789,42 @@ router.get("/allJobs", checkUserNotLoggedIn, checkAdminNotLoggedIn, checkLoggedI
 
 router.get("/allApplications", checkUserNotLoggedIn, checkAdminNotLoggedIn, checkLoggedIn, async (req, res) => {
     try {
+        const { page = 1, limit = 10, decision } = req.query;
+        const skip = (page - 1) * limit;
+
         const employer = req.session.employer;
-        const user = req.session.user;
-        const admin = req.session.admin;
+        const employerData = await employerModel.findById(employer._id);
+        const jobIds = (await jobModel.find({ employerId: employerData._id })).map(job => job._id);
 
-        const employerData = await employerModel.findById(req.session.employer._id);
-        const jobs = await jobModel.find({ employerId: employerData._id });
+        let filter = { jobId: { $in: jobIds } };
+        if (decision) filter.decision = decision;
 
-        res.render("allApplications", { jobs, user, admin, employer });
+        const applications = await Application.find(filter)
+            .populate('userId', 'name email')
+            .populate('jobId', 'jobTitle')
+            .skip(skip)
+            .limit(limit)
+            .exec();
+
+        const totalApplications = await Application.countDocuments(filter);
+        const totalPages = Math.ceil(totalApplications / limit);
+
+        res.render("allApplications", {
+            applications,
+            currentPage: parseInt(page),
+            totalPages,
+            decision,
+            user: req.session.user,
+            employer: req.session.employer,
+            admin: req.session.admin
+        });
     } catch (error) {
-        console.error(error);
+        console.error("Error on allApplications page:", error);
         req.flash("error", "Internal Server Error");
         res.redirect("/empDashboard");
     }
 });
+
 router.get("/adminAllMessages", checkUserNotLoggedIn, checkAdminNotLoggedIn, checkLoggedIn, async (req, res) => {
     try {
         const page = parseInt(req.query.page) || 1;

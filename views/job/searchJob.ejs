@@ -101,7 +101,7 @@
                                 </select>
                             </div>
                         </div>
-                        <div class="col-md-3 d-flex align-items-end">
+                        <div class="col-md-3 d-flex align-items-end" style="margin-bottom: 16px;">
                             <div class="btn-group w-100">
                                 <button type="submit" class="btn btn-outline-success">
                                     <i class="fas fa-filter"></i> Apply
@@ -178,8 +178,22 @@
                             </li>
                             <% }); %>
                     </ul>
+                    <nav aria-label="Job search results pages" style="background-color: white;">
+                        <ul class="pagination">
+                            <% for(let i=1; i <=totalPages; i++) { %>
+                                <li class="page-item <%= i === currentPage ? 'active' : '' %>">
+                                    <a class="page-link"
+                                        href="/searchJob?page=<%= i %>&job=<%= jobFilters.job %>&location=<%= jobFilters.location %>&salary=<%= jobFilters.salary %>&sector=<%= jobFilters.sector %>&company=<%= jobFilters.company %>">
+                                        <%= i %>
+                                    </a>
+                                </li>
+                                <% } %>
+                        </ul>
+                    </nav>
                     <% } else { %>
-                        <p class="text-muted text-center">No jobs found.</p>
+                         <div class="alert alert-info" role="alert">
+                                        No jobs found.
+                                    </div>
                         <% } %>
             </div>
         </div>

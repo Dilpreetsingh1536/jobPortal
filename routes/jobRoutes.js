@@ -53,6 +53,10 @@ router.get('/searchJob', async (req, res) => {
         const employer = req.session.employer;
         const admin = req.session.admin;
 
+        const page = parseInt(req.query.page) || 1;
+        const limit = 5;
+        const skip = (page - 1) * limit;
+
         if (job) filter.jobTitle = new RegExp(job, 'i');
         if (location) {
             filter.$or = [
@@ -73,9 +77,10 @@ router.get('/searchJob', async (req, res) => {
             filter.employerId = { $in: employerIds };
         }
 
+        const totalJobs = await jobModel.countDocuments(filter);
         const uniqueSectors = await jobModel.distinct('sector');
         const uniqueCompanies = await employerModel.distinct('employerName');
-        const jobs = await jobModel.find(filter).populate('employerId', 'employerName sector').exec();
+        const jobs = await jobModel.find(filter).skip(skip).limit(limit).populate('employerId', 'employerName sector').exec();
 
         let userAppliedJobs = [];
         if (user) {
@@ -83,10 +88,12 @@ router.get('/searchJob', async (req, res) => {
             userAppliedJobs = userData.appliedJobs;
         }
 
-   for (let job of jobs) {
+        for (let job of jobs) {
             const jobIdAsString = job._id.toString();
             job.isLikedByCurrentUser = user && user.likedJobs && user.likedJobs.includes(jobIdAsString);
         }
+
+        const totalPages = Math.ceil(totalJobs / limit);
 
         res.render("searchJob", {
             user,
@@ -97,7 +104,9 @@ router.get('/searchJob', async (req, res) => {
             uniqueCompanies,
             jobFilters: { job, location, salary, sector, company },
             selectedSector: sector,
-            userAppliedJobs
+            userAppliedJobs,
+            currentPage: page,
+            totalPages: totalPages
         });
     } catch (error) {
         console.error('Error fetching jobs with sector filter:', error);

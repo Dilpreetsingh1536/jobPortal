@@ -12,6 +12,70 @@
 <body>
 <%- include('./partials/nav.ejs') %>
 
+<!-- allApplications.ejs -->
+<div class="container">
+    <h1>All Applications</h1>
+    <div class="filter-options mb-4">  <!-- Added margin-bottom for spacing -->
+        <a href="?decision=Interviewed" class="btn btn-primary">Interviewed</a>
+        <a href="?decision=Hired" class="btn btn-success">Hired</a>
+        <a href="?decision=Rejected" class="btn btn-danger">Rejected</a>
+        <a href="/allApplications" class="btn btn-secondary">Clear Filter</a>
+    </div>
+    <% if (applications && applications.length > 0) { %>
+        <ul class="list-group">
+            <% applications.forEach((app, index) => { %>
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                    <div>
+                        <strong><%= app.jobId.jobTitle %></strong> - <%= app.userId.name %>
+                        <span class="badge badge-pill badge-secondary"><%= app.decision %></span>
+                    </div>
+                    <button type="button" class="btn btn-outline-primary btn-sm" data-toggle="modal" data-target="#viewApplicationModal<%= index %>">
+                        <i class="fas fa-eye"></i> View
+                    </button>
+
+                    <!-- Modal for Application Details -->
+                    <div class="modal fade" id="viewApplicationModal<%= index %>" tabindex="-1" role="dialog" aria-labelledby="viewApplicationModalLabel<%= index %>" aria-hidden="true">
+                        <div class="modal-dialog" role="document">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title" id="viewApplicationModalLabel<%= index %>">Application Details</h5>
+                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                        <span aria-hidden="true">&times;</span>
+                                    </button>
+                                </div>
+                                <div class="modal-body">
+                                    <p><strong>Applicant Name:</strong> <%= app.userId.name %></p>
+                                    <p><strong>Email:</strong> <%= app.userId.email %></p>
+                                    <p><strong>Job Applied:</strong> <%= app.jobId.jobTitle %></p>
+                                    <p><strong>Resume:</strong> <a href="/viewDocument/<%= app._id %>/resume">View Resume</a></p>
+                                    <p><strong>Cover Letter:</strong> <a href="/viewDocument/<%= app._id %>/coverLetter">View Cover Letter</a></p>
+                                    <p><strong>Current Status:</strong> <%= app.decision %></p>
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-outline-secondary" data-dismiss="modal">Close</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </li>
+            <% }); %>
+        </ul>
+        <!-- Pagination -->
+        <nav aria-label="Page navigation example" style="background-color: white;">
+            <ul class="pagination">
+                <% for (let i = 1; i <= totalPages; i++) { %>
+                    <li class="page-item <%= i === currentPage ? 'active' : '' %>">
+                        <a class="page-link" href="/allApplications?page=<%= i %>&decision=<%= decision %>"><%= i %></a>
+                    </li>
+                <% } %>
+            </ul>
+        </nav>
+    <% } else { %>
+        <div class="alert alert-info" role="alert">
+            No new applications.
+        </div>
+    <% } %>
+</div>
 
 
 <%- include('./partials/footer.ejs') %>
