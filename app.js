@@ -101,6 +101,19 @@ const fetchFeaturedJobs = async (limit = 4) => {
     }
 };
 
+app.get("/", async (req, res) => {
+    try {
+        const topSectors = await fetchTopSectors();
+        const featuredJobs = await fetchFeaturedJobs();
+        const user = req.session.user;
+        const employer = req.session.employer;
+        const admin = req.session.admin;
+        res.render("home", { user, admin, employer, topSectors, featuredJobs });
+    } catch (error) {
+        res.status(500).send(error.message);
+    }
+});
+
 app.get("/home", async (req, res) => {
     try {
         const topSectors = await fetchTopSectors();
