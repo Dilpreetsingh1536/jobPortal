@@ -74,3 +74,77 @@ nav ul li a:hover {
     background-color: #28a745;
     color: white;
 }
+
+
+.hamburger {
+    display: none;
+    cursor: pointer;
+    padding: 10px;
+  }
+  
+  .hamburger .line {
+    width: 25px;
+    height: 3px;
+    background-color: #ecf0f1;
+    margin: 5px 0;
+    transition: all 0.3s ease;
+  }
+  
+  @media (max-width: 1230px) {
+    nav {
+      flex-direction: column;
+      align-items: flex-start;
+      padding: 1rem;
+    }
+  
+    .logo-container {
+      margin-bottom: 1rem;
+    }
+  
+    .navigationList {
+      flex-direction: column;
+      align-items: flex-start;
+      width: 100%;
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.3s ease-out;
+    }
+  
+    .navigationList.show {
+      max-height: 500px; /* Adjust this value as needed */
+      transition: max-height 0.3s ease-in;
+    }
+  
+    .navigationList li {
+      margin-right: 0;
+      margin-bottom: 0.5rem;
+    }
+  
+    .dropdown-content {
+      position: static;
+      display: none;
+      width: 100%;
+      box-shadow: none;
+      margin-top: 0;
+    }
+  
+    .dropdown:hover .dropdown-content {
+      display: block;
+    }
+  
+    .hamburger {
+      display: block;
+    }
+  
+    .hamburger.active .line:nth-child(1) {
+      transform: translateY(8px) rotate(45deg);
+    }
+  
+    .hamburger.active .line:nth-child(2) {
+      opacity: 0;
+    }
+  
+    .hamburger.active .line:nth-child(3) {
+      transform: translateY(-8px) rotate(-45deg);
+    }
+  }

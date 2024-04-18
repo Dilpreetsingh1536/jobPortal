@@ -1,24 +1,35 @@
 <nav>
     <div class="logo-container">
         <a href="/home">
-            <img src="/images/logo.png" alt="Career Connect Logo" class="logo-img" />
+            <img
+                src="/images/logo.png"
+                alt="Career Connect Logo"
+                class="logo-img"
+            />
         </a>
     </div>
-    <ul>
+    <div class="hamburger">
+        <div class="line"></div>
+        <div class="line"></div>
+        <div class="line"></div>
+    </div>
+    <ul class="navigationList">
         <li><a href="/home">Home</a></li>
         <li><a href="/searchJob">Job Search</a></li>
         <% if (user) { %>
         <li class="dropdown">
-                <a href="/userDashboard" class="account-link">Dashboard & Insights</a>
-                <div class="dropdown-content">
-                    <a href="/userDashboard">Dashboard</a>
-                    <a href="/moreExperience">Experience</a>
-                    <a href="/moreEducation">Education</a>
-                    <a href="/appliedJobs">Applied Jobs</a>
-                    <a href="/likedJobs">Liked Jobs</a>
-                    <a href="/userAllMessages">Admin Messages</a>
-                </div>
-            </li>
+            <a href="/userDashboard" class="account-link"
+                >Dashboard & Insights</a
+            >
+            <div class="dropdown-content">
+                <a href="/userDashboard">Dashboard</a>
+                <a href="/moreExperience">Experience</a>
+                <a href="/moreEducation">Education</a>
+                <a href="/appliedJobs">Applied Jobs</a>
+                <a href="/likedJobs">Liked Jobs</a>
+                <a href="/userAllMessages">Admin Messages</a>
+            </div>
+        </li>
         <li><a href="/employerPage">Employers</a></li>
         <li class="dropdown">
             <a href="#" class="account-link">Company Info</a>
@@ -32,16 +43,18 @@
         <li><a href="/adminDashboard">Dashboard</a></li>
         <li><a href="/adminLogout">Logout</a></li>
         <% } else if (employer) { %>
-            <li class="dropdown">
-                <a href="/empDashboard" class="account-link">Dashboard & Insights</a>
-                <div class="dropdown-content">
-                    <a href="/empDashboard">Dashboard</a>
-                    <a href="/allApplications">Application</a>
-                    <a href="/adminAllMessages">Admin Messages</a>
-                    <a href="/allJobs">All Jobs</a>
-                    <a href="/empMembership">Membership</a>
-                </div>
-            </li>
+        <li class="dropdown">
+            <a href="/empDashboard" class="account-link"
+                >Dashboard & Insights</a
+            >
+            <div class="dropdown-content">
+                <a href="/empDashboard">Dashboard</a>
+                <a href="/allApplications">Application</a>
+                <a href="/adminAllMessages">Admin Messages</a>
+                <a href="/allJobs">All Jobs</a>
+                <a href="/empMembership">Membership</a>
+            </div>
+        </li>
         <li><a href="/jobSeekersPage">Job Seekers</a></li>
         <li class="dropdown">
             <a href="#" class="account-link">Company Info</a>
@@ -53,11 +66,11 @@
         <li><a href="/empLogout">Logout</a></li>
         <% } else { %>
         <li class="dropdown">
-                <a href="#" class="account-link">Company Info</a>
-                <div class="dropdown-content">
-                    <a href="/contactUs">Contact</a>
-                    <a href="/aboutUs">About Us</a>
-                </div>
+            <a href="#" class="account-link">Company Info</a>
+            <div class="dropdown-content">
+                <a href="/contactUs">Contact</a>
+                <a href="/aboutUs">About Us</a>
+            </div>
         </li>
         <li class="dropdown">
             <a href="#" class="account-link">Account</a>
@@ -70,3 +83,13 @@
         <% } %>
     </ul>
 </nav>
+
+<script>
+const hamburger = document.querySelector('.hamburger');
+const navigationList = document.querySelector('.navigationList');
+
+hamburger.addEventListener('click', () => {
+  hamburger.classList.toggle('active');
+  navigationList.classList.toggle('show');
+});
+</script>
