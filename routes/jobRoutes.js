@@ -380,6 +380,9 @@ router.get('/clearJobSession', (req, res) => {
 
 router.get('/applyJob/:jobId', async (req, res) => {
     try {
+        if (!req.session.user) {
+            return res.redirect('/login');
+        }
         const { jobId } = req.params;
         const job = await jobModel.findById(jobId).populate('employerId').exec();
 

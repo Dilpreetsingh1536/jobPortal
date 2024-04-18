@@ -3,65 +3,79 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
-    <title>All Jobs</title>
+    <title>All Applications</title>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" />
     <link rel="stylesheet" type="text/css" href="/css/nav.css" />
     <link rel="stylesheet" type="text/css" href="/css/footer.css" />
+    <link rel="stylesheet" type="text/css" href="/css/main.css" />
 </head>
 <body>
 <%- include('./partials/nav.ejs') %>
 
-<!-- allApplications.ejs -->
-<div class="container">
-    <h1>All Applications</h1>
-    <div class="filter-options mb-4">  <!-- Added margin-bottom for spacing -->
-        <a href="?decision=Interviewed" class="btn btn-primary">Interviewed</a>
-        <a href="?decision=Hired" class="btn btn-success">Hired</a>
-        <a href="?decision=Rejected" class="btn btn-danger">Rejected</a>
-        <a href="/allApplications" class="btn btn-secondary">Clear Filter</a>
+<div class="container mt-5">
+    <h1 class="mb-4">All Applications</h1>
+    <div class="btn-toolbar justify-content-between mb-4">
+        <div class="btn-group">
+            <a href="?decision=Interviewed" class="btn btn-outline-primary">Interviewed</a>
+            <a href="?decision=Hired" class="btn btn-outline-success">Hired</a>
+            <a href="?decision=Rejected" class="btn btn-outline-danger">Rejected</a>
+            <a href="/allApplications" class="btn btn-outline-secondary">Clear Filter</a>
+        </div>
     </div>
     <% if (applications && applications.length > 0) { %>
-        <ul class="list-group">
+        <div class="list-group">
             <% applications.forEach((app, index) => { %>
-                <li class="list-group-item d-flex justify-content-between align-items-center">
-                    <div>
-                        <strong><%= app.jobId.jobTitle %></strong> - <%= app.userId.name %>
-                        <span class="badge badge-pill badge-secondary"><%= app.decision %></span>
+                <div class="list-group-item d-flex justify-content-between align-items-center">
+                    <div class="flex-grow-1 pr-3">
+                        <h5><strong><%= app.jobId.jobTitle %></strong> - <%= app.userId.name %></h5>
+                        <div><span class="badge badge-pill badge-info"><%= app.decision %></span></div>
                     </div>
-                    <button type="button" class="btn btn-outline-primary btn-sm" data-toggle="modal" data-target="#viewApplicationModal<%= index %>">
-                        <i class="fas fa-eye"></i> View
-                    </button>
+                    <div>
+                        <button type="button" class="btn btn-outline-info btn-sm" data-toggle="modal" data-target="#viewApplicationModal<%= index %>">
+                            <i class="fas fa-eye"></i> View
+                        </button>
 
-                    <!-- Modal for Application Details -->
-                    <div class="modal fade" id="viewApplicationModal<%= index %>" tabindex="-1" role="dialog" aria-labelledby="viewApplicationModalLabel<%= index %>" aria-hidden="true">
-                        <div class="modal-dialog" role="document">
-                            <div class="modal-content">
-                                <div class="modal-header">
-                                    <h5 class="modal-title" id="viewApplicationModalLabel<%= index %>">Application Details</h5>
-                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                                        <span aria-hidden="true">&times;</span>
-                                    </button>
-                                </div>
-                                <div class="modal-body">
-                                    <p><strong>Applicant Name:</strong> <%= app.userId.name %></p>
-                                    <p><strong>Email:</strong> <%= app.userId.email %></p>
-                                    <p><strong>Job Applied:</strong> <%= app.jobId.jobTitle %></p>
-                                    <p><strong>Resume:</strong> <a href="/viewDocument/<%= app._id %>/resume">View Resume</a></p>
-                                    <p><strong>Cover Letter:</strong> <a href="/viewDocument/<%= app._id %>/coverLetter">View Cover Letter</a></p>
-                                    <p><strong>Current Status:</strong> <%= app.decision %></p>
-                                </div>
-                                <div class="modal-footer">
-                                    <button type="button" class="btn btn-outline-secondary" data-dismiss="modal">Close</button>
+                        <!-- Modal for Application Details -->
+                        <div class="modal fade" id="viewApplicationModal<%= index %>" tabindex="-1" role="dialog" aria-labelledby="viewApplicationModalLabel<%= index %>" aria-hidden="true">
+                            <div class="modal-dialog" role="document">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title" id="viewApplicationModalLabel<%= index %>">Application Details</h5>
+                                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                            <span aria-hidden="true">&times;</span>
+                                        </button>
+                                    </div>
+                                    <div class="modal-body">
+                                        <p><strong>Applicant Name:</strong> <%= app.userId.name %></p>
+                                        <p><strong>Email:</strong> <%= app.userId.email %></p>
+                                        <p><strong>Job Applied:</strong> <%= app.jobId.jobTitle %></p>
+                                        <p><strong>Resume:</strong> <a href="/viewDocument/<%= app._id %>/resume">View Resume</a></p>
+                                        <p><strong>Cover Letter:</strong> <a href="/viewDocument/<%= app._id %>/coverLetter">View Cover Letter</a></p>
+                                        <p><strong>Current Status:</strong> <%= app.decision %></p>
+                                    </div>
+                                    <div class="modal-footer">
+                                        <input type="hidden" name="applicationId" value="<%= app._id %>">
+                                        <button type="button" class="btn btn-outline-success" data-decision="Interviewed" <%= app.decision === 'Interviewed' ? 'disabled' : '' %>>
+                                            <i class="fas fa-user-check"></i> Mark as Interviewed
+                                        </button>
+                                        <button type="button" class="btn btn-outline-primary" data-decision="Hired" <%= app.decision === 'Hired' ? 'disabled' : '' %>>
+                                            <i class="fas fa-handshake"></i> Hire
+                                        </button>
+                                        <button type="button" class="btn btn-outline-danger" data-decision="Rejected" <%= app.decision === 'Rejected' ? 'disabled' : '' %>>
+                                            <i class="fas fa-times-circle"></i> Reject
+                                        </button>
+                                        <button type="button" class="btn btn-outline-secondary" data-dismiss="modal">Close</button>
+                                    </div>
                                 </div>
                             </div>
                         </div>
                     </div>
-                </li>
+                </div>
             <% }); %>
-        </ul>
+        </div>
         <!-- Pagination -->
-        <nav aria-label="Page navigation example" style="background-color: white;">
-            <ul class="pagination">
+        <nav aria-label="Page navigation example" class="mt-4" style="background-color: white;">
+            <ul class="pagination justify-content-center">
                 <% for (let i = 1; i <= totalPages; i++) { %>
                     <li class="page-item <%= i === currentPage ? 'active' : '' %>">
                         <a class="page-link" href="/allApplications?page=<%= i %>&decision=<%= decision %>"><%= i %></a>
@@ -76,10 +90,33 @@
     <% } %>
 </div>
 
-
 <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
-<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
+        <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+        <script>
+            function updateLabel() {
+                var input = document.getElementById('logoInput');
+                var fileName = input.files[0].name;
+                document.querySelector('label[for="logoInput"]').textContent = fileName;
+            }
+        </script>          
+            
+            <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+        <script>
+            $(document).ready(function() {
+                $('.modal-footer button').click(function(event) {
+                    event.preventDefault();
+                    var applicationId = $(this).closest('.modal-content').find('input[name="applicationId"]').val();
+                    var decision = $(this).attr('data-decision');
+                    $.post('/updateApplicationDecision', { applicationId: applicationId, decision: decision }, function(data) {
+                        location.reload();
+                    }).fail(function() {
+                        console.error('Failed to update status.');
+                    });
+                });
+            });
+        </script>
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.1/css/all.min.css">
 
 <%- include('./partials/footer.ejs') %>
 </body>

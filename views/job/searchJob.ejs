@@ -119,9 +119,9 @@
             <!-- Search Results -->
             <div class="search-results" style="background-color: #f9f2f4;">
                 <h3 class="mb-3">Search Results</h3>
-                <% if (jobs && jobs.length> 0) { %>
+                <% if (jobs && jobs.length > 0) { %>
                     <ul class="list-group">
-                        <% jobs.forEach(job=> { %>
+                        <% jobs.forEach(job => { %>
                             <li class="list-group-item mb-3" style="background-color: #ffffff;">
                                 <div class="d-flex justify-content-between">
                                     <h5 class="mb-1">
@@ -146,56 +146,53 @@
                                 <p><strong>Description:</strong>
                                     <%= job.description %>
                                 </p>
-                                <% if (user) { %>
+                                <% if ((!employer && !admin)) { %>
                                     <% if (!userAppliedJobs.includes(job._id.toString())) { %>
                                         <a href="/applyJob/<%= job._id %>" class="btn btn-outline-success"><i
                                                 class="fas fa-check"></i> Apply</a>
-                                        <% } else { %>
-                                            <button class="btn btn-outline-info" disabled><i class="fas fa-check"></i>
-                                                Applied</button>
-                                            <% } %>
-                                                <% } else { %>
-                                                    <a href="/login" class="btn btn-outline-success"><i
-                                                            class="fas fa-check"></i> Apply</a>
-                                                    <% } %>
-                                                        <% if (user) { %>
-                                                            <% if (job.isLikedByCurrentUser) { %>
-                                                                <form action="/unlikeJob/<%= job._id %>" method="post"
-                                                                    style="display: inline">
-                                                                    <button type="submit"
-                                                                        class="btn btn-danger like-btn"><i
-                                                                            class="fas fa-heart"></i> Liked</button>
-                                                                </form>
-                                                                <% } else { %>
-                                                                    <form action="/likeJob/<%= job._id %>" method="post"
-                                                                        style="display: inline">
-                                                                        <button type="submit"
-                                                                            class="btn btn-outline-primary like-btn"><i
-                                                                                class="far fa-heart"></i> Like</button>
-                                                                    </form>
-                                                                    <% } %>
-                                                                        <% } %>
+                                    <% } else { %>
+                                        <button class="btn btn-outline-info" disabled><i class="fas fa-check"></i>
+                                            Applied</button>
+                                    <% } %>
+                                <% } else { %>
+                                    <button class="btn btn-outline-info" disabled><i class="fas fa-check"></i>
+                                        Apply</button>
+                                <% } %>
+                                <% if (user) { %>
+                                    <% if (job.isLikedByCurrentUser) { %>
+                                        <form action="/unlikeJob/<%= job._id %>" method="post" style="display: inline">
+                                            <button type="submit" class="btn btn-danger like-btn"><i
+                                                    class="fas fa-heart"></i> Liked</button>
+                                        </form>
+                                    <% } else { %>
+                                        <form action="/likeJob/<%= job._id %>" method="post" style="display: inline">
+                                            <button type="submit" class="btn btn-outline-primary like-btn"><i
+                                                    class="far fa-heart"></i> Like</button>
+                                        </form>
+                                    <% } %>
+                                <% } %>
                             </li>
-                            <% }); %>
+                        <% }); %>
                     </ul>
                     <nav aria-label="Job search results pages" style="background-color: white;">
                         <ul class="pagination">
-                            <% for(let i=1; i <=totalPages; i++) { %>
+                            <% for(let i=1; i <= totalPages; i++) { %>
                                 <li class="page-item <%= i === currentPage ? 'active' : '' %>">
                                     <a class="page-link"
                                         href="/searchJob?page=<%= i %>&job=<%= jobFilters.job %>&location=<%= jobFilters.location %>&salary=<%= jobFilters.salary %>&sector=<%= jobFilters.sector %>&company=<%= jobFilters.company %>">
                                         <%= i %>
                                     </a>
                                 </li>
-                                <% } %>
+                            <% } %>
                         </ul>
                     </nav>
-                    <% } else { %>
-                         <div class="alert alert-info" role="alert">
-                                        No jobs found.
-                                    </div>
-                        <% } %>
+                <% } else { %>
+                    <div class="alert alert-info" role="alert">
+                        No jobs found.
+                    </div>
+                <% } %>
             </div>
+            
         </div>
         </div>
         <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>

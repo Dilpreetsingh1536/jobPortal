@@ -38,16 +38,16 @@
                                                     </span>
                                                 </div>
                                                 <div>
-                                                    <button type="button" class="btn btn-primary btn-sm"
+                                                    <button type="button" class="btn btn-outline-primary btn-sm"
                                                         data-toggle="modal" data-target="#viewJobModal<%= index %>">
                                                         <i class="fas fa-eye"></i>
                                                     </button>
-                                                    <button type="submit" class="btn btn-warning btn-sm"
+                                                    <button type="submit" class="btn btn-outline-warning btn-sm"
                                                         formaction="/setEditJobId" name="jobId" value="<%= job._id %>">
                                                         <i class="fas fa-edit"></i>
                                                     </button>
                                                     <a href="/setDeleteJobId/<%= job._id %>"
-                                                        class="btn btn-danger btn-sm">
+                                                        class="btn btn-outline-danger btn-sm">
                                                         <i class="fas fa-trash-alt"></i>
                                                     </a>
                                                 </div>
@@ -95,7 +95,7 @@
                                                                 </span></p>
                                                         </div>
                                                         <div class="modal-footer">
-                                                            <button type="button" class="btn btn-secondary"
+                                                            <button type="button" class="btn btn-outline-secondary"
                                                                 data-dismiss="modal">Close</button>
                                                         </div>
                                                     </div>
@@ -108,7 +108,7 @@
                                 </ul>
                             </form>
                             <div class="d-flex justify-content-between align-items-center mt-3">
-                                <a href="/listJob" class="btn btn-success" style="margin-top: 20px">List a Job</a>
+                                <a href="/listJob" class="btn btn-outline-success" style="margin-top: 20px">List a Job</a>
                                 <div>
                                     <span class="ml-2"><i class="fas fa-eye"></i> View</span>
                                     <span class="ml-2"><i class="fas fa-edit"></i> Edit</span>

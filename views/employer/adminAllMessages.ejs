@@ -3,35 +3,38 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
-    <title>All Messages</title>
+    <title>Admin Messages</title>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" />
     <link rel="stylesheet" type="text/css" href="/css/nav.css" />
     <link rel="stylesheet" type="text/css" href="/css/footer.css" />
+    <link rel="stylesheet" type="text/css" href="/css/main.css" />
 </head>
-<body>
+<body style="background-color: #f8f9fa">
     <%- include('./partials/nav.ejs') %>
 
     <div class="container mt-5">
-        <h1 class="mb-4">All Messages</h1>
+        <h1 class="mb-4">Admin Messages</h1>
         <% if (messages.length > 0) { %>
             <div class="list-group">
                 <% messages.forEach(function(message) { %>
-                    <div class="list-group-item">
-                        <div class="row mb-2">
+                    <div class="list-group-item list-group-item-action">
+                        <div class="row">
                             <div class="col-12">
-                                <p><strong>Message:</strong> <%= message.message %></p>
+                                <strong>Message:</strong> <%= message.message %>
                             </div>
                         </div>
                         <div class="row align-items-center">
                             <div class="col-md-4">
-                                <p class="mb-0"><strong>From:</strong> <%= message.adminUniqueId %></p>
+                                <strong>From:</strong> <%= message.adminUniqueId %>
                             </div>
                             <div class="col-md-4">
-                                <small><strong>Sent on:</strong> <%= message.createdAtFormatted %></small>
+                                <strong>Sent on:</strong> <%= message.createdAtFormatted %>
                             </div>
-                            <div class="col-md-4 text-md-right">
+                            <div class="col-md-4 text-right">
                                 <form action="/deleteMessageForEmployer/<%= message._id %>" method="POST">
-                                    <button type="submit" class="btn btn-danger btn-sm">Delete</button>
+                                    <button type="submit" class="btn btn-outline-danger btn-sm">
+                                        <i class="fas fa-trash-alt"></i> Delete
+                                    </button>
                                 </form>
                             </div>
                         </div>
@@ -39,7 +42,9 @@
                 <% }); %>
             </div>
         <% } else { %>
-            <p>No new messages.</p>
+            <div class="alert alert-info" role="alert"> 
+               No Admin Messages.
+            </div>
         <% } %>
         <% if (totalPages > 1) { %>
             <nav aria-label="Page navigation example">
@@ -54,9 +59,9 @@
         <% } %>
     </div>
 
-<script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
-<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
     
     <%- include('./partials/footer.ejs') %>
 </body>

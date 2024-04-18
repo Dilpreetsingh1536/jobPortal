@@ -69,7 +69,7 @@
                                         <div class="job-card-content">
                                             <h4><%= job.jobTitle %></h4>
                                             <ul>
-                                                <li><strong>Comapny:</strong> <%= job.employerName %></li>
+                                                <li><strong>Company:</strong> <%= job.employerName %></li>
                                                 <li><strong>Address:</strong><i class="fas fa-map-marker-alt"></i> <%= [job.street, job.city, job.province, job.postalCode].join(', ') %></li>
                                                 <li><strong>Salary:</strong> <%= job.salary %></li>
                                                 <li><strong>Sector:</strong> <%= job.sector %></li>
@@ -77,13 +77,18 @@
                                             </ul>
                                         </div>
                                         <div class="job-card-footer">
-                                            <a href="/applyJob/<%= job._id %>" class="btn btn-primary">Apply Now</a>
+                                            <% if (!employer && !admin) { %>
+                                                <a href="/applyJob/<%= job._id %>" class="btn btn-outline-success">Apply Now</a>
+                                            <% } else { %>
+                                                <button class="btn btn-outline-success" disabled>Apply Now</button>
+                                            <% } %>
                                             <span>Posted: <%= new Date(parseInt(job._id.toString().substring(0, 8), 16) * 1000).toLocaleDateString() %></span>
                                         </div>
                                     </div>
                                 </div>
                             <% }); %>
                         </div>
+                        
                     </div>
                 </section>
                 <!-- Featured Jobs Section End -->

@@ -30,7 +30,7 @@
                 <!-- Conditionally Display End Membership Button -->
                 <% if (['Pro', 'Ultimate' ].includes(currentPlan)) { %>
                     <div class="col-auto">
-                        <button type="button" class="btn btn-lg btn-block btn-danger end-membership">End
+                        <button type="button" class="btn btn-lg btn-block btn-outline-danger end-membership">End
                             Membership</button>
                     </div>
                     <% } %>
@@ -58,7 +58,7 @@
                                     <li><i class="fas fa-check"></i> <%= plan==='Starter' ? "Limited analytics on job postings" : plan==='Pro' ? "Advanced analytics on job postings" : "Comprehensive analytics and insights on job postings and profile views" %></li>
                                 </ul>
                                 <% if(plan !== 'Starter') { %>
-                                    <button type="button" class="btn btn-lg btn-block btn-primary select-plan" data-plan="<%= plan %>">Choose Plan</button>
+                                    <button type="button" class="btn btn-lg btn-block btn-outline-primary select-plan" data-plan="<%= plan %>">Choose Plan</button>
                                 <% } %>
                             </div>
                             
@@ -90,8 +90,8 @@
                         </form>
                     </div>
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
-                        <button type="submit" class="btn btn-primary" id="submit-payment">Confirm Payment</button>
+                        <button type="button" class="btn btn-outline-secondary" data-dismiss="modal">Cancel</button>
+                        <button type="submit" class="btn btn-outline-primary" id="submit-payment">Confirm Payment</button>
                     </div>
                 </div>
             </div>
