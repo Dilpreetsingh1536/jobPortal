@@ -1,83 +1,85 @@
 <!DOCTYPE html>
 <html lang="en">
-    <head>
-        <meta charset="UTF-8" />
-        <meta
-            name="viewport"
-            content="width=device-width, initial-scale=1, shrink-to-fit=no"
-        />
-        <title>View Messages</title>
-        <link
-            rel="stylesheet"
-            href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
-        />
-        <link rel="stylesheet" type="text/css" href="css/nav.css" />
-        <link rel="stylesheet" type="text/css" href="css/footer.css" />
-    </head>
-    <%- include('./partials/nav.ejs') %>
-    <body style="background-color: #f8f9fa">
-        <div class="container mt-5">
-            <h1>All Messages</h1>
-            <div class="row">
-                <% messages.forEach(message => { %>
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+    <title>View Messages</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" />
+    <link rel="stylesheet" type="text/css" href="css/nav.css" />
+    <link rel="stylesheet" type="text/css" href="css/footer.css" />
+    <style>
+        .container {
+            padding-top: 2rem;
+            padding-bottom: 2rem;
+        }
+        .card {
+            margin-bottom: 1rem;
+            background-color: #ffffff;
+            border-radius: 8px;
+            box-shadow: 0 6px 10px rgba(0,0,0,0.1);
+        }
+        .btn-outline-primary, .btn-outline-danger {
+            margin: 5px;
+        }
+        .no-messages {
+            color: #6c757d;
+            background-color: #f8f9fa;
+            border-color: #dee2e6;
+            padding: 10px;
+            border-radius: 0.25rem;
+            text-align: center;
+        }
+        .full-width {
+            width: 100%;
+        }
+    </style>
+</head>
+<body style="background-color: #f8f9fa;">
+<%- include('./partials/nav.ejs') %>
+
+<div class="container">
+    <h1>All Messages</h1>
+    <div class="row">
+        <% if (messages.length > 0) { %>
+            <% messages.forEach(message => { %>
                 <div class="col-md-12 mb-3">
                     <div class="card">
                         <div class="card-body">
-                            <h5 class="card-title">
-                                Name: <%= message.senderId.employerName %>
-                            </h5>
-                            <p class="card-text">
-                                Message: <%= message.message %>
-                            </p>
-                            <p class="card-text">
-                                Date: <%= new
-                                Date(message.timestamp).toLocaleString() %>
-                            </p>
+                            <h5 class="card-title">From: <%= message.senderId.employerName %></h5>
+                            <p class="card-text">Message: <%= message.message %></p>
+                            <p class="card-text">Date: <%= new Date(message.timestamp).toLocaleString() %></p>
                             <% if (!message.reply) { %>
-                            <form action="/rplyMessage" method="POST">
-                                <div class="form-group">
-                                    <textarea
-                                        class="form-control"
-                                        name="reply"
-                                        rows="3"
-                                        placeholder="Type your reply..."
-                                    ></textarea>
-                                </div>
-                                <input
-                                    type="hidden"
-                                    name="messageId"
-                                    value="<%= message._id %>"
-                                />
-                                <button type="submit" class="btn btn-primary">
-                                    Reply
-                                </button>
-                            </form>
+                                <form action="/replyMessage" method="POST" class="d-inline-block full-width">
+                                    <div class="form-group">
+                                        <textarea class="form-control" name="reply" rows="3" placeholder="Type your reply..." class="full-width"></textarea>
+                                    </div>
+                                    <input type="hidden" name="messageId" value="<%= message._id %>" />
+                                    <button type="submit" class="btn btn-outline-primary">Reply</button>
+                                    <button type="button" class="btn btn-outline-danger" formaction="/deleteMessage/<%= message._id %>">Delete</button>
+                                </form>
                             <% } else { %>
-                            <p class="card-text">
-                                Replied Message: <%= message.reply %>
-                            </p>
+                                <p class="card-text">Replied Message: <%= message.reply %></p>
+                                <form action="/deleteMessage/<%= message._id %>" method="POST" class="d-inline-block">
+                                    <button type="submit" class="btn btn-outline-danger">Delete</button>
+                                </form>
                             <% } %>
-                            <form
-                                action="/deleteMessage/<%= message._id %>"
-                                method="POST"
-                            >
-                                <button
-                                    type="submit"
-                                    class="btn btn-danger mt-2"
-                                >
-                                    Delete
-                                </button>
-                            </form>
                         </div>
                     </div>
                 </div>
-                <% }) %>
+            <% }) %>
+        <% } else { %>
+            <div class="col-12">
+                <div class="no-messages">
+                    No messages available.
+                </div>
             </div>
-        </div>
+        <% } %>
+    </div>
+</div>
 
-        <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
-        <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
-    </body>
-    <%- include('./partials/footer.ejs') %>
+<script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+<%- include('./partials/footer.ejs') %>
+</body>
 </html>

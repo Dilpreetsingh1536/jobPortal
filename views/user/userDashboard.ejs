@@ -58,7 +58,7 @@
                                     <img src="images/profile_logo.png" alt="User Logo" class="img-fluid">
                                 <% } %>
                             </div>
-                            <div class="">
+                            <div>
                                 <button class="btn btn-outline-primary mr-2" data-toggle="modal" data-target="#editLogoModal">
                                     <i class="fa fa-edit"></i> Edit Logo
                                 </button>
@@ -71,7 +71,7 @@
                                     </form>
                                 <% } %>
                             </div>
-
+                
                             <div class="modal fade" id="editLogoModal" tabindex="-1" role="dialog" aria-labelledby="editLogoModalLabel" aria-hidden="true">
                                 <div class="modal-dialog" role="document">
                                     <div class="modal-content">
@@ -82,35 +82,34 @@
                                             </button>
                                         </div>
                                         <div class="modal-body">
-                                            <form
-                                                method="post"
-                                                action="uploadLogo"
-                                                enctype="multipart/form-data"
-                                            >
+                                            <form method="post" action="uploadLogo" enctype="multipart/form-data">
                                                 <div class="form-group">
                                                     <label for="logoInput" class="d-block">Choose Logo:</label>
                                                     <div class="custom-file">
-                                                        <input type="file" class="custom-file-input" id="logoInput" name="logo" onchange="updateLabel()">
+                                                        <input type="file" class="custom-file-input" id="logoInput" name="logo" onchange="updateLabel()" accept="image/jpeg, image/png, image/gif">
                                                         <label class="custom-file-label" for="logoInput">Select file...</label>
                                                     </div>
                                                 </div>
                                                 <div class="mt-4 text-right">
-                                                    <button type="submit" class="btn btn-primary">Upload</button>
+                                                    <button type="submit" class="btn btn-primary" id="uploadLogoButton" disabled>Upload</button>
                                                 </div>
                                             </form>
                                         </div>
+                                        
                                     </div>
                                 </div>
                             </div>
                             
                             <script>
                                 function updateLabel() {
-                                    var input = document.getElementById('logoInput');
-                                    var fileName = input.files[0].name;
-                                    input.nextElementSibling.innerHTML = fileName;
-                                }
+                                var input = document.getElementById('logoInput');
+                                var fileName = input.files[0] ? input.files[0].name : '';
+                                input.nextElementSibling.innerHTML = fileName;
+                                var validTypes = ['image/jpeg', 'image/png', 'image/gif'];
+                                document.getElementById('uploadLogoButton').disabled = !(input.files.length && validTypes.includes(input.files[0].type));
+                            }
                             </script>
-                            
+                
                             <h5 class="card-subtitle mb-3 text-muted" style="font-size: 18px; margin-top: 7px;">Name: <%= user.name %></h5>
                             <h5 class="card-subtitle mb-3 text-muted" style="font-size: 18px">Username: <%= user.username %></h5>
                             <p class="card-text" style="font-size: 16px; margin-top: 10px">Email: <%= user.email %></p>
@@ -119,27 +118,20 @@
                         </div>
                     </div>
                 </div>
+                
                 <div class="col-md-6">
                     <div class="card" style="border: none; border-radius: 10px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); padding: 20px; margin-bottom: 20px;">
                         <div class="card-body">
-                            <h3
-                                class="card-title"
-                                style="font-size: 24px; font-weight: bold"
-                            >
+                            <h3 class="card-title" style="font-size: 24px; font-weight: bold">
                                 Upload Resume
                             </h3>
                             <div class="row align-items-center">
                                 <div class="col-md-4">
                                     <form action="/uploadResume" method="POST" enctype="multipart/form-data" class="form-inline">
                                         <div class="form-group mb-2">
-                                            <input
-                                                type="file"
-                                                class="form-control-file"
-                                                id="resume"
-                                                name="resume"
-                                            />
+                                            <input type="file" class="form-control-file" id="resume" name="resume" required onchange="checkFileSelected()">
                                         </div>
-                                        <button type="submit" class="btn btn-outline-primary mb-2">
+                                        <button type="submit" class="btn btn-outline-primary mb-2" id="uploadButton" disabled>
                                             <i class="fa fa-upload"></i> Upload
                                         </button>
                                     </form>
@@ -478,6 +470,13 @@
         <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
         <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+        <script>
+            function checkFileSelected() {
+                var uploadButton = document.getElementById('uploadButton');
+                var fileInput = document.getElementById('resume');
+                uploadButton.disabled = !fileInput.value;
+            }
+        </script>
         <link
             rel="stylesheet"
             href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.1/css/all.min.css"

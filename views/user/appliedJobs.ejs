@@ -3,26 +3,52 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
-    <title>Liked Jobs</title>
+    <title>Applied Jobs</title>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" />
     <link rel="stylesheet" type="text/css" href="/css/nav.css" />
     <link rel="stylesheet" type="text/css" href="/css/footer.css" />
+    <style>
+        .container {
+            margin-top: 5rem;
+            margin-bottom: 2rem;
+        }
+        .list-group-item {
+            background-color: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 0.25rem;
+            margin-bottom: 0.5rem;
+        }
+        .modal-content {
+            border-radius: 0.5rem;
+        }
+        .page-item.active .page-link {
+            background-color: #007bff;
+            border-color: #007bff;
+        }
+        .pagination {
+            justify-content: center;
+        }
+        .decision-text.viewed { color: blue; }
+        .decision-text.interviewed { color: orange; }
+        .decision-text.hired { color: green; }
+        .decision-text.rejected { color: red; }
+        .decision-text.inprocess { color: purple; }
+    </style>
 </head>
 <body>
 <%- include('./partials/nav.ejs') %>
 
-<div class="container mt-5">
+<div class="container">
     <h1 class="mb-4">Applied Jobs</h1>
     <ul class="list-group">
         <% if (appliedJobs && appliedJobs.length > 0) { %>
             <% appliedJobs.forEach((job, index) => { %>
             <li class="list-group-item d-flex justify-content-between align-items-center">
                 <span>
-                    <strong><%=job.jobTitle %></strong> - <%= job.employerName %>
+                    <strong><%= job.jobTitle %></strong> - <%= job.employerName %>
                 </span>
                 <div>
-                  
-                    <button type="button" class="btn btn-primary btn-sm" data-toggle="modal" data-target="#jobDetailModal<%= index %>">
+                    <button type="button" class="btn btn-outline-primary btn-sm" data-toggle="modal" data-target="#jobDetailModal<%= index %>">
                         View
                     </button>
                 </div>
@@ -40,13 +66,11 @@
                                 <p><strong>Job Title:</strong> <%= job.jobTitle %></p>
                                 <p><strong>Employer:</strong> <%= job.employerName %></p>
                                 <p><strong>Sector:</strong> <%= job.sector %></p>
-                                <p><strong>Location:</strong>
-                                    <%= job.street %>, <%= job.city %>, <%= job.province %>, <%= job.postalCode %>
-                                </p>
+                                <p><strong>Location:</strong> <%= job.street %>, <%= job.city %>, <%= job.province %>, <%= job.postalCode %></p>
                                 <p><strong>Salary:</strong> <%= job.salary %></p>
-                                <p><strong>Decision:</strong> <%= job.decision %></p>
                             </div>
                             <div class="modal-footer">
+                                <div class="decision-text <%= job.decision.toLowerCase().replace(' ', '') %> mr-auto"> <%= job.decision %></div>
                                 <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
                             </div>
                         </div>
@@ -54,19 +78,21 @@
                 </div>
             </li>
             <% }); %>
-        </ul>
-    <% } else { %>
-        <p>You have not applied any jobs yet.</p>
+        <% } else { %>
+            <p>You have not applied for any jobs yet.</p>
+        <% } %>
+    </ul>
+    <% if (totalPages > 1) { %>
+        <nav aria-label="Page navigation example" class="mt-4">
+            <ul class="pagination justify-content-center">
+                <% for(let i = 1; i <= totalPages; i++) { %>
+                    <li class="page-item <%= i === currentPage ? 'active' : '' %>">
+                        <a class="page-link" href="/appliedJobs?page=<%= i %>"><%= i %></a>
+                    </li>
+                <% } %>
+            </ul>
+        </nav>
     <% } %>
-    <nav aria-label="Page navigation example" class="mt-4" style="background-color: white;">
-        <ul class="pagination">
-            <% for(let i = 1; i <= totalPages; i++) { %>
-                <li class="page-item <%= i === currentPage ? 'active' : '' %>">
-                    <a class="page-link" href="/appliedJobs?page=<%= i %>"><%= i %></a>
-                </li>
-            <% } %>
-        </ul>
-    </nav>    
 </div>
 
 <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>

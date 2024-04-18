@@ -927,12 +927,12 @@ router.post('/edit-experience', checkEmployerNotLoggedIn, checkAdminNotLoggedIn,
 
         if (!jobTitle || !company || !expStartDate || !description) {
             req.flash('error', 'Please fill in all required fields.');
-            return res.redirect('/editExperience');
+            return res.redirect(`/editExperience?experienceId=${experienceId}`);
         }
 
-        if (expEndDate && expStartDate > expEndDate) {
+        if (expEndDate && new Date(expStartDate) > new Date(expEndDate)) {
             req.flash('error', 'End date should be equal to or after the start date.');
-            return res.redirect('/editExperience?experienceId=${experienceId}');
+            return res.redirect(`/editExperience?experienceId=${experienceId}`);
         }
 
         const updatedUser = await updateExperienceById(userId, experienceId, {
@@ -946,11 +946,11 @@ router.post('/edit-experience', checkEmployerNotLoggedIn, checkAdminNotLoggedIn,
         req.session.user = updatedUser;
 
         req.flash('success', 'Experience updated successfully!');
-        res.redirect('/editExperience?experienceId=${experienceId}');
+        res.redirect(`/editExperience?experienceId=${experienceId}`);
     } catch (error) {
         console.error(error);
         req.flash('error', 'Internal Server Error');
-        res.redirect('/editExperience?experienceId=${experienceId}');
+        res.redirect(`/editExperience?experienceId=${experienceId}`);
     }
 });
 
@@ -1092,13 +1092,18 @@ router.get('/employerProfile', checkAdminNotLoggedIn, checkEmployerNotLoggedIn, 
 
         const user = req.session.user;
         const employer = req.session.employer;
-        const admin = req.session.admin;
+        const appliedJobIds = user.appliedJobs;
 
         const emp = await employerModel.findById(employerId);
 
-        const jobs = await jobModel.find({ employerId: employerId });
+        const jobs = await jobModel.find({ employerId: employerId }).lean();
 
-        res.render('employerProfile', { employer, jobs, user, emp, admin });
+        const markedJobs = jobs.map(job => ({
+            ...job,
+            applied: appliedJobIds.includes(job._id.toString())
+        }));
+
+        res.render('employerProfile', { employer, jobs: markedJobs, user, emp });
     } catch (error) {
         console.error(error);
         req.flash('error', 'Error fetching employer profile.');
@@ -1331,26 +1336,6 @@ router.get("/moreEducation", checkEmployerNotLoggedIn, checkAdminNotLoggedIn, ch
     }
 });
 
-
-// router.get("/appliedJobs", checkEmployerNotLoggedIn, checkAdminNotLoggedIn, checkLoggedIn, async (req, res) => {
-//     try {
-//         const appliedJobs = [];
-//         if (appliedJobs.length === 0) {
-//             req.flash("info", "No applied jobs available.");
-//         }
-//         res.render("appliedJobs", {
-//             appliedJobs,
-//             user: req.session.user,
-//             employer: req.session.employer,
-//             admin: req.session.admin
-//         });
-//     } catch (error) {
-//         console.error("Error fetching applied jobs:", error);
-//         req.flash("error", "Internal Server Error");
-//         res.redirect("/userDashboard");
-//     }
-// });
-
 router.get("/likedJobs", checkEmployerNotLoggedIn, checkAdminNotLoggedIn, checkLoggedIn, async (req, res) => {
     try {
         const page = parseInt(req.query.page) || 1;
@@ -1366,9 +1351,14 @@ router.get("/likedJobs", checkEmployerNotLoggedIn, checkAdminNotLoggedIn, checkL
 
         const likedJobsIds = user.likedJobs.slice(skip, skip + limit);
 
+        const applications = await Application.find({ userId: user._id });
+
+        const appliedJobIds = new Set(applications.map(application => application.jobId.toString()));
+
         const likedJobs = await Promise.all(
             likedJobsIds.map(async (jobId) => {
-                return await jobModel.findById(jobId).populate('employerId', 'employerName').exec();
+                const job = await jobModel.findById(jobId).populate('employerId', 'employerName').exec();
+                return job ? { ...job.toObject(), applied: appliedJobIds.has(job._id.toString()) } : null;
             })
         );
 
@@ -1403,25 +1393,6 @@ router.get("/appliedJobs", checkEmployerNotLoggedIn, checkAdminNotLoggedIn, chec
             req.flash("error", "User not found");
             return res.redirect("/login");
         }
-
-        // const appliedJobsIds = user.appliedJobs.slice(skip, skip + limit);
-
-        // const appliedJobs = await Promise.all(
-        //     appliedJobsIds.map(async (jobId) => {
-        //         const job = await jobModel.findById(jobId).populate('employerId', 'employerName').exec();
-        //         // Find application corresponding to the current user and job
-        //         const application = await applicationModel.findOne({ jobId: jobId, userId: user._id });
-        //         let decision = 'In Process'; // Default decision if application not found
-        //         if (application) {
-        //             decision = application.decision;
-        //         }
-        //         // Return an object containing job details and decision
-        //         return {
-        //             job: job,
-        //             decision: decision
-        //         };
-        //     })
-        // );
 
         const appliedJobs = [];
         for (const jobId of userData.appliedJobs) {
@@ -1462,24 +1433,6 @@ router.get("/appliedJobs", checkEmployerNotLoggedIn, checkAdminNotLoggedIn, chec
     }
 });
 
-
-
-// router.get('/applyJob/:jobId', async (req, res) => {
-//     if (!req.session.user) {
-//         return res.redirect('/login');
-//     }
-//     try {
-//         const { jobId } = req.params;
-//         const job = await jobModel.findById(jobId).populate('employerId').exec();
-//         if (!job) {
-//             return res.status(404).send('Job not found');
-//         }
-//         res.render('job/applyJob', { job, user: req.session.user });
-//     } catch (err) {
-//         console.error(err);
-//         res.status(500).send('Internal Server Error');
-//     }
-// });
 
 router.post('/unlikeJob/:jobId', async (req, res) => {
     if (!req.session.user) {

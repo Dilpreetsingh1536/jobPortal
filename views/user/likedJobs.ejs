@@ -7,11 +7,33 @@
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" />
     <link rel="stylesheet" type="text/css" href="/css/nav.css" />
     <link rel="stylesheet" type="text/css" href="/css/footer.css" />
+    <style>
+        .container {
+            margin-top: 5rem;
+            margin-bottom: 2rem;
+        }
+        .list-group-item {
+            border-radius: 0.25rem;
+            margin-bottom: 0.5rem;
+            background-color: #f8f9fa;
+            border: 1px solid #dee2e6
+        }
+        .modal-content {
+            border-radius: 0.5rem;
+        }
+        .page-item.active .page-link {
+            background-color: #007bff;
+            border-color: #007bff;
+        }
+        .pagination {
+            justify-content: center;
+        }
+    </style>
 </head>
 <body>
 <%- include('./partials/nav.ejs') %>
 
-<div class="container mt-5">
+<div class="container">
     <h1 class="mb-4">Liked Jobs</h1>
     <ul class="list-group">
         <% likedJobs.forEach(function(job, index) { %>
@@ -20,11 +42,15 @@
                     <strong><%= job.jobTitle %></strong> - <%= job.employerId.employerName %>
                 </span>
                 <div>
-                    <a href="/applyJob/<%= job._id %>" class="btn btn-success btn-sm">Apply</a>
+                    <% if (!job.applied) { %>
+                        <a href="/applyJob/<%= job._id %>" class="btn btn-outline-success btn-sm">Apply</a>
+                    <% } else { %>
+                        <button class="btn btn-outline-secondary btn-sm" disabled>Applied</button>
+                    <% } %>
                     <form action="/unlikeJob/<%= job._id %>" method="post" style="display: inline;">
-                        <button type="submit" class="btn btn-secondary btn-sm">Unlike</button>
+                        <button type="submit" class="btn btn-outline-secondary btn-sm">Unlike</button>
                     </form>
-                    <button type="button" class="btn btn-primary btn-sm" data-toggle="modal" data-target="#jobDetailModal<%= index %>">
+                    <button type="button" class="btn btn-outline-primary btn-sm" data-toggle="modal" data-target="#jobDetailModal<%= index %>">
                         View
                     </button>
                 </div>
@@ -55,6 +81,7 @@
             </li>
         <% }); %>        
     </ul>
+    
     <nav aria-label="Page navigation example" class="mt-4" style="background-color: white;">
         <ul class="pagination">
             <% for(let i = 1; i <= totalPages; i++) { %>

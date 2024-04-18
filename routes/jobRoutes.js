@@ -122,9 +122,14 @@ router.post('/searchJob', async (req, res) => {
     try {
         const { job, location, salary, sector, company } = req.body;
 
+        let queryParams = {};
+
         let filter = { status: 'approved' };
 
-        if (job) filter.jobTitle = new RegExp(job, 'i');
+        if (job) {
+            filter.jobTitle = new RegExp(job, 'i');
+            queryParams.job = job;
+        }
         if (location) {
             filter.$or = [
                 { street: new RegExp(location, 'i') },
@@ -132,21 +137,25 @@ router.post('/searchJob', async (req, res) => {
                 { province: new RegExp(location, 'i') },
                 { postalCode: new RegExp(location, 'i') }
             ];
+            queryParams.location = location;
         }
-
         if (salary) {
             const [minSalaryStr, maxSalaryStr] = salary.split('-');
             const extractNumericValue = (salaryString) => parseFloat(salaryString.replace(/[^\d.]/g, ''));
             const minSalary = extractNumericValue(minSalaryStr);
             const maxSalary = extractNumericValue(maxSalaryStr);
             filter.salary = { $gte: minSalary, $lte: maxSalary };
+            queryParams.salary = salary;
         }
-
-        if (sector) filter.sector = new RegExp(sector, 'i');
+        if (sector) {
+            filter.sector = new RegExp(sector, 'i');
+            queryParams.sector = sector;
+        }
         if (company) {
             const employersMatchingCompany = await employerModel.find({ employerName: new RegExp(company, 'i') });
             const employerIds = employersMatchingCompany.map(employer => employer._id);
             filter.employerId = { $in: employerIds };
+            queryParams.company = company;
         }
 
         const jobs = await jobModel.find(filter).populate('employerId', 'employerName').exec();
@@ -156,26 +165,17 @@ router.post('/searchJob', async (req, res) => {
             job.isLikedByCurrentUser = user && user.likedJobs && user.likedJobs.includes(jobIdAsString);
         }
 
-        let queryParams = {};
-        if (jobs.length > 0) {
-            queryParams.jobs = JSON.stringify(jobs.map(job => ({
-                ...job.toObject(),
-                isLikedByCurrentUser: job.isLikedByCurrentUser
-            })));
+        if (Object.keys(queryParams).length === 0) {
+            res.redirect('/searchJob');
+        } else {
+            res.redirect('/searchJob?' + new URLSearchParams(queryParams).toString());
         }
-        if (job) queryParams.job = job;
-        if (location) queryParams.location = location;
-        if (salary) queryParams.salary = salary;
-        if (sector) queryParams.sector = sector;
-        if (company) queryParams.company = company;
-
-        res.redirect('/searchJob?' + new URLSearchParams(queryParams).toString());
-
-            } catch (error) {
-                console.error('Error in posting job search:', error);
-                res.redirect('/searchJob');
+    } catch (error) {
+        console.error('Error in posting job search:', error);
+        res.redirect('/searchJob');
     }
 });
+
 
 /*Job Listing*/
 router.get('/listJob', checkUserNotLoggedIn, checkAdminNotLoggedIn, (req, res) => {

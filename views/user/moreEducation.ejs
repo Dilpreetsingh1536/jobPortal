@@ -7,17 +7,42 @@
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" />
     <link rel="stylesheet" type="text/css" href="/css/nav.css" />
     <link rel="stylesheet" type="text/css" href="/css/footer.css" />
+    <style>
+        body {
+            background-color: #f8f9fa;
+        }
+        .container {
+            margin-top: 5rem;
+            margin-bottom: 2rem;
+        }
+        .list-group-item {
+            background-color: #ffffff;
+            border: 1px solid #dee2e6;
+            border-radius: 0.25rem; 
+            margin-bottom: 0.5rem;
+            padding: 20px; 
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+        .btn-outline-primary, .btn-outline-success, .btn-outline-danger {
+            width: auto; 
+            margin: 0 5px;
+            padding: 0.375rem 0.75rem;
+        }
+        h1 {
+            color: #333;
+        }
+    </style>
 </head>
 <body>
 <%- include('./partials/nav.ejs') %>
 
-<div class="container mt-5">
+<div class="container">
     <div class="row mb-3">
         <div class="col-6">
-            <h1 class="mb-4">More Education</h1>
+            <h1>More Education</h1>
         </div>
         <div class="col-6 d-flex justify-content-end align-items-center">
-            <a href="/add-education-form" class="btn btn-success">Add Education</a>
+            <a href="/add-education-form" class="btn btn-outline-success">Add Education</a>
         </div>
     </div>
     <ul class="list-group">
@@ -29,8 +54,8 @@
                     <p><%= new Date(education.startDate).toISOString().slice(0, 10) %> to <%= education.endDate ? new Date(education.endDate).toISOString().slice(0, 10) : 'Present' %></p>
                 </div>
                 <div>
-                    <a href="/editEducation?educationId=<%= education._id %>" class="btn btn-primary btn-sm">Edit</a>
-                    <a href="/deleteEducation?educationId=<%= education._id %>" class="btn btn-danger btn-sm">Delete</a>
+                    <a href="/editEducation?educationId=<%= education._id %>" class="btn btn-outline-primary btn-sm">Edit</a>
+                    <a href="/deleteEducation?educationId=<%= education._id %>" class="btn btn-outline-danger btn-sm">Delete</a>
                 </div>
             </li>
         <% }); %>

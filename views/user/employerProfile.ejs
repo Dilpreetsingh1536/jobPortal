@@ -1,99 +1,85 @@
 <!DOCTYPE html>
 <html lang="en">
-    <head>
-        <meta charset="UTF-8" />
-        <meta
-            name="viewport"
-            content="width=device-width, initial-scale=1, shrink-to-fit=no"
-        />
-        <title>Employer Profile</title>
-        <link
-            rel="stylesheet"
-            href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
-        />
-        <link rel="stylesheet" type="text/css" href="css/nav.css" />
-        <link rel="stylesheet" type="text/css" href="css/footer.css" />
-        <link rel="stylesheet" type="text/css" href="css/main.css" />
-    </head>
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+    <title>Employer Profile</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" />
+    <link rel="stylesheet" type="text/css" href="css/nav.css" />
+    <link rel="stylesheet" type="text/css" href="css/footer.css" />
+    <style>
+        .logo {
+            max-width: 100%;
+    height: auto;
+        }
+        .card {
+            border: none;
+            border-radius: 0.25rem;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px
+        }
+        .job {
+            margin-top: 20px;
+            border-top: 1px solid #eee;
+            padding-top: 20px;
+        }
+        .container {
+            margin-bottom: 40px;
+        }
+    </style>
+</head>
+<body style="background-color: #f8f9fa">
+<%- include('./partials/nav.ejs') %>
 
-    <body style="background-color: #f8f9fa">
-        <%- include('./partials/nav.ejs') %>
-        <div class="container mt-5">
-            <div class="row">
-                <div class="col-md-6">
-                    <div class="card">
-                        <div class="card-body">
-                            <h5 class="card-title">Employer Profile</h5>
-
-                            <% if (emp.logo ) { %>
-
-                            <img
-                                src="../images/<%= emp.logo %>"
-                                class="card-img-top logo"
-                                alt="Employer Logo"
-                            />
-                            <% } else { %>
-
-                            <img
-                                src="images/profile_logo.png"
-                                class="card-img-top logo"
-                                alt="Employer Logo"
-                            />
-
-                            <% } %>
-                            <h5 class="card-title"><%= emp.employerName %></h5>
-                            <p class="card-text">
-                                Registration Number: <%=
-                                emp.registrationNumber.toUpperCase() %>
-                            </p>
-                            <a href="/empMessage" class="btn btn-primary mt-3"
-                                >Message</a
-                            >
-                        </div>
-                    </div>
-                </div>
-
-                <div class="col-md-6">
-                    <div class="card">
-                        <div class="card-body">
-                            <h5 class="card-title">Jobs</h5>
-                            <% if (jobs.length > 0) { %> <% jobs.forEach(job =>
-                            { %>
-                            <div class="job">
-                                <h6><%= job.title %></h6>
-                                <p>
-                                    <strong>Sector:</strong> <%= job.sector %>
-                                </p>
-                                <p>
-                                    <strong>Salary:</strong> <%= job.salary %>
-                                </p>
-                                <p>
-                                    <strong>Location:</strong> <%= job.street
-                                    %>, <%= job.city %>, <%= job.province %>,
-                                    <%= job.postalCode %>
-                                </p>
-                                <p>
-                                    <strong>Description:</strong> <%=
-                                    job.description %>
-                                </p>
-                                <a
-                                    href="/apply/<%= job._id %>"
-                                    class="btn btn-success"
-                                    >Apply</a
-                                >
-                            </div>
-                            <% }) %> <% } else { %>
-                            <p>No jobs available</p>
-                            <% } %>
-                        </div>
-                    </div>
+<div class="container mt-5">
+    <div class="row">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Employer Profile</h5>
+                    <% if (emp.logo) { %>
+                    <img src="../images/<%= emp.logo %>" class="card-img-top logo" alt="Employer Logo" />
+                    <% } else { %>
+                    <img src="images/profile_logo.png" class="card-img-top logo" alt="Employer Logo" />
+                    <% } %>
+                    <h5 class="card-title"><%= emp.employerName %></h5>
+                    <p class="card-text">Registration Number: <%= emp.registrationNumber.toUpperCase() %></p>
+                    <a href="/empMessage" class="btn btn-outline-primary mt-3">Message</a>
                 </div>
             </div>
         </div>
-        <%- include('./partials/footer.ejs') %>
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Jobs</h5>
+                    <% if (jobs.length > 0) { %> 
+                    <% jobs.forEach(job => { %>
+                    <div class="job">
+                        <h6><%= job.title %></h6>
+                        <p><strong>Sector:</strong> <%= job.sector %></p>
+                        <p><strong>Salary:</strong> <%= job.salary %></p>
+                        <p><strong>Location:</strong> <%= job.street %>, <%= job.city %>, <%= job.province %>, <%= job.postalCode %></p>
+                        <p><strong>Description:</strong> <%= job.description %></p>
+                        <% if (!job.applied) { %>
+                            <a href="/applyJob/<%= job._id %>" class="btn btn-outline-success">Apply</a>
+                        <% } else { %>
+                            <button class="btn btn-outline-secondary" disabled>Applied</button>
+                        <% } %>
+                    </div>
+                    <% }) %> 
+                    <% } else { %>
+                    <p>No jobs available</p>
+                    <% } %>
+                </div>
+            </div>
+        </div>
+        
+    </div>
+</div>
+<%- include('./partials/footer.ejs') %>
 
-        <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
-        <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
-    </body>
+<script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+</body>
 </html>

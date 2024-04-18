@@ -12,7 +12,7 @@
     <%- include('./partials/nav.ejs') %>
 
     <div class="container mt-5">
-        <h1 class="mb-4">All Messages</h1>
+        <h1 class="mb-4">Admin Messages</h1>
         <% if (messages.length > 0) { %>
             <div class="list-group">
                 <% messages.forEach(function(message) { %>
@@ -31,7 +31,7 @@
                             </div>
                             <div class="col-md-4 text-md-right">
                                 <form action="/deleteMessage/<%= message._id %>" method="POST">
-                                    <button type="submit" class="btn btn-danger btn-sm">Delete</button>
+                                    <button type="submit" class="btn btn-outline-danger btn-sm">Delete</button>
                                 </form>
                             </div>
                         </div>

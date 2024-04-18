@@ -1,73 +1,66 @@
 <!DOCTYPE html>
 <html lang="en">
-    <head>
-        <meta charset="UTF-8" />
-        <meta
-            name="viewport"
-            content="width=device-width, initial-scale=1, shrink-to-fit=no"
-        />
-        <title>Employers</title>
-        <link
-            rel="stylesheet"
-            href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
-        />
-        <link rel="stylesheet" type="text/css" href="css/nav.css" />
-        <link rel="stylesheet" type="text/css" href="css/footer.css" />
-    </head>
-    <%- include('./partials/nav.ejs') %>
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+    <title>Employers</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" />
+    <link rel="stylesheet" type="text/css" href="css/nav.css" />
+    <link rel="stylesheet" type="text/css" href="css/footer.css" />
+    <style>
+        .card {
+            border: none;
+            border-radius: 0.25rem;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            margin-top: 20px;
+            background-color: white;
+        }
+        .btn-outline-primary {
+            margin-top: 10px;
+        }
+        .card-img-top {
+            width: 100%;
+            height: 200px;
+            object-fit: cover; 
+        }
+        .container {
+            margin-bottom: 60px;
+        }
+    </style>
+    
+</head>
+<body style="background-color: #f8f9fa">
+<%- include('./partials/nav.ejs') %>
 
-    <body style="background-color: #f8f9fa">
-        <div class="container mt-5">
-            <h1>Employers</h1>
-            <div class="row">
-                <% employers.forEach(employer => { %>
-                <div class="col-md-3 mb-4">
-                    <div class="card">
-                        <% if (employer.logo ) { %>
-
-                        <img
-                            src="../images/<%= employer.logo %>"
-                            class="card-img-top"
-                            alt="Employer Logo"
-                        />
-                        <% } else { %>
-
-                        <img
-                            src="images/profile_logo.png"
-                            class="card-img-top"
-                            alt="Employer Logo"
-                        />
-
-                        <% } %>
-
-                        <div class="card-body">
-                            <h5 class="card-title">
-                                <%= employer.employerName %>
-                            </h5>
-
-                            <p class="card-text">
-                                Registration Number: <%=
-                                employer.registrationNumber %>
-                            </p>
-                            <form action="/viewProfile" method="post">
-                                <input
-                                    type="hidden"
-                                    name="employerId"
-                                    value="<%= employer._id %>"
-                                />
-                                <button type="submit" class="btn btn-primary">
-                                    View Profile
-                                </button>
-                            </form>
-                        </div>
-                    </div>
+<div class="container mt-5 mb-5">
+    <h1>Employers</h1>
+    <div class="row">
+        <% employers.forEach(employer => { %>
+        <div class="col-md-4 mb-4">
+            <div class="card h-100">
+                <% if (employer.logo) { %>
+                <img src="../images/<%= employer.logo %>" class="card-img-top" alt="Employer Logo" />
+                <% } else { %>
+                <img src="images/profile_logo.png" class="card-img-top" alt="Employer Logo" />
+                <% } %>
+                <div class="card-body">
+                    <h5 class="card-title"><%= employer.employerName %></h5>
+                    <p class="card-text">Registration Number: <%= employer.registrationNumber %></p>
+                    <form action="/viewProfile" method="post">
+                        <input type="hidden" name="employerId" value="<%= employer._id %>" />
+                        <button type="submit" class="btn btn-outline-primary">View Profile</button>
+                    </form>
                 </div>
-                <% }) %>
             </div>
         </div>
-        <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
-        <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
-    </body>
-    <%- include('./partials/footer.ejs') %>
+        <% }) %>
+    </div>
+</div>
+
+
+<script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+<%- include('./partials/footer.ejs') %>
+</body>
 </html>

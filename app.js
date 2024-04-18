@@ -1,5 +1,6 @@
 const express = require("express");
 const app = express();
+const { exec } = require('child_process');
 const bodyParser = require("body-parser");
 const flash = require('connect-flash');
 const session = require('express-session');
@@ -26,8 +27,14 @@ app.use(express.static("public"));
 
 app.listen(3001, () => {
     console.log("Server is listening at port 3001");
+    exec('start http://localhost:3001/home', (error) => {
+        if (error) {
+            console.error(`Could not open the browser: ${error}`);
+            return;
+        }
+        console.log('Browser opened successfully!');
+    });
 });
-
 
 app.set("views", [
     path.join(__dirname, "views"),
