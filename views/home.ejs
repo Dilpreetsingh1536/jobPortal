@@ -33,7 +33,7 @@
                                     <span class="flaticon-tour"></span>
                                 </div>
                                 <div class="services-cap">
-                                    <h5><a style="color: #000000" href="/searchJob?sector=<%= encodeURIComponent(sector) %>"><%= sector %></a></h5>
+                                    <h5><a style="color: #28a745" href="/searchJob?sector=<%= encodeURIComponent(sector) %>"><%= sector %></a></h5>
                                 </div>
                             </div>
                         </div>
@@ -78,9 +78,9 @@
                                         </div>
                                         <div class="job-card-footer">
                                             <% if (!employer && !admin) { %>
-                                                <a href="/applyJob/<%= job._id %>" class="btn btn-success">Apply Now</a>
+                                                <a href="/applyJob/<%= job._id %>" class="btn btn-outline-success">Apply Now</a>
                                             <% } else { %>
-                                                <button class="btn btn-success" disabled>Apply Now</button>
+                                                <button class="btn btn-outline-success" disabled>Apply Now</button>
                                             <% } %>
                                             <span>Posted: <%= new Date(parseInt(job._id.toString().substring(0, 8), 16) * 1000).toLocaleDateString() %></span>
                                         </div>
