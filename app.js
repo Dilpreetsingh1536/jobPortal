@@ -12,7 +12,6 @@ const adminRoutes = require("./routes/adminRoutes");
 const jobRoutes = require("./routes/jobRoutes");
 const jobModel = require('./models/jobModel');
 const employerModel = require( './models/employerModel' );
-const multer = require('multer');
 
 
 
