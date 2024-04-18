@@ -15,6 +15,7 @@ const employerModel = require( './models/employerModel' );
 
 
 
+
 const cookieParser = require('cookie-parser');
 
 app.use(cookieParser());
@@ -24,9 +25,11 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.set("view engine", "ejs");
 app.use(express.static("public"));
 
-app.listen(3001, () => {
-    console.log("Server is listening at port 3001");
-    exec('start http://localhost:3001/home', (error) => {
+const PORT = process.env.PORT || 3001; 
+
+app.listen(PORT, () => {
+    console.log(`Server is listening at port ${PORT}`);
+    exec(`start http://localhost:${PORT}/home`, (error) => {
         if (error) {
             console.error(`Could not open the browser: ${error}`);
             return;
